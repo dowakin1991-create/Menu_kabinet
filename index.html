@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер меню KABINET.gastropub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 15px;
+            background-color: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        .option:hover {
+            background-color: #e0e6ed;
+        }
+        .option.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .option.wrong {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .option.disabled {
+            pointer-events: none;
+        }
+        #next-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            display: none;
+        }
+        #next-btn:hover {
+            background-color: #2980b9;
+        }
+        .score-container {
+            text-align: center;
+            display: none;
+        }
+        .score-container h2 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+        .progress {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Екзамен: Меню KABINET.gastropub</h1>
+    
+    <div id="quiz-area">
+        <div class="progress" id="progress">Питання 1 з X</div>
+        <div class="question" id="question">Текст питання</div>
+        <div class="options" id="options">
+            </div>
+        <button id="next-btn">Наступне питання</button>
+    </div>
+
+    <div class="score-container" id="score-area">
+        <h2>Тестування завершено!</h2>
+        <p id="final-score">Твій результат: 0 / 0</p>
+        <button id="restart-btn" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">Пройти ще раз</button>
+    </div>
+</div>
+
+<script>
+    const questionsData = [
+        {
+            question: "Яка точна ціна та вага 'Сету морепродуктів'?",
+            options: [
+                "800 г - 1200 грн",
+                "1000 г - 1400 грн",
+                "1200 г - 1500 грн",
+                "1000 г - 1600 грн"
+            ],
+            correct: 1
+        },
+        {
+            question: "Що входить до складу фірмового 'Бургера Кабінет'?",
+            options: [
+                "1 котлета з яловичини, яйце, бекон, сир чедер, томати, соус тартар",
+                "2 котлети з яловичини, цибулеві кільця, бекон, сир лазур, квашений огірок, айсберг, соус BBQ, соус Тартар",
+                "Рвана свинина, сир чеддер, квашений огірок, кримська цибуля, соус Айолі",
+                "Котлета куряча, моцарела, томати, бекон, айсберг, соус Цезар"
+            ],
+            correct: 1
+        },
+        {
+            question: "Який соус використовується у 'Пасті з креветками та восьминогами бейбі' разом із вершками та пармезаном?",
+            options: [
+                "Тільки соус Песто",
+                "Устричний соус та соус Песто",
+                "Соус Біск",
+                "Соус Дор Блю"
+            ],
+            correct: 1
+        },
+        {
+            question: "Які інгредієнти утворюють 'Дуже злий бургер'?",
+            options: [
+                "Котлета з яловичини, бекон, сир Чеддер, сир Пармезан, квашений огірок, соус BBQ, сирний соус",
+                "Котлета з яловичини, бекон, томати, кримська цибуля, яйце, сир чедер, соус тартар, айсберг",
+                "2 котлети з яловичини, перець халапеньйо, сир чедер, гострий соус, томати",
+                "Куряча котлета, сир чеддер, салата, соус, томати"
+            ],
+            correct: 1
+        },
+        {
+            question: "З чого складається Суші бургер з лососем?",
+            options: [
+                "Рис, лосось, огірок, крем-сир, кляр темпура, сир чедер, тобіко, сухарі панко, чука, спайсі соус",
+                "Рис, лосось, авокадо, крем-сир, соус Унагі, кунжут",
+                "Рис, лосось, сніжний краб, кляр темпура, соус солодкий чилі, пармезан",
+                "Рис, копчений лосось, огірок, чука, спайсі соус, сир лазур"
+            ],
+            correct: 0
+        },
+        {
+            question: "Які роли входять до великого суші-сету 'Кабінет' (1400 г)?",
+            options: [
+                "Філадельфія, Каліфорнія з лососем, Гриль Рол, Футомак з креветкою",
+                "Рол Прайм, Рол з карамелізованим лососем, Гриль Рол, Каліфорнія з креветкою, Рол Кіото",
+                "Каліфорнія з лососем, Каліфорнія з креветкою, Каліфорнія зі сурімі, Філадельфія",
+                "Футомак сніжний краб, Футомак з лососем, Футомак з креветкою, Рол Кіото"
+            ],
+            correct: 1
+        },
+        {
+            question: "Що наливають у фірмовий алкогольний коктейль 'Kabinet'?",
+            options: [
+                "Джин, апероль, лимонний фреш, полуничний сироп, ангостура",
+                "Лікер Бейліс, горілка, ананасовий сік, гранатовий сироп",
+                "Текіла, Martini Fiero, лимонний фреш, яблучний сік, сироп чорна смородина",
+                "Джин, лимонний фреш, пюре маракуйї, ананасовий сік"
+            ],
+            correct: 1
+        },
+        {
+            question: "Піца 'Піца з мортаделою та фісташками' робиться на основі якого соусу?",
+            options: [
+                "Соус Неаполітано",
+                "Часникова олія",
+                "Вершковий соус",
+                "Соус BBQ"
+            ],
+            correct: 2
+        },
+        {
+            question: "Скільки коштує фірмова 'Файна Черешнівка' об'ємом 50 мл та 0.7 л відповідно?",
+            options: [
+                "50 грн / 400 грн",
+                "40 грн / 450 грн",
+                "65 грн / 500 грн",
+                "45 грн / 450 грн"
+            ],
+            correct: 1
+        },
+        {
+            question: "Яка акція діє у закладі на самовиніс?",
+            options: [
+                "-10%",
+                "-15%",
+                "-20%",
+                "Безкоштовний напій"
+            ],
+            correct: 2
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const nextBtn = document.getElementById('next-btn');
+    const progressEl = document.getElementById('progress');
+    const quizArea = document.getElementById('quiz-area');
+    const scoreArea = document.getElementById('score-area');
+    const finalScoreEl = document.getElementById('final-score');
+    const restartBtn = document.getElementById('restart-btn');
+
+    function loadQuestion() {
+        // Скидаємо стан
+        optionsEl.innerHTML = '';
+        nextBtn.style.display = 'none';
+        
+        const currentData = questionsData[currentQuestionIndex];
+        questionEl.textContent = currentData.question;
+        progressEl.textContent = `Питання ${currentQuestionIndex + 1} з ${questionsData.length}`;
+
+        currentData.options.forEach((optionText, index) => {
+            const btn = document.createElement('div');
+            btn.classList.add('option');
+            btn.textContent = optionText;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsEl.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, selectedBtn) {
+        const currentData = questionsData[currentQuestionIndex];
+        const allOptions = optionsEl.children;
+
+        // Блокуємо всі кнопки після вибору
+        for (let i = 0; i < allOptions.length; i++) {
+            allOptions[i].classList.add('disabled');
+        }
+
+        if (selectedIndex === currentData.correct) {
+            selectedBtn.classList.add('correct');
+            score++;
+        } else {
+            selectedBtn.classList.add('wrong');
+            // Показуємо правильну відповідь
+            allOptions[currentData.correct].classList.add('correct');
+        }
+
+        nextBtn.style.display = 'block';
+    }
+
+    nextBtn.onclick = () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questionsData.length) {
+            loadQuestion();
+        } else {
+            showScore();
+        }
+    };
+
+    function showScore() {
+        quizArea.style.display = 'none';
+        scoreArea.style.display = 'block';
+        finalScoreEl.innerHTML = `Твій результат: <strong>${score} / ${questionsData.length}</strong>`;
+        
+        if(score === questionsData.length) {
+            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Відмінно. Меню засвоєно на базовому рівні.</em>";
+        } else if(score >= questionsData.length * 0.7) {
+            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Задовільно, але є прогалини в складах. Треба повторити.</em>";
+        } else {
+            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Провал. З такими знаннями на зміну виходити рано. Вчи заново.</em>";
+        }
+    }
+
+    restartBtn.onclick = () => {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizArea.style.display = 'block';
+        scoreArea.style.display = 'none';
+        
+        // Перемішування питань для ускладнення запам'ятовування (опціонально)
+        questionsData.sort(() => Math.random() - 0.5);
+        
+        loadQuestion();
+    };
+
+    // Запуск
+    loadQuestion();
+</script>
+
+</body>
+</html>
