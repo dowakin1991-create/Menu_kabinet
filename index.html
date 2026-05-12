@@ -20,10 +20,17 @@
             --text-muted: #8b9bb4;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
+            font-family: 'Montserrat', sans-serif;
+        }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            background: #0b0f19;
             background: radial-gradient(circle at top left, #1a2235, var(--bg-color));
             color: var(--text-main);
             height: 100dvh;
@@ -52,13 +59,17 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
-        /* Screens */
+        /* Screens (з врахуванням Safe Area для iPhone) */
         .screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex;
             flex-direction: column;
-            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+            /* Динамічні відступи від камери та нижньої полоски */
+            padding-top: calc(env(safe-area-inset-top) + 20px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+            padding-left: calc(env(safe-area-inset-left) + 20px);
+            padding-right: calc(env(safe-area-inset-right) + 20px);
             transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             opacity: 0;
             pointer-events: none;
@@ -73,15 +84,18 @@
         }
 
         /* Start Screen */
-        .header-start { text-align: center; margin-top: 40px; margin-bottom: 30px; }
-        .header-start h1 { font-size: 2.5rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary-glow); }
+        .header-start { text-align: center; margin-top: 20px; margin-bottom: 20px; }
+        .header-start h1 { font-size: 2.3rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary-glow); }
         .header-start p { color: var(--text-muted); font-size: 0.9rem; margin-top: 10px; }
         
         .btn-settings {
-            position: absolute; top: 20px; right: 20px;
+            position: absolute; 
+            top: calc(env(safe-area-inset-top) + 20px); 
+            right: 20px;
             background: var(--surface-color); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem;
             display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;
+            color: #fff;
         }
 
         .levels { display: flex; flex-direction: column; gap: 15px; flex-grow: 1; justify-content: center; }
@@ -93,12 +107,15 @@
             display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05), 0 4px 15px rgba(0,0,0,0.3);
+            text-align: left;
+            color: #fff;
+            appearance: none;
         }
         .level-card:active { transform: scale(0.97); }
-        .level-card .icon { font-size: 2rem; }
-        .level-card .info { flex-grow: 1; margin-left: 15px; text-align: left; }
-        .level-card h3 { font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
-        .level-card p { font-size: 0.8rem; color: var(--text-muted); }
+        .level-card .icon { font-size: 2.2rem; }
+        .level-card .info { flex-grow: 1; margin-left: 15px; }
+        .level-card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
+        .level-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
 
         /* Settings Modal */
         #settings-modal {
@@ -109,7 +126,7 @@
         }
         #settings-modal.show { opacity: 1; pointer-events: auto; }
         .settings-content { width: 90%; padding: 30px; text-align: center; }
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; font-size: 1.1rem; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; font-size: 1.1rem; color: #fff;}
         
         /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -120,13 +137,13 @@
         input:checked + .slider:before { transform: translateX(22px); }
 
         .btn-close {
-            background: var(--primary); color: #000; border: none; padding: 12px 30px;
-            border-radius: 20px; font-weight: bold; margin-top: 20px; cursor: pointer;
+            background: var(--primary); color: #000; border: none; padding: 15px 30px;
+            border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-top: 20px; cursor: pointer;
         }
 
         /* Game Area */
         .game-header {
-            flex-shrink: 0; padding: 15px 0; display: flex; flex-direction: column; gap: 10px;
+            flex-shrink: 0; padding-bottom: 15px; display: flex; flex-direction: column; gap: 10px;
             z-index: 10;
         }
         .progress-bar {
@@ -136,9 +153,10 @@
         .stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--primary); font-weight: 600; }
         
         .question-box {
-            padding: 20px; text-align: center; font-size: 1.3rem; font-weight: 600;
-            line-height: 1.4; margin-bottom: 10px; flex-shrink: 0;
+            padding: 20px; text-align: center; font-size: 1.2rem; font-weight: 600;
+            line-height: 1.4; margin-bottom: 5px; flex-shrink: 0;
             border-left: 4px solid var(--primary);
+            color: #fff;
         }
 
         /* Options Scroll Area */
@@ -146,24 +164,25 @@
             flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
             padding-bottom: 20px; scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+            mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
         }
         
-        /* Custom Scrollbar */
-        .options-container::-webkit-scrollbar { width: 4px; }
-        .options-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .options-container::-webkit-scrollbar { width: 0px; display: none; }
 
         .option-tile {
             background: linear-gradient(145deg, #192233, #111723);
             border: 2px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px; padding: 18px 20px; font-size: 1.1rem;
+            border-radius: 16px; padding: 18px 20px; font-size: 1.05rem;
             color: #fff; text-align: left; cursor: pointer;
             transition: transform 0.1s, border-color 0.3s, background 0.3s, box-shadow 0.3s;
             position: relative; overflow: hidden;
+            appearance: none; display: block; width: 100%;
         }
         
         .option-tile::before {
-            content: attr(data-letter); position: absolute; right: -10px; top: -10px;
-            font-size: 4rem; font-weight: 800; color: rgba(255,255,255,0.02);
+            content: attr(data-letter); position: absolute; right: -5px; top: -10px;
+            font-size: 4rem; font-weight: 800; color: rgba(255,255,255,0.03);
             pointer-events: none;
         }
 
@@ -181,17 +200,17 @@
 
         /* Fixed Footer */
         .game-footer {
-            flex-shrink: 0; padding: 15px 0; display: flex; flex-direction: column;
-            gap: 10px; z-index: 10; background: linear-gradient(to top, var(--bg-color) 70%, transparent);
+            flex-shrink: 0; padding-top: 10px; display: flex; flex-direction: column;
+            gap: 15px; z-index: 10; background: var(--bg-color);
         }
         
         .feedback { text-align: center; font-weight: 800; font-size: 1.2rem; min-height: 24px; letter-spacing: 1px; }
 
         .btn-main {
-            width: 100%; padding: 18px; border: none; border-radius: 20px;
+            width: 100%; padding: 20px; border: none; border-radius: 20px;
             font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
             cursor: pointer; transition: all 0.2s;
-            transform: translateZ(0); /* Hardware accel */
+            appearance: none;
         }
         .btn-next {
             background: linear-gradient(90deg, #d4af37, #f3e5ab); color: #000;
@@ -225,30 +244,30 @@
         <button class="btn-settings" onclick="toggleSettings(true)">⚙️</button>
         <div class="header-start">
             <h1>Kabinet</h1>
-            <p>Меню Тренжер • Оптимізовано під 120Hz</p>
+            <p>Меню Тренажер • Оптимізовано під iOS</p>
         </div>
         <div class="levels">
-            <div class="level-card" onclick="startGame('easy')">
+            <button class="level-card" onclick="startGame('easy')">
                 <div class="icon">🟢</div>
                 <div class="info">
                     <h3>Легкий (Назви)</h3>
                     <p>Тільки назви страв. Для розминки.</p>
                 </div>
-            </div>
-            <div class="level-card" onclick="startGame('medium')">
+            </button>
+            <button class="level-card" onclick="startGame('medium')">
                 <div class="icon">🟡</div>
                 <div class="info">
                     <h3>Середній (Склади)</h3>
                     <p>Що входить у сети та тарілки.</p>
                 </div>
-            </div>
-            <div class="level-card" onclick="startGame('hard')">
+            </button>
+            <button class="level-card" onclick="startGame('hard')">
                 <div class="icon">🔴</div>
                 <div class="info">
                     <h3>ХАРДКОР (Інгредієнти)</h3>
                     <p>Максимальна заплутаність складів.</p>
                 </div>
-            </div>
+            </button>
         </div>
     </div>
 
@@ -272,21 +291,19 @@
     </div>
 
     <div id="screen-result" class="screen">
-        <div class="header-start" style="margin-top: 20vh;">
+        <div class="header-start" style="margin-top: 15vh;">
             <h1 id="result-title">Завершено!</h1>
             <p style="font-size: 4rem; font-weight: 800; color: #fff; margin: 20px 0;" id="result-score">10/10</p>
             <p id="result-desc" style="font-size: 1.1rem; line-height: 1.5; padding: 0 20px;"></p>
         </div>
         <div style="flex-grow: 1;"></div>
-        <button class="btn-main" style="background: var(--primary); color: #000; margin-bottom: 20px;" onclick="goToStart()">Головне меню</button>
+        <button class="btn-main" style="background: var(--primary); color: #000; margin-bottom: 10px;" onclick="goToStart()">Головне меню</button>
     </div>
 
 </div>
 
 <script>
-    // --- БАЗА ДАНИХ (Переписана як об'єкти для зручної фільтрації) ---
-    // Властивість type: 'price' - питання про ціни/грамаж, 'regular' - звичайні
-
+    // --- БАЗА ДАНИХ ---
     const dbEasy = [
         { q: "Яка з цих страв є фірмовою наливкою закладу?", a: "Файна Черешнівка", w: ["П'яна Вишня", "Кабінетна Сливовиця", "Золота Груша"], type: "regular" },
         { q: "Який з цих бургерів містить рвану свинину?", a: "Бургер з рваною свининою", w: ["Дуже злий бургер", "Бургер Джеррі", "Бургер Сирний Чан"], type: "regular" },
@@ -339,7 +356,6 @@
     let audioUnlocked = false;
     let audioCtx;
 
-    // Вібровідгук (працює на деяких мобільних)
     function triggerHaptic(type) {
         if (!navigator.vibrate) return;
         if (type === 'tap') navigator.vibrate(15);
@@ -347,22 +363,24 @@
         if (type === 'error') navigator.vibrate([50, 50, 50]);
     }
 
-    // Аудіоконтекст (iOS Fix)
     function initAudio() {
         if (audioUnlocked) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-        // Play silent sound to unlock
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(0);
-        osc.stop(0.1);
-        audioUnlocked = true;
-        document.removeEventListener('touchstart', initAudio);
-        document.removeEventListener('click', initAudio);
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(0);
+            osc.stop(0.1);
+            audioUnlocked = true;
+            document.removeEventListener('touchstart', initAudio);
+            document.removeEventListener('click', initAudio);
+        } catch (e) {
+            console.log('Audio init failed');
+        }
     }
     document.addEventListener('touchstart', initAudio, { once: true });
     document.addEventListener('click', initAudio, { once: true });
@@ -371,27 +389,29 @@
         if (!audioUnlocked || !audioCtx) return;
         if (audioCtx.state === 'suspended') audioCtx.resume();
         
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-        const now = audioCtx.currentTime;
-        if (type === 'correct') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, now);
-            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-            osc.start(now); osc.stop(now + 0.3);
-        } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-            osc.start(now); osc.stop(now + 0.3);
-        }
+            const now = audioCtx.currentTime;
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        } catch(e) {}
     }
 
     function switchScreen(screenId) {
@@ -422,10 +442,9 @@
         const allowPrice = document.getElementById('toggle-price').checked;
         let sourceDb = level === 'easy' ? dbEasy : level === 'medium' ? dbMedium : dbHard;
         
-        // Фільтруємо базу, якщо питання про ціну вимкнено
         let filteredDb = allowPrice ? sourceDb : sourceDb.filter(q => q.type !== 'price');
         
-        currentQuestions = shuffle([...filteredDb]).slice(0, 10); // Завжди беремо 10 питань для ідеального ритму
+        currentQuestions = shuffle([...filteredDb]).slice(0, 10);
         
         currentIndex = 0;
         score = 0;
@@ -450,9 +469,8 @@
         const nextBtn = document.getElementById('next-btn');
         nextBtn.innerText = "Підтвердити";
         nextBtn.classList.remove('active');
-        nextBtn.onclick = confirmAnswer; // Перше натискання - підтвердження
+        nextBtn.onclick = confirmAnswer;
 
-        // Готуємо варіанти
         let options = [{t: q.a, c: true}, {t: q.w[0], c: false}, {t: q.w[1], c: false}, {t: q.w[2], c: false}];
         options = shuffle(options);
 
@@ -461,7 +479,7 @@
         const letters = ['A', 'B', 'C', 'D'];
 
         options.forEach((opt, i) => {
-            const btn = document.createElement('div');
+            const btn = document.createElement('button');
             btn.className = 'option-tile';
             btn.innerText = opt.t;
             btn.setAttribute('data-letter', letters[i]);
@@ -470,7 +488,6 @@
             container.appendChild(btn);
         });
 
-        // Скрол до верху
         container.scrollTop = 0;
     }
 
@@ -486,7 +503,6 @@
     function confirmAnswer() {
         if (!selectedBtn) return;
         
-        // Блокуємо плитки
         document.querySelectorAll('.option-tile').forEach(b => b.classList.add('locked'));
         
         const isCorrect = selectedBtn.dataset.correct === "true";
@@ -494,27 +510,26 @@
 
         if (isCorrect) {
             score++;
-            selectedBtn.classList.replace('selected', 'correct');
+            selectedBtn.classList.add('correct');
+            selectedBtn.classList.remove('selected');
             feedback.innerText = "ІДЕАЛЬНО!";
-            feedback.style.color = var(--correct);
+            feedback.style.color = "var(--correct)";
             playSound('correct');
             triggerHaptic('success');
         } else {
-            selectedBtn.classList.replace('selected', 'wrong');
-            // Показуємо правильну
+            selectedBtn.classList.add('wrong');
+            selectedBtn.classList.remove('selected');
             document.querySelectorAll('.option-tile').forEach(b => {
                 if(b.dataset.correct === "true") b.classList.add('correct');
             });
             feedback.innerText = "ПОМИЛКА";
-            feedback.style.color = var(--wrong);
+            feedback.style.color = "var(--wrong)";
             playSound('error');
             triggerHaptic('error');
         }
 
-        // Оновлюємо прогрес-бар
         document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / currentQuestions.length) * 100}%`;
 
-        // Міняємо кнопку на "Далі"
         const nextBtn = document.getElementById('next-btn');
         nextBtn.innerText = "Далі ➔";
         nextBtn.onclick = goNext;
