@@ -3,308 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тренажер меню KABINET.gastropub</title>
+    <title>KABINET Мільйонер: Тренажер Меню</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center, #0a1128 0%, #000000 100%);
+            color: #ffffff;
             display: flex;
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
         }
-        .quiz-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 600px;
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Екрани */
+        #start-screen, #result-screen {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #c0a062;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(192, 160, 98, 0.5);
+        }
+
+        h1 {
+            color: #e0b976;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(224, 185, 118, 0.8);
+        }
+
+        p.desc {
+            margin-bottom: 30px;
+            color: #b0c4de;
+            font-size: 1.1rem;
+        }
+
+        /* Кнопки вибору складності */
+        .level-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
+            background: linear-gradient(90deg, #1a2a6c, #112240, #1a2a6c);
+            border: 2px solid #c0a062;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .level-btn:hover {
+            background: linear-gradient(90deg, #c0a062, #e0b976, #c0a062);
+            color: #000;
+            box-shadow: 0 0 15px #c0a062;
+        }
+
+        /* Ігровий екран */
+        #game-area {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            color: #e0b976;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .question-box {
+            background: linear-gradient(180deg, #0f204b, #050a1f);
+            border: 3px solid #c0a062;
+            border-radius: 15px;
+            padding: 30px 20px;
+            width: 100%;
+            font-size: 1.4rem;
+            font-weight: bold;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 15px rgba(192, 160, 98, 0.4);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             width: 100%;
         }
-        h1 {
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        .question {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .option {
-            padding: 15px;
-            background-color: #ecf0f1;
-            border: 2px solid #bdc3c7;
-            border-radius: 5px;
+
+        .option-btn {
+            background: linear-gradient(180deg, #0f204b, #050a1f);
+            border: 2px solid #c0a062;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
+            border-radius: 40px;
+            position: relative;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            text-align: left;
         }
-        .option:hover {
-            background-color: #e0e6ed;
+
+        .option-btn::before {
+            content: attr(data-letter) ": ";
+            color: #e0b976;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2rem;
         }
-        .option.correct {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: #155724;
+
+        .option-btn:hover:not(.disabled) {
+            background: #c0a062;
+            color: #000;
         }
-        .option.wrong {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
+
+        .option-btn:hover:not(.disabled)::before {
+            color: #000;
         }
-        .option.disabled {
+
+        /* Стани кнопок після відповіді */
+        .option-btn.selected {
+            background: orange;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(180deg, #28a745, #1e7e34) !important;
+            color: #fff !important;
+            border-color: #fff !important;
+            animation: pulse-green 0.5s 3;
+        }
+        .option-btn.correct::before { color: #fff !important; }
+
+        .option-btn.wrong {
+            background: linear-gradient(180deg, #dc3545, #a71d2a) !important;
+            color: #fff !important;
+            border-color: #fff !important;
+        }
+        .option-btn.wrong::before { color: #fff !important; }
+
+        .option-btn.disabled {
             pointer-events: none;
         }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
         #next-btn {
-            margin-top: 20px;
-            padding: 12px 20px;
-            background-color: #3498db;
-            color: white;
+            display: none;
+            padding: 15px 40px;
+            background: #e0b976;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            display: none;
+            margin-top: 20px;
         }
-        #next-btn:hover {
-            background-color: #2980b9;
-        }
-        .score-container {
-            text-align: center;
-            display: none;
-        }
-        .score-container h2 {
-            font-size: 24px;
-            color: #2c3e50;
-        }
-        .progress {
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #7f8c8d;
-            text-align: right;
+        #next-btn:hover { background: #fff; }
+
+        .feedback {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: -15px;
+            min-height: 35px;
         }
     </style>
 </head>
 <body>
 
-<div class="quiz-container">
-    <h1>Екзамен: Меню KABINET.gastropub</h1>
-    
-    <div id="quiz-area">
-        <div class="progress" id="progress">Питання 1 з X</div>
-        <div class="question" id="question">Текст питання</div>
-        <div class="options" id="options">
-            </div>
-        <button id="next-btn">Наступне питання</button>
+<div class="game-container">
+    <div id="start-screen">
+        <h1>Мільйонер: KABINET</h1>
+        <p class="desc">Обери рівень складності, щоб перевірити свої знання меню. Варіанти відповідей перемішуються щоразу!</p>
+        <button class="level-btn" onclick="startGame('easy')">Легкий рівень (Назви страв - 10 питань)</button>
+        <button class="level-btn" onclick="startGame('medium')">Середній рівень (Склад сетів - 10 питань)</button>
+        <button class="level-btn" onclick="startGame('hard')">ХАРДКОР (Точні інгредієнти - 15 питань)</button>
     </div>
 
-    <div class="score-container" id="score-area">
-        <h2>Тестування завершено!</h2>
-        <p id="final-score">Твій результат: 0 / 0</p>
-        <button id="restart-btn" style="padding: 10px 20px; margin-top: 20px; cursor: pointer;">Пройти ще раз</button>
+    <div id="game-area">
+        <div class="info-bar">
+            <span id="level-display">Рівень</span>
+            <span id="progress-display">Питання 1/10</span>
+        </div>
+        
+        <div class="question-box" id="question-text">Текст питання буде тут...</div>
+        
+        <div class="feedback" id="feedback-text"></div>
+
+        <div class="options-grid" id="options-area">
+            </div>
+
+        <button id="next-btn" onclick="nextQuestion()">Наступне питання</button>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h1>Гру завершено!</h1>
+        <p class="desc" id="final-score" style="font-size: 2rem; color: #fff;"></p>
+        <p class="desc" id="analytics" style="font-weight: bold;"></p>
+        <button class="level-btn" onclick="location.reload()">Повернутися на головну</button>
     </div>
 </div>
 
 <script>
-    const questionsData = [
-        {
-            question: "Яка точна ціна та вага 'Сету морепродуктів'?",
-            options: [
-                "800 г - 1200 грн",
-                "1000 г - 1400 грн",
-                "1200 г - 1500 грн",
-                "1000 г - 1600 грн"
-            ],
-            correct: 1
-        },
-        {
-            question: "Що входить до складу фірмового 'Бургера Кабінет'?",
-            options: [
-                "1 котлета з яловичини, яйце, бекон, сир чедер, томати, соус тартар",
-                "2 котлети з яловичини, цибулеві кільця, бекон, сир лазур, квашений огірок, айсберг, соус BBQ, соус Тартар",
-                "Рвана свинина, сир чеддер, квашений огірок, кримська цибуля, соус Айолі",
-                "Котлета куряча, моцарела, томати, бекон, айсберг, соус Цезар"
-            ],
-            correct: 1
-        },
-        {
-            question: "Який соус використовується у 'Пасті з креветками та восьминогами бейбі' разом із вершками та пармезаном?",
-            options: [
-                "Тільки соус Песто",
-                "Устричний соус та соус Песто",
-                "Соус Біск",
-                "Соус Дор Блю"
-            ],
-            correct: 1
-        },
-        {
-            question: "Які інгредієнти утворюють 'Дуже злий бургер'?",
-            options: [
-                "Котлета з яловичини, бекон, сир Чеддер, сир Пармезан, квашений огірок, соус BBQ, сирний соус",
-                "Котлета з яловичини, бекон, томати, кримська цибуля, яйце, сир чедер, соус тартар, айсберг",
-                "2 котлети з яловичини, перець халапеньйо, сир чедер, гострий соус, томати",
-                "Куряча котлета, сир чеддер, салата, соус, томати"
-            ],
-            correct: 1
-        },
-        {
-            question: "З чого складається Суші бургер з лососем?",
-            options: [
-                "Рис, лосось, огірок, крем-сир, кляр темпура, сир чедер, тобіко, сухарі панко, чука, спайсі соус",
-                "Рис, лосось, авокадо, крем-сир, соус Унагі, кунжут",
-                "Рис, лосось, сніжний краб, кляр темпура, соус солодкий чилі, пармезан",
-                "Рис, копчений лосось, огірок, чука, спайсі соус, сир лазур"
-            ],
-            correct: 0
-        },
-        {
-            question: "Які роли входять до великого суші-сету 'Кабінет' (1400 г)?",
-            options: [
-                "Філадельфія, Каліфорнія з лососем, Гриль Рол, Футомак з креветкою",
-                "Рол Прайм, Рол з карамелізованим лососем, Гриль Рол, Каліфорнія з креветкою, Рол Кіото",
-                "Каліфорнія з лососем, Каліфорнія з креветкою, Каліфорнія зі сурімі, Філадельфія",
-                "Футомак сніжний краб, Футомак з лососем, Футомак з креветкою, Рол Кіото"
-            ],
-            correct: 1
-        },
-        {
-            question: "Що наливають у фірмовий алкогольний коктейль 'Kabinet'?",
-            options: [
-                "Джин, апероль, лимонний фреш, полуничний сироп, ангостура",
-                "Лікер Бейліс, горілка, ананасовий сік, гранатовий сироп",
-                "Текіла, Martini Fiero, лимонний фреш, яблучний сік, сироп чорна смородина",
-                "Джин, лимонний фреш, пюре маракуйї, ананасовий сік"
-            ],
-            correct: 1
-        },
-        {
-            question: "Піца 'Піца з мортаделою та фісташками' робиться на основі якого соусу?",
-            options: [
-                "Соус Неаполітано",
-                "Часникова олія",
-                "Вершковий соус",
-                "Соус BBQ"
-            ],
-            correct: 2
-        },
-        {
-            question: "Скільки коштує фірмова 'Файна Черешнівка' об'ємом 50 мл та 0.7 л відповідно?",
-            options: [
-                "50 грн / 400 грн",
-                "40 грн / 450 грн",
-                "65 грн / 500 грн",
-                "45 грн / 450 грн"
-            ],
-            correct: 1
-        },
-        {
-            question: "Яка акція діє у закладі на самовиніс?",
-            options: [
-                "-10%",
-                "-15%",
-                "-20%",
-                "Безкоштовний напій"
-            ],
-            correct: 2
-        }
+    // === БАЗА ПИТАНЬ ===
+    // Формат: [Питання, Правильна відповідь, Неправильна 1, Неправильна 2, Неправильна 3]
+
+    const dbEasy = [
+        ["Яка з цих страв є фірмовою наливкою закладу?", "Файна Черешнівка", "П'яна Вишня", "Кабінетна Сливовиця", "Золота Груша"],
+        ["Який з цих бургерів містить рвану свинину?", "Бургер з рваною свининою", "Дуже злий бургер", "Бургер Джеррі", "Бургер Сирний Чан"],
+        ["Яка страва належить до розділу 'Сніданки'?", "Шпинатний омлет з лососем", "Сет брускет із прошуто", "Теплий салат з телятиною", "Карпачо з лосося"],
+        ["Який крем-суп є у меню?", "Крем-суп сирний", "Крем-суп з брокколі", "Крем-суп гарбузовий", "Крем-суп томатний"],
+        ["Яка з цих страв - це паста?", "Карбонара", "Фокача", "Різотто з креветками", "Антипасті"],
+        ["Який з цих десертів подається з морозивом?", "Шоколадний фондан", "Чізкейк", "Тирамісу", "Фруктовий салат"],
+        ["Яка піца має у складі ананаси?", "Гавайська", "Кабінет", "Американо", "По-селянськи"],
+        ["Як називається фірмовий гарячий рол?", "Рол запечений з восьминогом", "Гарячий Дракон", "Запечена Каліфорнія", "Вулкан макі"],
+        ["Який чай є в асортименті домашніх чаїв?", "Імбирне яблуко", "М'ятна вишня", "Медовий бергамот", "Малиновий рай"],
+        ["Який молочний коктейль є в меню?", "Dubai chocolate", "Vanilla dream", "Oreo shake", "Mango smoothie"],
+        ["Яка з цих страв є закускою (стартером)?", "Сет брускет із прошуто", "Курячі крильця 'Баффало'", "Моцарела фрі", "Креветки темпура"],
+        ["Яке різотто представлено в меню?", "Шпинатне різотто 'Три сири'", "Різотто з білими грибами", "Різотто з чорнилами каракатиці", "Томатне різотто"],
+        ["Яка риба подається з соусом Дор Блю?", "Філе лосося", "Стейк з тунця", "Дорадо", "Хек у паніровці"],
+        ["Як називається фірмова картопляна страва?", "Файна бульба", "Картопля по-кабінетськи", "Золотий дерун", "Селянська тарілка"],
+        ["Який коктейль є безалкогольним?", "Голуба Лагуна", "Fiero-Sierra", "Lady Killer", "Cherry Sour"]
     ];
 
+    const dbMedium = [
+        ["Яка загальна вага 'Компанійської тарелі'?", "1000 г м'яса та овочів + 100 г соусів", "800 г + 100 г соусів", "1200 г + 150 г соусів", "1500 г (тільки м'ясо)"],
+        ["Які соуси подаються до 'Сету фрі'?", "Кетчуп, соус тартар", "Кетчуп, сирний соус", "Соус BBQ, часниковий", "Солодкий чилі, айолі"],
+        ["Що входить до 'Сету м'ясного'?", "Прошуто, чорізо, салямі, маслини, каперси, грісіні", "Бастурма, салямі, бекон, огірки, грінки", "Ковбаски, прошуто, в'ялені томати, оливки", "Куряче філе, салямі, пармезан, мед"],
+        ["Які сири входять до 'Сету сирного з медом'?", "Лазур, камамбер, королівський", "Дор блю, чеддер, фета", "Пармезан, моцарела, гауда", "Брі, лазур, маскарпоне"],
+        ["Що становить основу 'Антипасті'?", "М’ясна та сирна закуска з руколою, маслини, мед, ягідний соус", "Сет брускет, оливки, в'ялені томати, песто", "Карпачо з яловичини, каперси, пармезан", "Креветки, мідії, кільця кальмарів, лимон"],
+        ["Які роли входять у суші-сет 'Кабінет' (1400 г)?", "Рол Прайм, Рол з карамелізованим лососем, Гриль Рол, Каліфорнія з креветкою, Рол Кіото", "Філадельфія, Каліфорнія з лососем, Гриль Рол, Футомак з креветкою", "Каліфорнія з лососем, Каліфорнія з креветкою, Каліфорнія зі сурімі, Філадельфія", "Футомак сніжний краб, Футомак з лососем, Футомак з креветкою, Рол Кіото"],
+        ["Яка вага суші-сету 'Філадельфія'?", "1000 г", "800 г", "1200 г", "1400 г"],
+        ["Які футомаки входять до 'Футомак сету'?", "Зі сніжним крабом, з лососем, з креветкою", "З тунцем, з лососем, з вугрем", "Овочевий, з креветкою, з сурімі", "Запечений з креветкою, з лососем, з сиром"],
+        ["Яке м'ясо входить до 'Тарелі BBQ'?", "Ковбаски мисливські, курячі крильця", "Свинний стейк, яловича котлета", "Рвана свинина, бекон", "Медальйони з телятини, куряче філе"],
+        ["Що є у 'Фрай міксі', але НЕМАЄ у 'Сеті фрі'?", "Креветки, кільця кальмарів, мідії, картопляні діпи", "Нагетси, хек у паніровці, цибулеві кільця", "Картопля фрі, сирні кульки", "Курячі крильця, картопля по-селянськи"],
+        ["З чого складається 'Сет брускет із сиром Камамбер та грушею'?", "Багет, крем-сир, камамбер, груша, мед, горіхи, оливкова олія", "Багет, лазур, груша, бальзамік, грецький горіх", "Чорний хліб, камамбер, яблуко, мед, мигдаль", "Багет, сир фета, груша, гранатовий соус, кедрові горіхи"],
+        ["Що подається разом з паштетом з курячої печінки?", "Грінки, кримська цибуля, ягідний соус", "Багет, в'ялені томати, оливкова олія", "Тостовий хліб, вершкове масло, зелень", "Чіпси з лаваша, соус тартар"]
+    ];
+
+    const dbHard = [
+        ["Що саме робить 'Дуже злий бургер' злим (його специфічний склад)?", "Котлета з яловичини, бекон, томати, кримська цибуля, яйце, сир чедер, соус тартар, айсберг", "2 котлети з яловичини, перець халапеньйо, сир чедер, гострий соус чилі, томати", "Котлета з яловичини, бекон, сир Пармезан, квашений огірок, соус BBQ, гірчиця", "Рвана свинина, перець чилі, сир лазур, маринована цибуля, соус Айолі"],
+        ["Який точний склад фірмового коктейлю 'Kabinet'?", "Лікер Бейліс, горілка, ананасовий сік, гранатовий сироп", "Віскі, лікер Бейліс, яблучний сік, сироп вишневий", "Джин, лікер Пізан, апельсиновий сироп, лимонний фреш, ананасовий сік", "Текіла, Martini Fiero, ананасовий сік, сироп чорна смородина"],
+        ["Який соус та які горіхи використовуються у 'Теплому салаті з телятиною'?", "Кедрові горіхи, соус вінегрет", "Грецькі горіхи, соус песто", "Кедрові горіхи, гранатовий соус", "Волоський горіх, бальзамічний соус"],
+        ["Яка ікра використовується у 'Суші бургері з лососем'?", "Ікра тобіко", "Ікра червона лососева", "Ікра щуки", "Чорна ікра"],
+        ["Що входить до 'Піци з мортаделою та фісташками', ОКРІМ мортадели та фісташок?", "Вершковий соус, рукола, песто, пармезан, моцарела", "Соус неаполітано, томати чері, сир лазур, моцарела", "Вершковий соус, бурата, в'ялені томати, бальзамік", "Соус часниковий, моцарела, шпинат, сир фета"],
+        ["Який склад 'Пасти з креветками та восьминогами бейбі'?", "Спагеті, креветки, восьминоги, вершки, пармезан, устричний соус, песто", "Фетучіні, креветки, восьминоги, томатний соус, часник, базилік", "Спагеті, креветки, восьминоги, соус біск, вершки, чері", "Фетучіні, креветки, восьминоги, вершки, соус Дор Блю, пармезан"],
+        ["Які ТРИ соуси входять до складу 'Салату з вугрем'?", "Соус Унагі, соус Айолі, горіховий соус", "Соус Унагі, соус Песто, соус Вінегрет", "Соус Теріякі, соус Тартар, кунжутний соус", "Соус Спайсі, соус Унагі, солодкий чилі"],
+        ["Що входить до складу 'Англійського сніданку', окрім яєць, бекону та ковбасок?", "Сирний мелт, томати, печериці, квасоля, зелень", "Картопля по-селянськи, томати чері, шпинат, грінки", "Слабосолений лосось, авокадо, крем-сир, тости", "Квасоля, кукурудза, сир чеддер, соус BBQ, багет"],
+        ["Який склад фірмового 'Бургера Кабінет'?", "2 котлети з яловичини, цибулеві кільця, бекон, сир лазур, квашений огірок, айсберг, BBQ, Тартар", "1 котлета з яловичини, рвана свинина, сир чеддер, томати, айсберг, Айолі", "2 котлети з яловичини, бекон, сир пармезан, яйце, томати, сирний соус", "Котлета з яловичини, моцарела фрі, бекон, кримська цибуля, соус Цезар"],
+        ["З чим готується 'Шпинатний омлет з лососем'?", "Крем-сир, шпинат, томати чері, слабосолений лосось, фреш салату, соус Вінегрет", "Сир фета, шпинат, копчений лосось, рукола, бальзамік", "Пармезан, шпинат, лосось гриль, авокадо, оливкова олія", "Сир лазур, шпинат, креветки, лосось, томати, соус песто"],
+        ["Що входить до 'Салату з цитрусовою креветкою'?", "Фреш салату, креветка, філе грейпфрута, авокадо гриль", "Мікс салату, креветка в темпурі, апельсин, томати чері, горіховий соус", "Айсберг, креветка, ананас, манго, соус світ чилі", "Рукола, креветка, філе лимона, сир фета, маслини"],
+        ["Які ДВА сири входять до 'Тосту з беконом'?", "Крем-сир та пармезан", "Чеддер та моцарела", "Сирний соус та лазур", "Камамбер та пармезан"],
+        ["З чого складається коктейль 'Lady Killer'?", "Джин, лимонний фреш, пюре маракуйї, ананасовий сік", "Текіла, лимонний фреш, яблучний сік, сироп чорна смородина", "Джин, апероль, полуничний сироп, ангостура", "Ром, кокосовий сироп, ананасовий сік, рослинне молоко"],
+        ["Які сири та зелень є у піці 'Кабінет' (окрім моцарели)?", "Сир фета, пармезан, рукола", "Лазур, камамбер, шпинат", "Чеддер, пармезан, айсберг", "Бурата, пармезан, базилік"],
+        ["Чим посипається 'Суші бургер з лососем' та 'Суші бургер з креветкою'?", "Сухарі панко", "Кунжут", "Ікра тобіко (тільки зверху)", "Пармезан"],
+        ["Які специфічні інгредієнти у 'Цезарі з лососем і креветками' (крім риби, салату і соусу)?", "Перепелині яйця, пармезан, томати чері, грісіні", "Куряче яйце, сир фета, томати, сухарики", "Авокадо, пармезан, каперси, багет", "Бекон, перепелині яйця, сир чеддер, грінки"],
+        ["Які спеції та соуси у 'Файній бульбі з рваною свининою'?", "Маринована цибуля, халапеньйо, сирний соус, зелень", "Часник, перець чилі, соус BBQ, кріп", "Кримська цибуля, паприка, соус Айолі, кінза", "В'ялені томати, каперси, соус тартар, рукола"],
+        ["З чого складається чай 'Маракуйя-апельсин'?", "Маракуйя, апельсин, лимонний фреш, апельсиновий сироп", "Маракуйя, апельсин, мед, м'ята", "Пюре маракуйї, апельсиновий сік, імбир, кориця", "Маракуйя, лайм, сироп блю курасао, чорний чай"],
+        ["Який склад 'Піци По-селянськи'?", "Соус неаполітано, моцарела, салямі, мисливські ковбаски, куряче філе, квашений огірок, цибуля, часникова олія", "Соус BBQ, моцарела, бекон, картопля фрі, сир чеддер, зелена цибуля", "Вершковий соус, моцарела, рвана свинина, печериці, солоний огірок, гірчиця", "Соус неаполітано, моцарела, прошуто, томати, рукола, песто"]
+    ];
+
+    // Змінні гри
+    let currentQuestions = [];
     let currentQuestionIndex = 0;
     let score = 0;
+    let maxQuestions = 10;
+    let currentCategory = '';
 
-    const questionEl = document.getElementById('question');
-    const optionsEl = document.getElementById('options');
-    const nextBtn = document.getElementById('next-btn');
-    const progressEl = document.getElementById('progress');
-    const quizArea = document.getElementById('quiz-area');
-    const scoreArea = document.getElementById('score-area');
-    const finalScoreEl = document.getElementById('final-score');
-    const restartBtn = document.getElementById('restart-btn');
+    // Аудіо контекст для синтезу звуків
+    let audioCtx;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playSound(type) {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            // Звук дзинькання (перемога)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.2); // C6
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        } else {
+            // Звук помилки (баззер)
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+    }
+
+    // Утиліта для перемішування масиву (Fisher-Yates)
+    function shuffleArray(array) {
+        let curId = array.length;
+        while (0 !== curId) {
+            let randId = Math.floor(Math.random() * curId);
+            curId -= 1;
+            let tmp = array[curId];
+            array[curId] = array[randId];
+            array[randId] = tmp;
+        }
+        return array;
+    }
+
+    function startGame(level) {
+        initAudio();
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-area').style.display = 'flex';
+        
+        score = 0;
+        currentQuestionIndex = 0;
+
+        let sourceDb = [];
+        if (level === 'easy') {
+            sourceDb = dbEasy;
+            maxQuestions = 10;
+            currentCategory = 'Легкий';
+        } else if (level === 'medium') {
+            sourceDb = dbMedium;
+            maxQuestions = 10;
+            currentCategory = 'Середній';
+        } else if (level === 'hard') {
+            sourceDb = dbHard;
+            maxQuestions = 15;
+            currentCategory = 'ХАРДКОР';
+        }
+
+        document.getElementById('level-display').innerText = `Рівень: ${currentCategory}`;
+
+        // Вибираємо випадкові питання з бази
+        let shuffledDb = shuffleArray([...sourceDb]);
+        currentQuestions = shuffledDb.slice(0, maxQuestions);
+
+        loadQuestion();
+    }
 
     function loadQuestion() {
-        // Скидаємо стан
-        optionsEl.innerHTML = '';
-        nextBtn.style.display = 'none';
-        
-        const currentData = questionsData[currentQuestionIndex];
-        questionEl.textContent = currentData.question;
-        progressEl.textContent = `Питання ${currentQuestionIndex + 1} з ${questionsData.length}`;
+        document.getElementById('next-btn').style.display = 'none';
+        document.getElementById('feedback-text').innerText = '';
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = '';
 
-        currentData.options.forEach((optionText, index) => {
-            const btn = document.createElement('div');
-            btn.classList.add('option');
-            btn.textContent = optionText;
-            btn.onclick = () => checkAnswer(index, btn);
-            optionsEl.appendChild(btn);
+        document.getElementById('progress-display').innerText = `Питання ${currentQuestionIndex + 1} з ${maxQuestions}`;
+
+        const qData = currentQuestions[currentQuestionIndex];
+        document.getElementById('question-text').innerText = qData[0];
+
+        // Готуємо масив відповідей з позначкою правильності
+        let options = [
+            { text: qData[1], isCorrect: true },
+            { text: qData[2], isCorrect: false },
+            { text: qData[3], isCorrect: false },
+            { text: qData[4], isCorrect: false }
+        ];
+
+        // ПЕРЕМІШУЄМО ВІДПОВІДІ
+        options = shuffleArray(options);
+        
+        const letters = ['A', 'B', 'C', 'D'];
+
+        options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.setAttribute('data-letter', letters[index]);
+            btn.onclick = () => checkAnswer(btn, opt.isCorrect, optionsArea);
+            optionsArea.appendChild(btn);
         });
     }
 
-    function checkAnswer(selectedIndex, selectedBtn) {
-        const currentData = questionsData[currentQuestionIndex];
-        const allOptions = optionsEl.children;
+    function checkAnswer(selectedBtn, isCorrect, optionsContainer) {
+        // Блокуємо всі кнопки
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+        allBtns.forEach(btn => btn.classList.add('disabled'));
 
-        // Блокуємо всі кнопки після вибору
-        for (let i = 0; i < allOptions.length; i++) {
-            allOptions[i].classList.add('disabled');
-        }
+        selectedBtn.classList.add('selected');
 
-        if (selectedIndex === currentData.correct) {
-            selectedBtn.classList.add('correct');
-            score++;
-        } else {
-            selectedBtn.classList.add('wrong');
-            // Показуємо правильну відповідь
-            allOptions[currentData.correct].classList.add('correct');
-        }
-
-        nextBtn.style.display = 'block';
+        // Невелика затримка для ефекту напруги "мільйонера"
+        setTimeout(() => {
+            if (isCorrect) {
+                selectedBtn.classList.remove('selected');
+                selectedBtn.classList.add('correct');
+                document.getElementById('feedback-text').innerText = "Правильно!";
+                document.getElementById('feedback-text').style.color = "#28a745";
+                score++;
+                playSound('correct');
+            } else {
+                selectedBtn.classList.remove('selected');
+                selectedBtn.classList.add('wrong');
+                document.getElementById('feedback-text').innerText = "Помилка!";
+                document.getElementById('feedback-text').style.color = "#dc3545";
+                playSound('wrong');
+                
+                // Підсвічуємо правильну
+                allBtns.forEach(btn => {
+                    // Звіряємо текст кнопки з текстом правильної відповіді у масиві поточного питання
+                    const correctAnswerText = currentQuestions[currentQuestionIndex][1];
+                    if (btn.innerText === correctAnswerText) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            document.getElementById('next-btn').style.display = 'block';
+        }, 1000); // 1 секунда інтриги
     }
 
-    nextBtn.onclick = () => {
+    function nextQuestion() {
         currentQuestionIndex++;
-        if (currentQuestionIndex < questionsData.length) {
+        if (currentQuestionIndex < maxQuestions) {
             loadQuestion();
         } else {
-            showScore();
-        }
-    };
-
-    function showScore() {
-        quizArea.style.display = 'none';
-        scoreArea.style.display = 'block';
-        finalScoreEl.innerHTML = `Твій результат: <strong>${score} / ${questionsData.length}</strong>`;
-        
-        if(score === questionsData.length) {
-            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Відмінно. Меню засвоєно на базовому рівні.</em>";
-        } else if(score >= questionsData.length * 0.7) {
-            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Задовільно, але є прогалини в складах. Треба повторити.</em>";
-        } else {
-            finalScoreEl.innerHTML += "<br><br><em>Аналітика: Провал. З такими знаннями на зміну виходити рано. Вчи заново.</em>";
+            showResults();
         }
     }
 
-    restartBtn.onclick = () => {
-        currentQuestionIndex = 0;
-        score = 0;
-        quizArea.style.display = 'block';
-        scoreArea.style.display = 'none';
+    function showResults() {
+        document.getElementById('game-area').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
         
-        // Перемішування питань для ускладнення запам'ятовування (опціонально)
-        questionsData.sort(() => Math.random() - 0.5);
+        document.getElementById('final-score').innerText = `Твій рахунок: ${score} / ${maxQuestions}`;
         
-        loadQuestion();
-    };
+        let percent = (score / maxQuestions) * 100;
+        let analytics = "";
 
-    // Запуск
-    loadQuestion();
+        if (percent === 100) {
+            analytics = "Ідеально! Ти знаєш це меню як власний паспорт. Можна сміливо йти на здачу!";
+            document.getElementById('analytics').style.color = "#28a745";
+        } else if (percent >= 70) {
+            analytics = "Хороший результат. Основу ти знаєш, але деякі нюанси ще плавають. Спробуй ще раз хардкор-режим.";
+            document.getElementById('analytics').style.color = "#e0b976";
+        } else {
+            analytics = "Поки слабкувато. Гість би залишився незадоволений. Треба ще зубрити!";
+            document.getElementById('analytics').style.color = "#dc3545";
+        }
+
+        document.getElementById('analytics').innerText = analytics;
+    }
 </script>
 
 </body>
