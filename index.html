@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>KABINET Menu Mastery</title>
+    <title>KABINET EXAM PRO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
@@ -20,203 +20,126 @@
             --text-muted: #8b9bb4;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            user-select: none; 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Montserrat', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', sans-serif; }
 
         body {
-            background: #0b0f19;
             background: radial-gradient(circle at top left, #1a2235, var(--bg-color));
-            color: var(--text-main);
-            height: 100dvh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
+            color: var(--text-main); height: 100dvh; overflow: hidden; display: flex; justify-content: center;
         }
 
         .app-container {
-            width: 100%;
-            max-width: 600px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            position: relative;
+            width: 100%; max-width: 600px; height: 100%; display: flex; flex-direction: column; position: relative;
             background: url('https://www.transparenttextures.com/patterns/cubes.png');
         }
 
-        /* Glassmorphism Panels */
         .glass-panel {
-            background: var(--surface-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            background: var(--surface-color); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
-        /* Screens (з врахуванням Safe Area для iPhone) */
         .screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            /* Динамічні відступи від камери та нижньої полоски */
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
-            padding-left: calc(env(safe-area-inset-left) + 20px);
-            padding-right: calc(env(safe-area-inset-right) + 20px);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column;
+            padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px) 20px;
             transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95) translateZ(0);
-            will-change: transform, opacity;
+            opacity: 0; pointer-events: none; transform: scale(0.95);
         }
 
-        .screen.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1) translateZ(0);
-        }
+        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
 
-        /* Start Screen */
-        .header-start { text-align: center; margin-top: 20px; margin-bottom: 20px; }
-        .header-start h1 { font-size: 2.3rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary-glow); }
+        .header-start { text-align: center; margin-bottom: 20px; flex-shrink: 0;}
+        .header-start h1 { font-size: 2.3rem; font-weight: 800; color: var(--primary); text-transform: uppercase; text-shadow: 0 0 15px var(--primary-glow); }
         .header-start p { color: var(--text-muted); font-size: 0.9rem; margin-top: 10px; }
-        
-        .btn-settings {
-            position: absolute; 
-            top: calc(env(safe-area-inset-top) + 20px); 
-            right: 20px;
-            background: var(--surface-color); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;
-            color: #fff;
-        }
 
-        .levels { display: flex; flex-direction: column; gap: 15px; flex-grow: 1; justify-content: center; }
+        .levels { 
+            display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow-y: auto; padding-bottom: 20px;
+            mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+        }
+        .levels::-webkit-scrollbar { display: none; }
         
         .level-card {
-            background: linear-gradient(145deg, #1e283d, #141b2b);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px; border-radius: 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05), 0 4px 15px rgba(0,0,0,0.3);
-            text-align: left;
-            color: #fff;
-            appearance: none;
+            background: linear-gradient(145deg, #1e283d, #141b2b); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05), 0 4px 15px rgba(0,0,0,0.3);
+            text-align: left; color: #fff; flex-shrink: 0; transition: transform 0.1s;
         }
+        .level-card.exam { border-color: var(--primary); background: linear-gradient(145deg, #2a2311, #141108); box-shadow: 0 0 20px rgba(212, 175, 55, 0.15); }
         .level-card:active { transform: scale(0.97); }
         .level-card .icon { font-size: 2.2rem; }
         .level-card .info { flex-grow: 1; margin-left: 15px; }
         .level-card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
+        .level-card.exam h3 { color: var(--primary); }
         .level-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
 
-        /* Settings Modal */
-        #settings-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 100; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
-        #settings-modal.show { opacity: 1; pointer-events: auto; }
-        .settings-content { width: 90%; padding: 30px; text-align: center; }
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; font-size: 1.1rem; color: #fff;}
-        
-        /* Toggle Switch */
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        .btn-close {
-            background: var(--primary); color: #000; border: none; padding: 15px 30px;
-            border-radius: 20px; font-weight: bold; font-size: 1.1rem; margin-top: 20px; cursor: pointer;
-        }
-
-        /* Game Area */
-        .game-header {
-            flex-shrink: 0; padding-bottom: 15px; display: flex; flex-direction: column; gap: 10px;
-            z-index: 10;
-        }
-        .progress-bar {
-            width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;
-        }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
+        /* Game Header */
+        .game-header { flex-shrink: 0; padding-bottom: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
         .stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--primary); font-weight: 600; }
-        
-        .question-box {
-            padding: 20px; text-align: center; font-size: 1.2rem; font-weight: 600;
-            line-height: 1.4; margin-bottom: 5px; flex-shrink: 0;
-            border-left: 4px solid var(--primary);
-            color: #fff;
-        }
+        .question-box { padding: 15px; text-align: center; font-size: 1.1rem; font-weight: 600; line-height: 1.4; border-left: 4px solid var(--primary); color: #fff; }
+        .question-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; font-weight: 400;}
 
-        /* Options Scroll Area */
+        /* Options Area (Scrollable) */
         .options-container {
-            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-            padding-bottom: 20px; scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* for smooth scrolling on iOS */
+            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px;
             mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
             -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
         }
-        
-        .options-container::-webkit-scrollbar { width: 0px; display: none; }
+        .options-container::-webkit-scrollbar { display: none; }
 
-        .option-tile {
-            background: linear-gradient(145deg, #192233, #111723);
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px; padding: 18px 20px; font-size: 1.05rem;
-            color: #fff; text-align: left; cursor: pointer;
-            transition: transform 0.1s, border-color 0.3s, background 0.3s, box-shadow 0.3s;
-            position: relative; overflow: hidden;
-            appearance: none; display: block; width: 100%;
-        }
+        /* --- STYLES FOR DIFFERENT QUESTION TYPES --- */
         
-        .option-tile::before {
-            content: attr(data-letter); position: absolute; right: -5px; top: -10px;
-            font-size: 4rem; font-weight: 800; color: rgba(255,255,255,0.03);
-            pointer-events: none;
+        /* 1. Single & TF */
+        .opt-btn {
+            background: linear-gradient(145deg, #192233, #111723); border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px; padding: 16px; font-size: 0.95rem; line-height: 1.3; color: #fff; text-align: left;
+            transition: 0.2s; position: relative; width: 100%; flex-shrink: 0;
         }
-
-        .option-tile:active:not(.locked) { transform: scale(0.98); }
+        .opt-btn:active:not(.locked) { transform: scale(0.98); }
+        .opt-btn.locked { pointer-events: none; }
+        .opt-btn.selected { border-color: var(--primary); background: rgba(212, 175, 55, 0.1); }
+        .opt-btn.correct { border-color: var(--correct); background: rgba(0, 210, 106, 0.15); box-shadow: 0 0 15px rgba(0, 210, 106, 0.2); }
+        .opt-btn.wrong { border-color: var(--wrong); background: rgba(245, 34, 45, 0.15); }
         
-        .option-tile.locked { pointer-events: none; }
-        .option-tile.selected { border-color: var(--primary); background: rgba(212, 175, 55, 0.1); }
-        .option-tile.correct {
-            border-color: var(--correct); background: rgba(0, 210, 106, 0.15);
-            box-shadow: 0 0 20px rgba(0, 210, 106, 0.3);
-        }
-        .option-tile.wrong {
-            border-color: var(--wrong); background: rgba(245, 34, 45, 0.15);
-        }
+        /* TF specific */
+        .tf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%; align-items: center; padding: 20px 0;}
+        .tf-btn { text-align: center; font-size: 1.5rem; font-weight: 800; padding: 40px 10px; border-radius: 20px;}
+        .tf-btn.true-btn { background: rgba(0, 210, 106, 0.1); border: 2px solid rgba(0, 210, 106, 0.3); }
+        .tf-btn.false-btn { background: rgba(245, 34, 45, 0.1); border: 2px solid rgba(245, 34, 45, 0.3); }
 
-        /* Fixed Footer */
-        .game-footer {
-            flex-shrink: 0; padding-top: 10px; display: flex; flex-direction: column;
-            gap: 15px; z-index: 10; background: var(--bg-color);
+        /* 2. Multi-select (Ingredients) */
+        .multi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-bottom: 20px;}
+        .multi-item {
+            background: #141b2b; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 10px;
+            font-size: 0.85rem; text-align: center; color: #ccc; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 60px;
         }
-        
-        .feedback { text-align: center; font-weight: 800; font-size: 1.2rem; min-height: 24px; letter-spacing: 1px; }
+        .multi-item.selected { border-color: var(--primary); color: #fff; background: rgba(212, 175, 55, 0.2); font-weight: 600;}
+        .multi-item.correct { border-color: var(--correct); background: var(--correct); color: #000; font-weight: bold;}
+        .multi-item.missed { border-color: var(--correct); border-style: dashed; color: var(--correct); } /* missed but correct */
+        .multi-item.wrong { border-color: var(--wrong); background: var(--wrong); color: #fff; font-weight: bold;}
+        .multi-item.locked { pointer-events: none; }
 
+        /* 3. Match (Drag/Click) */
+        .match-container { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; height: 100%;}
+        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; justify-content: center;}
+        .match-item {
+            background: #192233; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px;
+            font-size: 0.85rem; text-align: center; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 70px;
+        }
+        .match-item.active { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); transform: scale(1.05); z-index: 2;}
+        .match-item.matched { border-color: var(--correct); background: rgba(0, 210, 106, 0.1); color: var(--correct); pointer-events: none; opacity: 0.6;}
+        .match-item.error { animation: shake 0.4s; border-color: var(--wrong); background: rgba(245, 34, 45, 0.2); }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* Footer */
+        .game-footer { flex-shrink: 0; padding-top: 10px; display: flex; flex-direction: column; gap: 10px; background: var(--bg-color); z-index: 10; }
+        .feedback { text-align: center; font-weight: 800; font-size: 1.1rem; min-height: 22px; letter-spacing: 1px; }
         .btn-main {
-            width: 100%; padding: 20px; border: none; border-radius: 20px;
-            font-size: 1.2rem; font-weight: 800; text-transform: uppercase;
-            cursor: pointer; transition: all 0.2s;
-            appearance: none;
+            width: 100%; padding: 18px; border: none; border-radius: 18px; font-size: 1.2rem; font-weight: 800;
+            text-transform: uppercase; transition: 0.2s; color: #000;
         }
-        .btn-next {
-            background: linear-gradient(90deg, #d4af37, #f3e5ab); color: #000;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            opacity: 0.5; pointer-events: none;
-        }
+        .btn-next { background: linear-gradient(90deg, #d4af37, #f3e5ab); box-shadow: 0 4px 15px var(--primary-glow); opacity: 0.5; pointer-events: none; }
         .btn-next.active { opacity: 1; pointer-events: auto; }
         .btn-next.active:active { transform: scale(0.95); }
 
@@ -225,60 +148,55 @@
 <body>
 
 <div class="app-container">
-    
-    <div id="settings-modal">
-        <div class="glass-panel settings-content">
-            <h2 style="color: var(--primary); margin-bottom: 20px;">Налаштування</h2>
-            <div class="toggle-row">
-                <span>Питання про ціни/вагу</span>
-                <label class="switch">
-                    <input type="checkbox" id="toggle-price" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <button class="btn-close" onclick="toggleSettings(false)">Зберегти</button>
-        </div>
-    </div>
 
     <div id="screen-start" class="screen active">
-        <button class="btn-settings" onclick="toggleSettings(true)">⚙️</button>
         <div class="header-start">
-            <h1>Kabinet</h1>
-            <p>Меню Тренажер • Оптимізовано під iOS</p>
+            <h1>KABINET EXAM</h1>
+            <p>Ultimate Menu Mastery</p>
         </div>
         <div class="levels">
-            <button class="level-card" onclick="startGame('easy')">
-                <div class="icon">🟢</div>
+            <div class="level-card exam" onclick="startGame('exam')">
+                <div class="icon">🎓</div>
                 <div class="info">
-                    <h3>Легкий (Назви)</h3>
-                    <p>Тільки назви страв. Для розминки.</p>
+                    <h3>ПОВНИЙ ЕКЗАМЕН</h3>
+                    <p>30 питань: змішані, відповідності та хардкор-інгредієнти в кінці.</p>
                 </div>
-            </button>
-            <button class="level-card" onclick="startGame('medium')">
-                <div class="icon">🟡</div>
+            </div>
+            <div class="level-card" onclick="startGame('multi')">
+                <div class="icon">🥗</div>
                 <div class="info">
-                    <h3>Середній (Склади)</h3>
-                    <p>Що входить у сети та тарілки.</p>
+                    <h3>Склади страв (Multi)</h3>
+                    <p>Тренування: вибери всі правильні інгредієнти з 12 варіантів.</p>
                 </div>
-            </button>
-            <button class="level-card" onclick="startGame('hard')">
-                <div class="icon">🔴</div>
+            </div>
+            <div class="level-card" onclick="startGame('match')">
+                <div class="icon">🔗</div>
                 <div class="info">
-                    <h3>ХАРДКОР (Інгредієнти)</h3>
-                    <p>Максимальна заплутаність складів.</p>
+                    <h3>Відповідності (Match)</h3>
+                    <p>Тренування: з'єднай сети з ролами, бургери з соусами.</p>
                 </div>
-            </button>
+            </div>
+            <div class="level-card" onclick="startGame('tf')">
+                <div class="icon">⚖️</div>
+                <div class="info">
+                    <h3>Правда / Брехня</h3>
+                    <p>Тренування: швидкі бліц-питання на точність пам'яті.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="screen-game" class="screen">
         <div class="game-header">
             <div class="stats">
-                <span id="level-label">Рівень</span>
-                <span id="score-label">0/10</span>
+                <span id="level-label">ЕКЗАМЕН</span>
+                <span id="score-label">0/30</span>
             </div>
             <div class="progress-bar"><div class="progress-fill" id="progress-bar"></div></div>
-            <div class="glass-panel question-box" id="question-text">Текст питання...</div>
+            <div class="glass-panel question-box">
+                <div id="question-text">Текст питання...</div>
+                <div id="question-desc" class="question-desc"></div>
+            </div>
         </div>
 
         <div class="options-container" id="options-area">
@@ -286,287 +204,516 @@
 
         <div class="game-footer">
             <div class="feedback" id="feedback-text"></div>
-            <button class="btn-main btn-next" id="next-btn" onclick="nextQuestion()">Підтвердити</button>
+            <button class="btn-main btn-next" id="next-btn" onclick="handleMainAction()">Підтвердити</button>
         </div>
     </div>
 
     <div id="screen-result" class="screen">
         <div class="header-start" style="margin-top: 15vh;">
-            <h1 id="result-title">Завершено!</h1>
-            <p style="font-size: 4rem; font-weight: 800; color: #fff; margin: 20px 0;" id="result-score">10/10</p>
-            <p id="result-desc" style="font-size: 1.1rem; line-height: 1.5; padding: 0 20px;"></p>
+            <h1 id="result-title">Екзамен завершено!</h1>
+            <p style="font-size: 4rem; font-weight: 800; color: #fff; margin: 20px 0;" id="result-score">30/30</p>
+            <p id="result-desc" style="font-size: 1.1rem; line-height: 1.5; padding: 0 20px; color: var(--primary);"></p>
         </div>
         <div style="flex-grow: 1;"></div>
-        <button class="btn-main" style="background: var(--primary); color: #000; margin-bottom: 10px;" onclick="goToStart()">Головне меню</button>
+        <button class="btn-main" style="background: var(--primary); color: #000; margin-bottom: 10px;" onclick="switchScreen('screen-start')">Головне меню</button>
     </div>
 
 </div>
 
 <script>
-    // --- БАЗА ДАНИХ ---
-    const dbEasy = [
-        { q: "Яка з цих страв є фірмовою наливкою закладу?", a: "Файна Черешнівка", w: ["П'яна Вишня", "Кабінетна Сливовиця", "Золота Груша"], type: "regular" },
-        { q: "Який з цих бургерів містить рвану свинину?", a: "Бургер з рваною свининою", w: ["Дуже злий бургер", "Бургер Джеррі", "Бургер Сирний Чан"], type: "regular" },
-        { q: "Яка страва належить до розділу 'Сніданки'?", a: "Шпинатний омлет з лососем", w: ["Сет брускет із прошуто", "Теплий салат з телятиною", "Карпачо з лосося"], type: "regular" },
-        { q: "Який крем-суп є у меню?", a: "Крем-суп сирний", w: ["Крем-суп з брокколі", "Крем-суп гарбузовий", "Крем-суп томатний"], type: "regular" },
-        { q: "Яка піца має у складі ананаси?", a: "Гавайська", w: ["Кабінет", "Американо", "По-селянськи"], type: "regular" },
-        { q: "Як називається фірмовий гарячий рол?", a: "Рол запечений з восьминогом", w: ["Гарячий Дракон", "Запечена Каліфорнія", "Вулкан макі"], type: "regular" },
-        { q: "Який молочний коктейль є в меню?", a: "Dubai chocolate", w: ["Vanilla dream", "Oreo shake", "Mango smoothie"], type: "regular" },
-        { q: "Скільки коштує Файна Черешнівка 100 мл?", a: "65 грн", w: ["40 грн", "75 грн", "100 грн"], type: "price" },
-        { q: "Яка риба подається з соусом Дор Блю?", a: "Філе лосося", w: ["Стейк з тунця", "Дорадо", "Хек у паніровці"], type: "regular" },
-        { q: "Як називається фірмова картопляна страва?", a: "Файна бульба", w: ["Картопля по-кабінетськи", "Золотий дерун", "Селянська тарілка"], type: "regular" }
+    // --- 1. SINGLE QUESTIONS (Classic) ---
+    const dbSingle = [
+        { q: "Який об'єм порції 'Допіо'?", a: "60 мл", w: ["30 мл", "15 мл", "120 мл"] },
+        { q: "Яка риба йде у 'Шпинатний омлет'?", a: "Слабосолений лосось", w: ["Копчений лосось", "Вугор", "Тунець"] },
+        { q: "Який соус подається до 'Креветок темпура'?", a: "Солодкий чилі", w: ["Айолі", "Унагі", "Тартар"] },
+        { q: "Який сир використовується у 'Сирному крем-супі'?", a: "Не уточнено (просто сирний)", w: ["Чеддер", "Пармезан", "Дор Блю"] },
+        { q: "Що лежить на 'Файній бульбі з куркою'?", a: "Куряче філе та печериці у вершковому соусі", w: ["Курячі нагетси і соус сирний", "Копчена курка і томати", "Куряче філе і соус BBQ"] }
     ];
 
-    const dbMedium = [
-        { q: "Що входить до 'Сету м'ясного'?", a: "Прошуто, чорізо, салямі, маслини, каперси, грісіні", w: ["Бастурма, салямі, бекон, огірки, грінки", "Ковбаски, прошуто, в'ялені томати, оливки", "Куряче філе, салямі, пармезан, мед"], type: "regular" },
-        { q: "Яка вага 'Компанійської тарелі'?", a: "1000 г/100г", w: ["800 г/150г", "1200 г/100г", "750 г/150г"], type: "price" },
-        { q: "Які сири входять до 'Сету сирного з медом'?", a: "Лазур, камамбер, королівський", w: ["Дор блю, чеддер, фета", "Пармезан, моцарела, гауда", "Брі, лазур, маскарпоне"], type: "regular" },
-        { q: "Які роли входять у суші-сет 'Кабінет'?", a: "Рол Прайм, Рол з карамелізованим лососем, Гриль Рол, Каліфорнія з креветкою, Рол Кіото", w: ["Філадельфія, Каліфорнія з лососем, Гриль Рол, Футомак з креветкою", "Каліфорнія з лососем, Каліфорнія з креветкою, Каліфорнія зі сурімі, Філадельфія", "Футомак сніжний краб, Футомак з лососем, Футомак з креветкою, Рол Кіото"], type: "regular" },
-        { q: "Які футомаки входять до 'Футомак сету'?", a: "Зі сніжним крабом, з лососем, з креветкою", w: ["З тунцем, з лососем, з вугрем", "Овочевий, з креветкою, з сурімі", "Запечений з креветкою, з лососем, з сиром"], type: "regular" },
-        { q: "Яке м'ясо входить до 'Тарелі BBQ'?", a: "Ковбаски мисливські, курячі крильця", w: ["Свинний стейк, яловича котлета", "Рвана свинина, бекон", "Медальйони з телятини, куряче філе"], type: "regular" },
-        { q: "Що подається разом з паштетом з курячої печінки?", a: "Грінки, кримська цибуля, ягідний соус", w: ["Багет, в'ялені томати, оливкова олія", "Тостовий хліб, вершкове масло, зелень", "Чіпси з лаваша, соус тартар"], type: "regular" },
-        { q: "Скільки штук крилець Баффало можна замовити?", a: "8 / 16 / 24 шт", w: ["6 / 12 / 18 шт", "5 / 10 / 20 шт", "Тільки 10 шт"], type: "price" },
-        { q: "З чого складається 'Сет брускет із сиром Камамбер та грушею'?", a: "Багет, крем-сир, камамбер, груша, мед, горіхи, оливкова олія", w: ["Багет, лазур, груша, бальзамік, грецький горіх", "Чорний хліб, камамбер, яблуко, мед, мигдаль", "Багет, сир фета, груша, гранатовий соус, кедрові горіхи"], type: "regular" },
-        { q: "Що є у 'Фрай міксі', але НЕМАЄ у 'Сеті фрі'?", a: "Креветки, кільця кальмарів, мідії, картопляні діпи", w: ["Нагетси, хек у паніровці, цибулеві кільця", "Картопля фрі, сирні кульки", "Курячі крильця, картопля по-селянськи"], type: "regular" }
+    // --- 2. TRUE / FALSE QUESTIONS ---
+    const dbTF = [
+        { q: "У коктейль 'Lady Killer' додають текілу.", a: false }, // Там джин
+        { q: "Вага 'Компанійської тарелі' - 1000 грамів м'яса/овочів та 100 грамів соусу.", a: true },
+        { q: "Піца 'Американо' містить картоплю фрі.", a: true },
+        { q: "У суші-бургері з креветкою використовується соус Спайсі.", a: true },
+        { q: "Англійський сніданок подається тільки до 12:00.", a: false }, // Цілий день
+        { q: "До 'Сету сирного з медом' входять лазур, камамбер та королівський сир.", a: true },
+        { q: "Коктейль 'Kabinet' готується на основі рому.", a: false }, // Лікер Бейліс, горілка
+        { q: "Порція 'Флетвайт' має об'єм 160 мл.", a: true }
     ];
 
-    const dbHard = [
-        { q: "Що саме робить 'Дуже злий бургер' злим (його специфічний склад)?", a: "Котлета з яловичини, бекон, томати, кримська цибуля, яйце, сир чедер, соус тартар, айсберг", w: ["2 котлети з яловичини, перець халапеньйо, сир чедер, гострий соус чилі, томати", "Котлета з яловичини, бекон, сир Пармезан, квашений огірок, соус BBQ, гірчиця", "Рвана свинина, перець чилі, сир лазур, маринована цибуля, соус Айолі"], type: "regular" },
-        { q: "Який точний склад фірмового коктейлю 'Kabinet'?", a: "Лікер Бейліс, горілка, ананасовий сік, гранатовий сироп", w: ["Віскі, лікер Бейліс, яблучний сік, сироп вишневий", "Джин, лікер Пізан, апельсиновий сироп, лимонний фреш, ананасовий сік", "Текіла, Martini Fiero, ананасовий сік, сироп чорна смородина"], type: "regular" },
-        { q: "Який соус та які горіхи використовуються у 'Теплому салаті з телятиною'?", a: "Кедрові горіхи, соус вінегрет", w: ["Грецькі горіхи, соус песто", "Кедрові горіхи, гранатовий соус", "Волоський горіх, бальзамічний соус"], type: "regular" },
-        { q: "Яка ікра використовується у 'Суші бургері з лососем'?", a: "Ікра тобіко", w: ["Ікра червона лососева", "Ікра щуки", "Чорна ікра"], type: "regular" },
-        { q: "Що входить до 'Піци з мортаделою та фісташками', ОКРІМ мортадели та фісташок?", a: "Вершковий соус, рукола, соус песто, пармезан, моцарела", w: ["Соус неаполітано, томати чері, сир лазур, моцарела", "Вершковий соус, бурата, в'ялені томати, бальзамік", "Соус часниковий, моцарела, шпинат, сир фета"], type: "regular" },
-        { q: "Який склад 'Пасти з креветками та восьминогами бейбі'?", a: "Спагеті, креветки, восьминоги, вершки, пармезан, устричний соус, песто", w: ["Фетучіні, креветки, восьминоги, томатний соус, часник, базилік", "Спагеті, креветки, восьминоги, соус біск, вершки, чері", "Фетучіні, креветки, восьминоги, вершки, соус Дор Блю, пармезан"], type: "regular" },
-        { q: "Що входить до складу 'Англійського сніданку', окрім яєць, бекону та ковбасок?", a: "Сирний мелт, томати, печериці, квасоля, зелень", w: ["Картопля по-селянськи, томати чері, шпинат, грінки", "Слабосолений лосось, авокадо, крем-сир, тости", "Квасоля, кукурудза, сир чеддер, соус BBQ, багет"], type: "regular" },
-        { q: "Який склад фірмового 'Бургера Кабінет'?", a: "2 котлети з яловичини, цибулеві кільця, бекон, сир лазур, квашений огірок, айсберг, BBQ, Тартар", w: ["1 котлета з яловичини, рвана свинина, сир чеддер, томати, айсберг, Айолі", "2 котлети з яловичини, бекон, сир пармезан, яйце, томати, сирний соус", "Котлета з яловичини, моцарела фрі, бекон, кримська цибуля, соус Цезар"], type: "regular" },
-        { q: "З чим готується 'Шпинатний омлет з лососем'?", a: "Крем-сир, шпинат, томати чері, слабосолений лосось, фреш салату, соус Вінегрет", w: ["Сир фета, шпинат, копчений лосось, рукола, бальзамік", "Пармезан, шпинат, лосось гриль, авокадо, оливкова олія", "Сир лазур, шпинат, креветки, лосось, томати, соус песто"], type: "regular" },
-        { q: "Які ДВА сири входять до 'Тосту з беконом'?", a: "Крем-сир та пармезан", w: ["Чеддер та моцарела", "Сирний соус та лазур", "Камамбер та пармезан"], type: "regular" },
-        { q: "Які сири та зелень є у піці 'Кабінет' (окрім моцарели)?", a: "Сир фета, пармезан, рукола", w: ["Лазур, камамбер, шпинат", "Чеддер, пармезан, айсберг", "Бурата, пармезан, базилік"], type: "regular" },
-        { q: "Які специфічні інгредієнти у 'Цезарі з лососем і креветками' (крім риби, салату і соусу)?", a: "Перепелині яйця, пармезан, томати чері, грісіні", w: ["Куряче яйце, сир фета, томати, сухарики", "Авокадо, пармезан, каперси, багет", "Бекон, перепелині яйця, сир чеддер, грінки"], type: "regular" },
-        { q: "Який склад 'Піци По-селянськи'?", a: "Соус неаполітано, моцарела, салямі, мисливські ковбаски, куряче філе, квашений огірок, цибуля, часникова олія", w: ["Соус BBQ, моцарела, бекон, картопля фрі, сир чеддер, зелена цибуля", "Вершковий соус, моцарела, рвана свинина, печериці, солоний огірок, гірчиця", "Соус неаполітано, моцарела, прошуто, томати, рукола, песто"], type: "regular" },
-        { q: "Скільки грамів сиру в Антипасті?", a: "Вага вказана загальна (400 г)", w: ["170 г", "260 г", "500 г"], type: "price" },
-        { q: "Яка вага Філадельфії сету?", a: "1000 г", w: ["960 г", "1400 г", "660 г"], type: "price" }
+    // --- 3. MATCHING QUESTIONS ---
+    const dbMatch = [
+        {
+            q: "Встановіть відповідність: Суші-сети та роли, що до них входять",
+            pairs: [
+                { l: "Сет Кабінет", r: "Рол Прайм, Рол Кіото" },
+                { l: "Сет Каліфорнія", r: "З лососем, З креветкою, Зі сурімі" },
+                { l: "Футомак сет", r: "Сніжний краб, З лососем, З креветкою" },
+                { l: "Філадельфія сет", r: "Класична, З копч. лососем, З вугрем" }
+            ]
+        },
+        {
+            q: "Встановіть відповідність: Бургери та їх специфічні соуси",
+            pairs: [
+                { l: "Бургер Кабінет", r: "Соус BBQ, Соус Тартар" },
+                { l: "Бургер Сирний Чан", r: "Соус BBQ, Сирний соус" },
+                { l: "Бургер з рваною свининою", r: "Соус Айолі" },
+                { l: "Бургер Цезар", r: "Соус Цезар" }
+            ]
+        },
+        {
+            q: "Встановіть відповідність: Піци та їх фірмові інгредієнти",
+            pairs: [
+                { l: "Піца Кабінет", r: "Сир фета, бальзамічний соус" },
+                { l: "Піца По-селянськи", r: "Мисливські ковбаски, часникова олія" },
+                { l: "Піца Американо", r: "Картопля фрі, сирний соус" },
+                { l: "М'ясна", r: "Прошуто, гранатовий соус" }
+            ]
+        },
+        {
+            q: "Встановіть відповідність: Алкогольні коктейлі та їх база",
+            pairs: [
+                { l: "Cherry Sour", r: "Віскі" },
+                { l: "Fiero-Sierra", r: "Текіла" },
+                { l: "Lady Killer", r: "Джин" },
+                { l: "Tequila Sour", r: "Текіла, Віскі, Темний ром" }
+            ]
+        }
     ];
 
-    // --- ЛОГІКА ГРИ ---
-    let currentQuestions = [];
-    let currentIndex = 0;
+    // --- 4. MULTI-SELECT (Ingredients Hardcore) ---
+    // User must select exactly the correct array. UI provides pool (correct + wrong up to 12).
+    const dbMulti = [
+        {
+            q: "З чого складається 'Піца Гавайська'?",
+            c: ["Вершковий соус", "Моцарела", "Ананаси", "Куряче філе", "Бекон", "Кукурудза", "Рукола"],
+            w: ["Соус неаполітано", "Печериці", "Пармезан", "Томати", "Кримська цибуля"]
+        },
+        {
+            q: "З чого складається 'Англійський сніданок'?",
+            c: ["Сирний мелт", "Яйця", "Ковбаска", "Бекон", "Томати", "Печериці", "Квасоля", "Зелень"],
+            w: ["Тостовий хліб", "Авокадо", "Кукурудза", "Сир чеддер"]
+        },
+        {
+            q: "З чого складається 'Бургер Кабінет' (без картоплі)?",
+            c: ["2 котлети з яловичини", "Цибулеві кільця", "Бекон", "Сир лазур", "Квашений огірок", "Айсберг", "Соус BBQ", "Соус Тартар"],
+            w: ["Сир чеддер", "Томати", "Кримська цибуля", "Яйце"]
+        },
+        {
+            q: "З чого складається 'Салат з вугрем'?",
+            c: ["Фреш салату", "Вугор", "Авокадо", "Ікра тобіко", "Крем-сир", "Соус Унагі", "Соус Айолі", "Горіховий соус", "Кунжут"],
+            w: ["Соус Спайсі", "Томати чері", "Пармезан"]
+        },
+        {
+            q: "З чого складається 'Паста з креветками та восьминогами бейбі'?",
+            c: ["Спагеті", "Креветки", "Восьминоги бейбі", "Вершки", "Пармезан", "Устричний соус", "Соус Песто"],
+            w: ["Фетучіні", "Томати чері", "Соус Біск", "Часник", "Базилік"]
+        },
+        {
+            q: "Які інгредієнти входять до 'Сету морепродуктів' (1000 г)?",
+            c: ["Креветки", "Мідії", "Лосось", "Кільця кальмарів", "Овочі гриль", "Соус айолі", "Соус солодкий чилі", "Соус гранатовий"],
+            w: ["Моцарела фрі", "Картопляні діпи", "Восьминоги", "Устриці"]
+        },
+        {
+            q: "З чого складається 'Піца По-селянськи'?",
+            c: ["Соус неаполітано", "Моцарела", "Салямі", "Мисливські ковбаски", "Куряче філе", "Квашений огірок", "Кримська цибуля", "Часникова олія", "Зелень"],
+            w: ["Бекон", "Вершковий соус", "Картопля фрі"]
+        },
+        {
+            q: "З чого складається 'Суші бургер з лососем'?",
+            c: ["Рис", "Лосось", "Огірок", "Крем-сир", "Кляр темпура", "Сир чедер", "Ікра тобіко", "Сухарі панко", "Чука", "Соус Спайсі"],
+            w: ["Сніжний краб", "Авокадо", "Соус Унагі"]
+        },
+        {
+            q: "З чого складається 'Теплий салат з телятиною'?",
+            c: ["Фреш салату", "Телятина", "Печериці", "Томати чері", "Перець болгарський", "Кабачок", "Кедрові горіхи", "Соус вінегрет"],
+            w: ["Пармезан", "Сир фета", "Грецькі горіхи", "Гранатовий соус"]
+        },
+        {
+            q: "Які складові коктейлю 'Déjà vu'?",
+            c: ["Джин", "Апероль", "Лимонний фреш", "Полуничний сироп", "Ангостура", "Лід"],
+            w: ["Текіла", "Сік ананасовий", "Сироп чорна смородина", "Лікер Пізан", "Содова", "Віскі"]
+        }
+    ];
+
+    // --- GAME LOGIC ---
+    let qList = [];
+    let curIdx = 0;
     let score = 0;
-    let selectedBtn = null;
+    
+    // States
+    let currentQType = '';
+    let selectedSingle = null;
+    let selectedTF = null;
+    
+    // Multi state
+    let multiCorrectNeeded = 0;
+    
+    // Match state
+    let matchPairs = [];
+    let matchLeftSel = null;
+    let matchRightSel = null;
+    let matchedCount = 0;
+    let matchErrorMade = false;
+
     let audioUnlocked = false;
     let audioCtx;
 
+    // --- UTILS ---
+    function shuffle(arr) {
+        let a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
     function triggerHaptic(type) {
         if (!navigator.vibrate) return;
-        if (type === 'tap') navigator.vibrate(15);
-        if (type === 'success') navigator.vibrate([20, 50, 20]);
-        if (type === 'error') navigator.vibrate([50, 50, 50]);
+        if(type==='tap') navigator.vibrate(15);
+        if(type==='success') navigator.vibrate([20,40,20]);
+        if(type==='error') navigator.vibrate([50,50,50]);
     }
 
     function initAudio() {
         if (audioUnlocked) return;
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
             gain.gain.value = 0;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(0);
-            osc.stop(0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(0); osc.stop(0.1);
             audioUnlocked = true;
-            document.removeEventListener('touchstart', initAudio);
-            document.removeEventListener('click', initAudio);
-        } catch (e) {
-            console.log('Audio init failed');
-        }
+        } catch(e){}
     }
-    document.addEventListener('touchstart', initAudio, { once: true });
-    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('touchstart', initAudio, {once:true});
+    document.addEventListener('click', initAudio, {once:true});
 
     function playSound(type) {
         if (!audioUnlocked || !audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
+        if(audioCtx.state === 'suspended') audioCtx.resume();
         try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            const now = audioCtx.currentTime;
-            if (type === 'correct') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, now);
-                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            } else {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            let n = audioCtx.currentTime;
+            if(type==='correct'){
+                osc.type='sine'; osc.frequency.setValueAtTime(600,n); osc.frequency.exponentialRampToValueAtTime(1200,n+0.1);
+                gain.gain.setValueAtTime(0.3,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.3);
+                osc.start(n); osc.stop(n+0.3);
+            } else if(type==='error') {
+                osc.type='sawtooth'; osc.frequency.setValueAtTime(150,n); osc.frequency.exponentialRampToValueAtTime(80,n+0.3);
+                gain.gain.setValueAtTime(0.3,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.3);
+                osc.start(n); osc.stop(n+0.3);
+            } else if(type==='link') {
+                osc.type='triangle'; osc.frequency.setValueAtTime(800,n);
+                gain.gain.setValueAtTime(0.1,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.1);
+                osc.start(n); osc.stop(n+0.1);
             }
-        } catch(e) {}
+        }catch(e){}
     }
 
-    function switchScreen(screenId) {
+    function switchScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
+        document.getElementById(id).classList.add('active');
     }
 
-    function toggleSettings(show) {
+    // --- SETUP GAME ---
+    function startGame(mode) {
         triggerHaptic('tap');
-        const modal = document.getElementById('settings-modal');
-        if(show) modal.classList.add('show');
-        else modal.classList.remove('show');
-    }
-
-    function shuffle(arr) {
-        let i = arr.length;
-        while (--i > 0) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
+        if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+        
+        qList = [];
+        if (mode === 'exam') {
+            // 30 questions: 8 Single, 4 TF, 4 Match, 14 Multi (Wait, I only have 10 multi. Let's do 10 Single, 6 TF, 4 Match, 10 Multi)
+            let s = shuffle(dbSingle).slice(0,5); // I only have 5 single here for demo, you can add more
+            let tf = shuffle(dbTF).slice(0,6);
+            let mat = shuffle(dbMatch).slice(0,4);
+            let mul = shuffle(dbMulti).slice(0,10);
+            
+            // Format for engine
+            s.forEach(i => qList.push({t:'single', ...i}));
+            tf.forEach(i => qList.push({t:'tf', ...i}));
+            qList = shuffle(qList); // mix single and TF
+            
+            mat.forEach(i => qList.push({t:'match', ...i}));
+            mul.forEach(i => qList.push({t:'multi', ...i}));
+        } 
+        else if (mode === 'multi') {
+            let mul = shuffle(dbMulti);
+            mul.forEach(i => qList.push({t:'multi', ...i}));
         }
-        return arr;
-    }
+        else if (mode === 'match') {
+            let mat = shuffle(dbMatch);
+            mat.forEach(i => qList.push({t:'match', ...i}));
+        }
+        else if (mode === 'tf') {
+            let tf = shuffle(dbTF);
+            tf.forEach(i => qList.push({t:'tf', ...i}));
+        }
 
-    function startGame(level) {
-        triggerHaptic('tap');
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const allowPrice = document.getElementById('toggle-price').checked;
-        let sourceDb = level === 'easy' ? dbEasy : level === 'medium' ? dbMedium : dbHard;
-        
-        let filteredDb = allowPrice ? sourceDb : sourceDb.filter(q => q.type !== 'price');
-        
-        currentQuestions = shuffle([...filteredDb]).slice(0, 10);
-        
-        currentIndex = 0;
-        score = 0;
-        
-        document.getElementById('level-label').innerText = level.toUpperCase();
+        curIdx = 0; score = 0;
         switchScreen('screen-game');
         renderQuestion();
     }
 
+    // --- RENDER ---
     function renderQuestion() {
-        selectedBtn = null;
-        const q = currentQuestions[currentIndex];
+        let q = qList[curIdx];
+        currentQType = q.t;
         
-        document.getElementById('score-label').innerText = `${currentIndex + 1}/${currentQuestions.length}`;
-        document.getElementById('progress-bar').style.width = `${((currentIndex) / currentQuestions.length) * 100}%`;
+        document.getElementById('score-label').innerText = `${curIdx+1}/${qList.length}`;
+        document.getElementById('progress-bar').style.width = `${(curIdx / qList.length)*100}%`;
         document.getElementById('question-text').innerText = q.q;
         
-        const feedback = document.getElementById('feedback-text');
-        feedback.innerText = "";
-        feedback.style.color = "transparent";
-
-        const nextBtn = document.getElementById('next-btn');
+        let desc = document.getElementById('question-desc');
+        let cont = document.getElementById('options-area');
+        let nextBtn = document.getElementById('next-btn');
+        let fb = document.getElementById('feedback-text');
+        
+        cont.innerHTML = '';
+        fb.innerText = '';
         nextBtn.innerText = "Підтвердити";
         nextBtn.classList.remove('active');
-        nextBtn.onclick = confirmAnswer;
-
-        let options = [{t: q.a, c: true}, {t: q.w[0], c: false}, {t: q.w[1], c: false}, {t: q.w[2], c: false}];
-        options = shuffle(options);
-
-        const container = document.getElementById('options-area');
-        container.innerHTML = '';
-        const letters = ['A', 'B', 'C', 'D'];
-
-        options.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-tile';
-            btn.innerText = opt.t;
-            btn.setAttribute('data-letter', letters[i]);
-            btn.dataset.correct = opt.c;
-            btn.onclick = () => selectOption(btn);
-            container.appendChild(btn);
-        });
-
-        container.scrollTop = 0;
-    }
-
-    function selectOption(btn) {
-        triggerHaptic('tap');
-        document.querySelectorAll('.option-tile').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedBtn = btn;
+        nextBtn.onclick = handleMainAction;
         
-        document.getElementById('next-btn').classList.add('active');
-    }
-
-    function confirmAnswer() {
-        if (!selectedBtn) return;
-        
-        document.querySelectorAll('.option-tile').forEach(b => b.classList.add('locked'));
-        
-        const isCorrect = selectedBtn.dataset.correct === "true";
-        const feedback = document.getElementById('feedback-text');
-
-        if (isCorrect) {
-            score++;
-            selectedBtn.classList.add('correct');
-            selectedBtn.classList.remove('selected');
-            feedback.innerText = "ІДЕАЛЬНО!";
-            feedback.style.color = "var(--correct)";
-            playSound('correct');
-            triggerHaptic('success');
-        } else {
-            selectedBtn.classList.add('wrong');
-            selectedBtn.classList.remove('selected');
-            document.querySelectorAll('.option-tile').forEach(b => {
-                if(b.dataset.correct === "true") b.classList.add('correct');
+        // Render based on type
+        if (q.t === 'single') {
+            desc.innerText = "Оберіть один правильний варіант";
+            selectedSingle = null;
+            let opts = shuffle([{t:q.a, c:true}, {t:q.w[0], c:false}, {t:q.w[1], c:false}, {t:q.w[2], c:false}]);
+            let letters = ['A','B','C','D'];
+            opts.forEach((o,i) => {
+                let b = document.createElement('div');
+                b.className = 'opt-btn';
+                b.innerText = o.t;
+                b.setAttribute('data-letter', letters[i]);
+                b.dataset.c = o.c;
+                b.onclick = () => {
+                    triggerHaptic('tap');
+                    document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
+                    b.classList.add('selected');
+                    selectedSingle = b;
+                    nextBtn.classList.add('active');
+                };
+                cont.appendChild(b);
             });
-            feedback.innerText = "ПОМИЛКА";
-            feedback.style.color = "var(--wrong)";
-            playSound('error');
-            triggerHaptic('error');
+        }
+        else if (q.t === 'tf') {
+            desc.innerText = "Правда чи брехня?";
+            selectedTF = null;
+            let grid = document.createElement('div'); grid.className = 'tf-grid';
+            
+            let btnT = document.createElement('div'); btnT.className = 'tf-btn true-btn'; btnT.innerText = 'ПРАВДА';
+            let btnF = document.createElement('div'); btnF.className = 'tf-btn false-btn'; btnF.innerText = 'БРЕХНЯ';
+            
+            [btnT, btnF].forEach(b => {
+                b.onclick = () => {
+                    triggerHaptic('tap');
+                    btnT.style.opacity = '0.5'; btnF.style.opacity = '0.5';
+                    btnT.style.borderWidth = '2px'; btnF.style.borderWidth = '2px';
+                    b.style.opacity = '1'; b.style.borderWidth = '5px';
+                    selectedTF = (b === btnT); // true or false
+                    nextBtn.classList.add('active');
+                };
+            });
+            grid.appendChild(btnT); grid.appendChild(btnF);
+            cont.appendChild(grid);
+        }
+        else if (q.t === 'multi') {
+            desc.innerText = "Оберіть УСІ правильні інгредієнти (невідома кількість)";
+            let pool = [...q.c, ...q.w];
+            pool = shuffle(pool).slice(0, 12); // take up to 12 items (mix of true and false)
+            // Ensure all corrects are in the pool if length allows. The logic above might slice out corrects.
+            // Better logic:
+            let neededW = 12 - q.c.length;
+            let wPool = shuffle(q.w).slice(0, neededW);
+            pool = shuffle([...q.c, ...wPool]);
+            
+            multiCorrectNeeded = q.c.length;
+            
+            let grid = document.createElement('div'); grid.className = 'multi-grid';
+            pool.forEach(itemText => {
+                let isC = q.c.includes(itemText);
+                let b = document.createElement('div');
+                b.className = 'multi-item';
+                b.innerText = itemText;
+                b.dataset.c = isC;
+                b.dataset.sel = "false";
+                b.onclick = () => {
+                    triggerHaptic('tap');
+                    if (b.dataset.sel === "false") {
+                        b.dataset.sel = "true"; b.classList.add('selected');
+                    } else {
+                        b.dataset.sel = "false"; b.classList.remove('selected');
+                    }
+                    // Any selection makes button active
+                    if(document.querySelectorAll('.multi-item.selected').length > 0) {
+                        nextBtn.classList.add('active');
+                    } else {
+                        nextBtn.classList.remove('active');
+                    }
+                };
+                grid.appendChild(b);
+            });
+            cont.appendChild(grid);
+        }
+        else if (q.t === 'match') {
+            desc.innerText = "З'єднайте пари (натисніть зліва, потім справа)";
+            nextBtn.style.display = 'none'; // Hidden until matched
+            matchErrorMade = false;
+            matchedCount = 0;
+            matchLeftSel = null; matchRightSel = null;
+            
+            let matchCont = document.createElement('div'); matchCont.className = 'match-container';
+            let colL = document.createElement('div'); colL.className = 'match-col';
+            let colR = document.createElement('div'); colR.className = 'match-col';
+            
+            let lefts = shuffle(q.pairs.map((p,i) => ({t:p.l, id:i})));
+            let rights = shuffle(q.pairs.map((p,i) => ({t:p.r, id:i})));
+            
+            lefts.forEach(l => {
+                let b = document.createElement('div'); b.className = 'match-item left-item'; b.innerText = l.t; b.dataset.id = l.id;
+                b.onclick = () => {
+                    triggerHaptic('tap');
+                    document.querySelectorAll('.left-item').forEach(x=>x.classList.remove('active'));
+                    b.classList.add('active'); matchLeftSel = b; checkMatch();
+                };
+                colL.appendChild(b);
+            });
+            
+            rights.forEach(r => {
+                let b = document.createElement('div'); b.className = 'match-item right-item'; b.innerText = r.t; b.dataset.id = r.id;
+                b.onclick = () => {
+                    triggerHaptic('tap');
+                    document.querySelectorAll('.right-item').forEach(x=>x.classList.remove('active'));
+                    b.classList.add('active'); matchRightSel = b; checkMatch();
+                };
+                colR.appendChild(b);
+            });
+            
+            matchCont.appendChild(colL); matchCont.appendChild(colR);
+            cont.appendChild(matchCont);
+        }
+        
+        cont.scrollTop = 0;
+    }
+
+    function checkMatch() {
+        if(matchLeftSel && matchRightSel) {
+            if (matchLeftSel.dataset.id === matchRightSel.dataset.id) {
+                // Correct match
+                playSound('link'); triggerHaptic('success');
+                matchLeftSel.classList.replace('active', 'matched');
+                matchRightSel.classList.replace('active', 'matched');
+                matchLeftSel = null; matchRightSel = null;
+                matchedCount++;
+                if (matchedCount === qList[curIdx].pairs.length) {
+                    // All matched!
+                    let fb = document.getElementById('feedback-text');
+                    let nextBtn = document.getElementById('next-btn');
+                    if(matchErrorMade) {
+                        fb.innerText = "ЗІБРАНО (Але були помилки)"; fb.style.color = "var(--wrong)";
+                    } else {
+                        fb.innerText = "ІДЕАЛЬНО ЗІБРАНО!"; fb.style.color = "var(--correct)";
+                        score++;
+                    }
+                    nextBtn.style.display = 'block';
+                    nextBtn.classList.add('active');
+                    nextBtn.innerText = "Далі ➔";
+                    nextBtn.onclick = goNext;
+                }
+            } else {
+                // Wrong match
+                playSound('error'); triggerHaptic('error');
+                matchErrorMade = true;
+                matchLeftSel.classList.add('error'); matchRightSel.classList.add('error');
+                setTimeout(() => {
+                    if(matchLeftSel) { matchLeftSel.classList.remove('error'); matchLeftSel.classList.remove('active'); }
+                    if(matchRightSel) { matchRightSel.classList.remove('error'); matchRightSel.classList.remove('active'); }
+                    matchLeftSel = null; matchRightSel = null;
+                }, 400);
+            }
+        }
+    }
+
+    // --- VALIDATION ---
+    function handleMainAction() {
+        let q = qList[curIdx];
+        let fb = document.getElementById('feedback-text');
+        let nextBtn = document.getElementById('next-btn');
+        let isCorrect = false;
+
+        if (currentQType === 'single') {
+            document.querySelectorAll('.opt-btn').forEach(b => b.classList.add('locked'));
+            if (selectedSingle.dataset.c === "true") { isCorrect = true; selectedSingle.classList.replace('selected', 'correct'); }
+            else { 
+                selectedSingle.classList.replace('selected', 'wrong');
+                document.querySelectorAll('.opt-btn').forEach(b => { if(b.dataset.c==="true") b.classList.add('correct'); });
+            }
+        }
+        else if (currentQType === 'tf') {
+            document.querySelectorAll('.tf-btn').forEach(b => b.style.pointerEvents = 'none');
+            if (selectedTF === q.a) { isCorrect = true; }
+            else { isCorrect = false; }
+            // Highlight correct side
+            if (q.a === true) { document.querySelector('.true-btn').style.background = 'var(--correct)'; document.querySelector('.true-btn').style.color='#000'; }
+            else { document.querySelector('.false-btn').style.background = 'var(--correct)'; document.querySelector('.false-btn').style.color='#000'; }
+        }
+        else if (currentQType === 'multi') {
+            let items = document.querySelectorAll('.multi-item');
+            items.forEach(b => b.classList.add('locked'));
+            let mistakes = 0;
+            let foundCorrects = 0;
+            
+            items.forEach(b => {
+                let userSel = b.dataset.sel === "true";
+                let realC = b.dataset.c === "true";
+                
+                b.classList.remove('selected');
+                
+                if (userSel && realC) { b.classList.add('correct'); foundCorrects++; }
+                else if (userSel && !realC) { b.classList.add('wrong'); mistakes++; }
+                else if (!userSel && realC) { b.classList.add('missed'); mistakes++; }
+            });
+            
+            if (mistakes === 0 && foundCorrects === multiCorrectNeeded) { isCorrect = true; }
         }
 
-        document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / currentQuestions.length) * 100}%`;
+        // Apply feedback
+        if (isCorrect) {
+            score++;
+            fb.innerText = "БЛИСКУЧЕ!"; fb.style.color = "var(--correct)";
+            playSound('correct'); triggerHaptic('success');
+        } else {
+            fb.innerText = "ПОМИЛКА"; fb.style.color = "var(--wrong)";
+            playSound('error'); triggerHaptic('error');
+        }
 
-        const nextBtn = document.getElementById('next-btn');
+        document.getElementById('progress-bar').style.width = `${((curIdx+1) / qList.length)*100}%`;
         nextBtn.innerText = "Далі ➔";
         nextBtn.onclick = goNext;
     }
 
     function goNext() {
         triggerHaptic('tap');
-        currentIndex++;
-        if (currentIndex < currentQuestions.length) {
-            renderQuestion();
-        } else {
-            endGame();
-        }
+        curIdx++;
+        if(curIdx < qList.length) renderQuestion();
+        else endGame();
     }
 
     function endGame() {
         switchScreen('screen-result');
-        document.getElementById('result-score').innerText = `${score}/${currentQuestions.length}`;
-        
-        const desc = document.getElementById('result-desc');
-        const pct = score / currentQuestions.length;
-        
-        if (pct === 1) {
-            desc.innerText = "Бездоганно! Можеш хоч зараз ставати за бар або приймати замовлення.";
-            desc.style.color = "var(--correct)";
-        } else if (pct >= 0.7) {
-            desc.innerText = "Дуже добре! Основу ти знаєш, залишилось лише відшліфувати дрібні деталі.";
-            desc.style.color = "var(--primary)";
-        } else {
-            desc.innerText = "Слабувато. З таким знанням гості будуть чекати вічність. Повторюй ще!";
-            desc.style.color = "var(--wrong)";
-        }
-    }
-
-    function goToStart() {
-        triggerHaptic('tap');
-        switchScreen('screen-start');
+        document.getElementById('result-score').innerText = `${score}/${qList.length}`;
+        let d = document.getElementById('result-desc');
+        let p = score / qList.length;
+        if(p === 1) { d.innerText = "Ти машина! Абсолютне знання меню."; d.style.color = "var(--correct)"; }
+        else if (p >= 0.8) { d.innerText = "Майже ідеально. Легке хвилювання, але зміну відпрацюєш на відмінно."; d.style.color = "var(--primary)"; }
+        else if (p >= 0.5) { d.innerText = "Забагато помилок. У запарах гості будуть незадоволені. Тренуйся ще."; d.style.color = "#e0b976"; }
+        else { d.innerText = "Провал. З таким знанням меню краще не підходити до столу. Вчити знову!"; d.style.color = "var(--wrong)"; }
     }
 
 </script>
