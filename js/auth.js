@@ -2,8 +2,8 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   signInAnonymously, signOut, setPersistence, browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { firebaseApp } from "./store.js";
-import { ADMIN_UID } from "./config.js";
+import { firebaseApp } from "./store.js?v=receipts1";
+import { ADMIN_UID } from "./config.js?v=receipts1";
 
 const auth = getAuth(firebaseApp);
 export const isAdmin = user => user?.uid === ADMIN_UID;

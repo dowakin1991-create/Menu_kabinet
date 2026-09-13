@@ -8,6 +8,16 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
+    match /schedules/{month}/receipts/{receiptId} {
+      allow read: if request.auth != null;
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['image', 'createdAt'])
+        && request.resource.data.image is string
+        && request.resource.data.image.size() <= 700000
+        && request.resource.data.image.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')
+        && request.resource.data.createdAt == request.time;
+      allow delete: if isAdmin();
+    }
     match /employeeAccess/{employeeId} {
       allow read, write: if isAdmin();
     }

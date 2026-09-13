@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/styles.css?v=receipts1">
 </head>
 <body>
   <section class="shell" id="login-panel">
@@ -111,8 +111,12 @@
         <div class="field"><label for="banquet-guests">Кількість гостей</label><input id="banquet-guests" type="number" min="1" max="999" inputmode="numeric"></div>
       </div>
       <div class="field" style="margin-top:10px"><label for="banquet-note">Примітка</label><textarea id="banquet-note" maxlength="500" placeholder="Наприклад: весілля, 30 гостей"></textarea></div>
+      <h3>Фото чеків</h3><div id="admin-receipts" class="receipts"></div>
+      <input id="receipt-files" type="file" accept="image/*" multiple hidden>
+      <button id="receipt-upload" class="button" type="button">+ Додати фото чека</button>
+      <p id="receipt-help"></p>
       <div class="field"><label for="receipt-links">Посилання на чеки</label><textarea id="receipt-links" rows="4" placeholder="https://… (по одному посиланню в рядку)"></textarea></div>
-      <p class="muted">Фото не зберігаються у Firebase. Додайте посилання з Google Drive, Dropbox або іншого сервісу.</p>
+      <p class="muted">За бажанням можна також залишити посилання на оригінали.</p>
       <div class="modal-actions">
         <button class="button danger" id="delete-banquet" type="button">Скасувати бенкет</button>
         <span style="flex:1"></span>
@@ -133,6 +137,6 @@
     </section>
   </div>
 
-  <script type="module" src="js/admin.js"></script>
+  <script type="module" src="js/admin.js?v=receipts1"></script>
 </body>
 </html>

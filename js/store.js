@@ -9,7 +9,7 @@ import {
   serverTimestamp,
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { firebaseConfig } from "./config.js";
+import { firebaseConfig } from "./config.js?v=receipts1";
 
 export const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
@@ -41,6 +41,7 @@ function normalizeBanquet(value) {
   return {
     active: value?.active !== false,
     links,
+    receiptIds: Array.isArray(value?.receiptIds) ? value.receiptIds.filter(id => /^[a-f0-9-]{36}$/.test(id)).slice(0, 8) : [],
     note: safeText(value?.note).trim(),
     time: /^([01]\d|2[0-3]):[0-5]\d$/.test(value?.time || "") ? value.time : "",
     guests: Number.isInteger(guests) && guests > 0 && guests < 1000 ? guests : null
@@ -114,4 +115,54 @@ export async function bindEmployee(employeeId, uid) {
 export async function employeeAccess(employeeId) {
   const snap = await getDoc(doc(db, "employeeAccess", String(employeeId)));
   return snap.exists() ? snap.data().uid : "";
+}
+
+export async function readReceipt(month, id) {
+  const snapshot = await getDoc(doc(db, "schedules", month, "receipts", id));
+  if (!snapshot.exists()) throw new Error("Фото не знайдено.");
+  return snapshot.data().image;
+}
+
+export async function addReceipt(month, day, image) {
+  if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(image) || image.length > 700000) {
+    throw new Error("Фото завелике або має неправильний формат.");
+  }
+  const id = crypto.randomUUID();
+  const scheduleRef = doc(db, "schedules", month);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(scheduleRef);
+    const data = normalizeSchedule(snap.data());
+    const banquet = data.banquets[String(day)];
+    if (!banquet?.active) throw new Error("Спершу збережіть бенкет.");
+    if ((banquet.receiptIds || []).length >= 8) throw new Error("У бенкеті вже є 8 фото.");
+    banquet.receiptIds = [...(banquet.receiptIds || []), id];
+    tx.set(doc(db, "schedules", month, "receipts", id), { image, createdAt: serverTimestamp() });
+    tx.update(scheduleRef, { banquets: data.banquets, updatedAt: serverTimestamp() });
+  });
+}
+
+export async function deleteReceipt(month, day, id) {
+  const reference = doc(db, "schedules", month);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(reference);
+    const data = normalizeSchedule(snap.data());
+    const banquet = data.banquets[String(day)];
+    if (!banquet) throw new Error("Бенкет уже видалено.");
+    banquet.receiptIds = (banquet.receiptIds || []).filter(value => value !== id);
+    tx.update(reference, { banquets: data.banquets, updatedAt: serverTimestamp() });
+    tx.delete(doc(db, "schedules", month, "receipts", id));
+  });
+}
+
+export async function removeBanquet(month, day) {
+  const reference = doc(db, "schedules", month);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(reference);
+    const data = normalizeSchedule(snap.data());
+    for (const id of data.banquets[String(day)]?.receiptIds || []) {
+      tx.delete(doc(db, "schedules", month, "receipts", id));
+    }
+    delete data.banquets[String(day)];
+    tx.update(reference, { banquets: data.banquets, updatedAt: serverTimestamp() });
+  });
 }

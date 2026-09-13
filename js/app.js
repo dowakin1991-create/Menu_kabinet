@@ -1,5 +1,6 @@
-import { ensureWorkerSession } from "./auth.js";
-import { monthId, setAvailability, subscribeSchedule } from "./store.js";
+import { renderReceipts } from "./receipts.js?v=receipts1";
+import { ensureWorkerSession } from "./auth.js?v=receipts1";
+import { monthId, setAvailability, subscribeSchedule } from "./store.js?v=receipts1";
 import {
   bindModalDismissals,
   closeModal,
@@ -13,7 +14,7 @@ import {
   shiftCount,
   showModal,
   toast
-} from "./ui.js";
+} from "./ui.js?v=receipts1";
 
 const state = {
   date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -110,6 +111,7 @@ function showBanquetOrHighlight(day) {
   qs("#banquet-title").textContent = `Бенкет — ${day} ${monthLabel(state.date).split(" ")[0]}`;
   const details = [banquet.time && `Початок: ${banquet.time}`, banquet.guests && `Гостей: ${banquet.guests}`, banquet.note].filter(Boolean);
   qs("#banquet-details").textContent = details.join(" · ") || "Бенкет позначено без додаткових деталей.";
+  renderReceipts(qs("#banquet-photos"), monthId(state.date), banquet.receiptIds || []);
   const receipts = qs("#banquet-receipts");
   receipts.replaceChildren();
   for (const url of (banquet.links || [])) {

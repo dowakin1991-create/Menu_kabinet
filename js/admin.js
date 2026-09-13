@@ -1,5 +1,6 @@
-import { isAdmin, login, logout, watchAuth } from "./auth.js";
-import { bindEmployee, employeeAccess, monthId, subscribeSchedule, updateSchedule } from "./store.js";
+import { renderReceipts, compressReceipt } from "./receipts.js?v=receipts1";
+import { isAdmin, login, logout, watchAuth } from "./auth.js?v=receipts1";
+import { addReceipt, deleteReceipt, removeBanquet, bindEmployee, employeeAccess, monthId, subscribeSchedule, updateSchedule } from "./store.js?v=receipts1";
 import {
   bindModalDismissals,
   closeModal,
@@ -13,7 +14,7 @@ import {
   shiftCount,
   showModal,
   toast
-} from "./ui.js";
+} from "./ui.js?v=receipts1";
 
 const state = {
   date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -54,6 +55,7 @@ function subscribe() {
       state.data = data;
       setConnection("online", "Дані актуальні");
       render();
+      if (!qs("#day-editor").hidden) loadAdminReceipts();
       if (state.date.getFullYear() === new Date().getFullYear() && state.date.getMonth() === new Date().getMonth()) scrollToToday();
     },
     error => {
@@ -168,6 +170,9 @@ function openDay(day) {
   qs("#banquet-note").value = banquet.note || "";
   qs("#delete-banquet").hidden = !banquet.active;
   qs("#receipt-links").value = (banquet.links || []).join("\n");
+  qs("#receipt-upload").disabled = !banquet.active;
+  qs("#receipt-help").textContent = banquet.active ? "До 8 фото. Натисніть фото, щоб збільшити." : "Збережіть бенкет, потім відкрийте його знову, щоб додати фото.";
+  loadAdminReceipts();
   showModal("day-editor");
 }
 
@@ -183,6 +188,7 @@ async function saveBanquet() {
 
       draft.banquets[String(day)] = {
         active: true,
+        receiptIds: draft.banquets[String(day)]?.receiptIds || [],
         links,
         time,
         guests: Number.isInteger(guests) && guests > 0 ? guests : null,
@@ -200,7 +206,7 @@ async function deleteBanquet() {
   const banquet = state.data.banquets[String(day)];
   if (!banquet || !confirm(`Скасувати бенкет на ${day} число?`)) return;
   try {
-    await updateSchedule(monthId(state.date), draft => { delete draft.banquets[String(day)]; });
+    await removeBanquet(monthId(state.date), day);
     state.changedBanquetDays.add(day);
     closeModal("day-editor");
     toast("Бенкет скасовано.");
@@ -275,3 +281,36 @@ watchAuth(user => {
   if (allowed) subscribe();
 });
 bindModalDismissals();
+
+function loadAdminReceipts() {
+  const month = monthId(state.date), day = state.banquetDay;
+  const ids = state.data.banquets[String(day)]?.receiptIds || [];
+  renderReceipts(qs("#admin-receipts"), month, ids, async id => {
+    if (!confirm("Видалити фото чека?")) return;
+    await deleteReceipt(month, day, id);
+  });
+}
+qs("#receipt-upload").addEventListener("click", () => qs("#receipt-files").click());
+qs("#receipt-files").addEventListener("change", async event => {
+  const files = [...event.target.files];
+  const month = monthId(state.date), day = state.banquetDay;
+  const button = qs("#receipt-upload");
+  button.disabled = true;
+  let saved = 0;
+  try {
+    for (const file of files) {
+      button.textContent = `Збереження ${saved + 1}/${files.length}…`;
+      await addReceipt(month, day, await compressReceipt(file));
+      saved++;
+    }
+    if (saved) toast(`Збережено фото: ${saved}.`);
+  } catch (error) {
+    toast(`Збережено: ${saved}. ` + (error.code === "permission-denied"
+      ? "Оновіть правила Firestore для фото чеків."
+      : error.message || "Не вдалося зберегти фото."), "error");
+  } finally {
+    button.textContent = "+ Додати фото чека";
+    button.disabled = !state.data.banquets[String(state.banquetDay)]?.active;
+    event.target.value = "";
+  }
+});
