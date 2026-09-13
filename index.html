@@ -1,722 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>KABINET EXAM PRO</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
-
-        :root {
-            --bg-color: #0b0f19;
-            --surface-color: rgba(25, 33, 50, 0.7);
-            --primary: #d4af37;
-            --primary-glow: rgba(212, 175, 55, 0.4);
-            --correct: #00d26a;
-            --wrong: #f5222d;
-            --text-main: #ffffff;
-            --text-muted: #8b9bb4;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', sans-serif; }
-
-        body {
-            background: radial-gradient(circle at top left, #1a2235, var(--bg-color));
-            color: var(--text-main); height: 100dvh; overflow: hidden; display: flex; justify-content: center;
-        }
-
-        .app-container {
-            width: 100%; max-width: 600px; height: 100%; display: flex; flex-direction: column; position: relative;
-            background: url('https://www.transparenttextures.com/patterns/cubes.png');
-        }
-
-        .glass-panel {
-            background: var(--surface-color); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column;
-            padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px) 20px;
-            transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            opacity: 0; pointer-events: none; transform: scale(0.95);
-        }
-
-        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
-
-        .header-start { text-align: center; margin-bottom: 20px; flex-shrink: 0;}
-        .header-start h1 { font-size: 2.3rem; font-weight: 800; color: var(--primary); text-transform: uppercase; text-shadow: 0 0 15px var(--primary-glow); }
-        .header-start p { color: var(--text-muted); font-size: 0.9rem; margin-top: 10px; }
-
-        .levels { 
-            display: flex; flex-direction: column; gap: 15px; flex-grow: 1; overflow-y: auto; padding-bottom: 20px;
-            mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-        }
-        .levels::-webkit-scrollbar { display: none; }
-        
-        .level-card {
-            background: linear-gradient(145deg, #1e283d, #141b2b); border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.05), 0 4px 15px rgba(0,0,0,0.3);
-            text-align: left; color: #fff; flex-shrink: 0; transition: transform 0.1s;
-        }
-        .level-card.exam { border-color: var(--primary); background: linear-gradient(145deg, #2a2311, #141108); box-shadow: 0 0 20px rgba(212, 175, 55, 0.15); }
-        .level-card:active { transform: scale(0.97); }
-        .level-card .icon { font-size: 2.2rem; }
-        .level-card .info { flex-grow: 1; margin-left: 15px; }
-        .level-card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
-        .level-card.exam h3 { color: var(--primary); }
-        .level-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
-
-        /* Game Header */
-        .game-header { flex-shrink: 0; padding-bottom: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
-        .stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--primary); font-weight: 600; }
-        .question-box { padding: 15px; text-align: center; font-size: 1.1rem; font-weight: 600; line-height: 1.4; border-left: 4px solid var(--primary); color: #fff; }
-        .question-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; font-weight: 400;}
-
-        /* Options Area (Scrollable) */
-        .options-container {
-            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px;
-            mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
-        }
-        .options-container::-webkit-scrollbar { display: none; }
-
-        /* --- STYLES FOR DIFFERENT QUESTION TYPES --- */
-        
-        /* 1. Single & TF */
-        .opt-btn {
-            background: linear-gradient(145deg, #192233, #111723); border: 2px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px; padding: 16px; font-size: 0.95rem; line-height: 1.3; color: #fff; text-align: left;
-            transition: 0.2s; position: relative; width: 100%; flex-shrink: 0;
-        }
-        .opt-btn:active:not(.locked) { transform: scale(0.98); }
-        .opt-btn.locked { pointer-events: none; }
-        .opt-btn.selected { border-color: var(--primary); background: rgba(212, 175, 55, 0.1); }
-        .opt-btn.correct { border-color: var(--correct); background: rgba(0, 210, 106, 0.15); box-shadow: 0 0 15px rgba(0, 210, 106, 0.2); }
-        .opt-btn.wrong { border-color: var(--wrong); background: rgba(245, 34, 45, 0.15); }
-        
-        /* TF specific */
-        .tf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 100%; align-items: center; padding: 20px 0;}
-        .tf-btn { text-align: center; font-size: 1.5rem; font-weight: 800; padding: 40px 10px; border-radius: 20px;}
-        .tf-btn.true-btn { background: rgba(0, 210, 106, 0.1); border: 2px solid rgba(0, 210, 106, 0.3); }
-        .tf-btn.false-btn { background: rgba(245, 34, 45, 0.1); border: 2px solid rgba(245, 34, 45, 0.3); }
-
-        /* 2. Multi-select (Ingredients) */
-        .multi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-bottom: 20px;}
-        .multi-item {
-            background: #141b2b; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 10px;
-            font-size: 0.85rem; text-align: center; color: #ccc; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 60px;
-        }
-        .multi-item.selected { border-color: var(--primary); color: #fff; background: rgba(212, 175, 55, 0.2); font-weight: 600;}
-        .multi-item.correct { border-color: var(--correct); background: var(--correct); color: #000; font-weight: bold;}
-        .multi-item.missed { border-color: var(--correct); border-style: dashed; color: var(--correct); } /* missed but correct */
-        .multi-item.wrong { border-color: var(--wrong); background: var(--wrong); color: #fff; font-weight: bold;}
-        .multi-item.locked { pointer-events: none; }
-
-        /* 3. Match (Drag/Click) */
-        .match-container { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; height: 100%;}
-        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; justify-content: center;}
-        .match-item {
-            background: #192233; border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px 10px;
-            font-size: 0.85rem; text-align: center; transition: 0.2s; display: flex; align-items: center; justify-content: center; min-height: 70px;
-        }
-        .match-item.active { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); transform: scale(1.05); z-index: 2;}
-        .match-item.matched { border-color: var(--correct); background: rgba(0, 210, 106, 0.1); color: var(--correct); pointer-events: none; opacity: 0.6;}
-        .match-item.error { animation: shake 0.4s; border-color: var(--wrong); background: rgba(245, 34, 45, 0.2); }
-
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
-
-        /* Footer */
-        .game-footer { flex-shrink: 0; padding-top: 10px; display: flex; flex-direction: column; gap: 10px; background: var(--bg-color); z-index: 10; }
-        .feedback { text-align: center; font-weight: 800; font-size: 1.1rem; min-height: 22px; letter-spacing: 1px; }
-        .btn-main {
-            width: 100%; padding: 18px; border: none; border-radius: 18px; font-size: 1.2rem; font-weight: 800;
-            text-transform: uppercase; transition: 0.2s; color: #000;
-        }
-        .btn-next { background: linear-gradient(90deg, #d4af37, #f3e5ab); box-shadow: 0 4px 15px var(--primary-glow); opacity: 0.5; pointer-events: none; }
-        .btn-next.active { opacity: 1; pointer-events: auto; }
-        .btn-next.active:active { transform: scale(0.95); }
-
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f7474">
+  <meta name="description" content="Робочий графік команди KABINET">
+  <title>KABINET — графік</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/logo.svg" alt="Логотип KABINET">
+        <div><strong>KABINET</strong><span>графік команди</span></div>
+      </div>
+      <nav class="month-nav" aria-label="Навігація місяцями">
+        <button class="icon-btn" id="previous-month" type="button" aria-label="Попередній місяць">←</button>
+        <div class="month-title" id="month-title">…</div>
+        <button class="icon-btn" id="next-month" type="button" aria-label="Наступний місяць">→</button>
+      </nav>
+      <div class="top-actions">
+        <div class="status" id="connection-status"><span>Підключення…</span></div>
+        <button class="button small" id="today" type="button">Сьогодні</button>
+      </div>
+    </header>
 
-<div class="app-container">
+    <section class="toolbar" aria-label="Керування графіком">
+      <div class="field profile-field">
+        <label for="employee-select">Мій профіль</label>
+        <select id="employee-select"><option value="">Оберіть своє ім’я</option></select>
+      </div>
+      <button class="button" id="edit-availability" type="button" disabled>Позначити бажаний вихідний</button>
+      <div class="spacer"></div>
+      <button class="button ghost" id="share" type="button">Поділитися графіком</button>
+    </section>
 
-    <div id="screen-start" class="screen active">
-        <div class="header-start">
-            <h1>KABINET EXAM</h1>
-            <p>Ultimate Menu Mastery</p>
-        </div>
-        <div class="levels">
-            <div class="level-card exam" onclick="startGame('exam')">
-                <div class="icon">🎓</div>
-                <div class="info">
-                    <h3>ПОВНИЙ ЕКЗАМЕН</h3>
-                    <p>30 питань: змішані, відповідності та хардкор-інгредієнти в кінці.</p>
-                </div>
-            </div>
-            <div class="level-card" onclick="startGame('multi')">
-                <div class="icon">🥗</div>
-                <div class="info">
-                    <h3>Склади страв (Multi)</h3>
-                    <p>Тренування: вибери всі правильні інгредієнти з 12 варіантів.</p>
-                </div>
-            </div>
-            <div class="level-card" onclick="startGame('match')">
-                <div class="icon">🔗</div>
-                <div class="info">
-                    <h3>Відповідності (Match)</h3>
-                    <p>Тренування: з'єднай сети з ролами, бургери з соусами.</p>
-                </div>
-            </div>
-            <div class="level-card" onclick="startGame('tf')">
-                <div class="icon">⚖️</div>
-                <div class="info">
-                    <h3>Правда / Брехня</h3>
-                    <p>Тренування: швидкі бліц-питання на точність пам'яті.</p>
-                </div>
-            </div>
-        </div>
+    <button class="button" id="copy-access" type="button">Скопіювати мій код доступу</button>
+    <p>Передайте код адміністратору для дозволу редагувати свої вихідні.</p>
+    <div class="notice" id="edit-hint">Оберіть своє ім’я. Після цього можна буде позначити бажані вихідні.</div>
+
+    <section class="table-card" aria-label="Таблиця робочого графіка">
+      <div class="table-scroll" id="table-scroll">
+        <table class="schedule" id="schedule"></table>
+      </div>
+    </section>
+
+    <div class="legend" aria-label="Умовні позначення">
+      <span><i class="shift full"></i> повний день</span>
+      <span><i class="shift first"></i> перша половина</span>
+      <span><i class="shift second"></i> друга половина</span>
+      <span><i class="dot"></i> бажаний вихідний</span>
     </div>
+  </main>
 
-    <div id="screen-game" class="screen">
-        <div class="game-header">
-            <div class="stats">
-                <span id="level-label">ЕКЗАМЕН</span>
-                <span id="score-label">0/30</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" id="progress-bar"></div></div>
-            <div class="glass-panel question-box">
-                <div id="question-text">Текст питання...</div>
-                <div id="question-desc" class="question-desc"></div>
-            </div>
-        </div>
+  <div class="modal-backdrop" id="employee-modal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="employee-modal-title">
+      <div class="modal-header">
+        <h2 id="employee-modal-title">Працівник</h2>
+        <button class="icon-btn" type="button" data-close="employee-modal" aria-label="Закрити">×</button>
+      </div>
+      <div class="stats">
+        <div class="stat">Зміни 1–15<strong id="first-half">0</strong></div>
+        <div class="stat">Зміни 16–31<strong id="second-half">0</strong></div>
+      </div>
+      <div class="modal-actions"><button class="button" type="button" data-close="employee-modal">Закрити</button></div>
+    </section>
+  </div>
 
-        <div class="options-container" id="options-area">
-            </div>
+  <div class="modal-backdrop" id="confirm-modal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="modal-header"><h2 id="confirm-title">Підтвердження</h2></div>
+      <p id="confirm-message"></p>
+      <div class="modal-actions">
+        <button class="button ghost" type="button" data-close="confirm-modal">Скасувати</button>
+        <button class="button primary" id="confirm-action" type="button">Підтвердити</button>
+      </div>
+    </section>
+  </div>
 
-        <div class="game-footer">
-            <div class="feedback" id="feedback-text"></div>
-            <button class="btn-main btn-next" id="next-btn" onclick="handleMainAction()">Підтвердити</button>
-        </div>
-    </div>
+  <div class="modal-backdrop" id="banquet-modal" hidden>
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="banquet-title">
+      <div class="modal-header">
+        <h2 id="banquet-title">Бенкет</h2>
+        <button class="icon-btn" type="button" data-close="banquet-modal" aria-label="Закрити">×</button>
+      </div>
+      <p id="banquet-details"></p>
+      <div class="receipts" id="banquet-receipts"></div>
+      <div class="modal-actions"><button class="button" type="button" data-close="banquet-modal">Закрити</button></div>
+    </section>
+  </div>
 
-    <div id="screen-result" class="screen">
-        <div class="header-start" style="margin-top: 15vh;">
-            <h1 id="result-title">Екзамен завершено!</h1>
-            <p style="font-size: 4rem; font-weight: 800; color: #fff; margin: 20px 0;" id="result-score">30/30</p>
-            <p id="result-desc" style="font-size: 1.1rem; line-height: 1.5; padding: 0 20px; color: var(--primary);"></p>
-        </div>
-        <div style="flex-grow: 1;"></div>
-        <button class="btn-main" style="background: var(--primary); color: #000; margin-bottom: 10px;" onclick="switchScreen('screen-start')">Головне меню</button>
-    </div>
-
-</div>
-
-<script>
-    // --- 1. SINGLE QUESTIONS (Classic) ---
-    const dbSingle = [
-        { q: "Який об'єм порції 'Допіо'?", a: "60 мл", w: ["30 мл", "15 мл", "120 мл"] },
-        { q: "Яка риба йде у 'Шпинатний омлет'?", a: "Слабосолений лосось", w: ["Копчений лосось", "Вугор", "Тунець"] },
-        { q: "Який соус подається до 'Креветок темпура'?", a: "Солодкий чилі", w: ["Айолі", "Унагі", "Тартар"] },
-        { q: "Який сир використовується у 'Сирному крем-супі'?", a: "Не уточнено (просто сирний)", w: ["Чеддер", "Пармезан", "Дор Блю"] },
-        { q: "Що лежить на 'Файній бульбі з куркою'?", a: "Куряче філе та печериці у вершковому соусі", w: ["Курячі нагетси і соус сирний", "Копчена курка і томати", "Куряче філе і соус BBQ"] }
-    ];
-
-    // --- 2. TRUE / FALSE QUESTIONS ---
-    const dbTF = [
-        { q: "У коктейль 'Lady Killer' додають текілу.", a: false }, // Там джин
-        { q: "Вага 'Компанійської тарелі' - 1000 грамів м'яса/овочів та 100 грамів соусу.", a: true },
-        { q: "Піца 'Американо' містить картоплю фрі.", a: true },
-        { q: "У суші-бургері з креветкою використовується соус Спайсі.", a: true },
-        { q: "Англійський сніданок подається тільки до 12:00.", a: false }, // Цілий день
-        { q: "До 'Сету сирного з медом' входять лазур, камамбер та королівський сир.", a: true },
-        { q: "Коктейль 'Kabinet' готується на основі рому.", a: false }, // Лікер Бейліс, горілка
-        { q: "Порція 'Флетвайт' має об'єм 160 мл.", a: true }
-    ];
-
-    // --- 3. MATCHING QUESTIONS ---
-    const dbMatch = [
-        {
-            q: "Встановіть відповідність: Суші-сети та роли, що до них входять",
-            pairs: [
-                { l: "Сет Кабінет", r: "Рол Прайм, Рол Кіото" },
-                { l: "Сет Каліфорнія", r: "З лососем, З креветкою, Зі сурімі" },
-                { l: "Футомак сет", r: "Сніжний краб, З лососем, З креветкою" },
-                { l: "Філадельфія сет", r: "Класична, З копч. лососем, З вугрем" }
-            ]
-        },
-        {
-            q: "Встановіть відповідність: Бургери та їх специфічні соуси",
-            pairs: [
-                { l: "Бургер Кабінет", r: "Соус BBQ, Соус Тартар" },
-                { l: "Бургер Сирний Чан", r: "Соус BBQ, Сирний соус" },
-                { l: "Бургер з рваною свининою", r: "Соус Айолі" },
-                { l: "Бургер Цезар", r: "Соус Цезар" }
-            ]
-        },
-        {
-            q: "Встановіть відповідність: Піци та їх фірмові інгредієнти",
-            pairs: [
-                { l: "Піца Кабінет", r: "Сир фета, бальзамічний соус" },
-                { l: "Піца По-селянськи", r: "Мисливські ковбаски, часникова олія" },
-                { l: "Піца Американо", r: "Картопля фрі, сирний соус" },
-                { l: "М'ясна", r: "Прошуто, гранатовий соус" }
-            ]
-        },
-        {
-            q: "Встановіть відповідність: Алкогольні коктейлі та їх база",
-            pairs: [
-                { l: "Cherry Sour", r: "Віскі" },
-                { l: "Fiero-Sierra", r: "Текіла" },
-                { l: "Lady Killer", r: "Джин" },
-                { l: "Tequila Sour", r: "Текіла, Віскі, Темний ром" }
-            ]
-        }
-    ];
-
-    // --- 4. MULTI-SELECT (Ingredients Hardcore) ---
-    // User must select exactly the correct array. UI provides pool (correct + wrong up to 12).
-    const dbMulti = [
-        {
-            q: "З чого складається 'Піца Гавайська'?",
-            c: ["Вершковий соус", "Моцарела", "Ананаси", "Куряче філе", "Бекон", "Кукурудза", "Рукола"],
-            w: ["Соус неаполітано", "Печериці", "Пармезан", "Томати", "Кримська цибуля"]
-        },
-        {
-            q: "З чого складається 'Англійський сніданок'?",
-            c: ["Сирний мелт", "Яйця", "Ковбаска", "Бекон", "Томати", "Печериці", "Квасоля", "Зелень"],
-            w: ["Тостовий хліб", "Авокадо", "Кукурудза", "Сир чеддер"]
-        },
-        {
-            q: "З чого складається 'Бургер Кабінет' (без картоплі)?",
-            c: ["2 котлети з яловичини", "Цибулеві кільця", "Бекон", "Сир лазур", "Квашений огірок", "Айсберг", "Соус BBQ", "Соус Тартар"],
-            w: ["Сир чеддер", "Томати", "Кримська цибуля", "Яйце"]
-        },
-        {
-            q: "З чого складається 'Салат з вугрем'?",
-            c: ["Фреш салату", "Вугор", "Авокадо", "Ікра тобіко", "Крем-сир", "Соус Унагі", "Соус Айолі", "Горіховий соус", "Кунжут"],
-            w: ["Соус Спайсі", "Томати чері", "Пармезан"]
-        },
-        {
-            q: "З чого складається 'Паста з креветками та восьминогами бейбі'?",
-            c: ["Спагеті", "Креветки", "Восьминоги бейбі", "Вершки", "Пармезан", "Устричний соус", "Соус Песто"],
-            w: ["Фетучіні", "Томати чері", "Соус Біск", "Часник", "Базилік"]
-        },
-        {
-            q: "Які інгредієнти входять до 'Сету морепродуктів' (1000 г)?",
-            c: ["Креветки", "Мідії", "Лосось", "Кільця кальмарів", "Овочі гриль", "Соус айолі", "Соус солодкий чилі", "Соус гранатовий"],
-            w: ["Моцарела фрі", "Картопляні діпи", "Восьминоги", "Устриці"]
-        },
-        {
-            q: "З чого складається 'Піца По-селянськи'?",
-            c: ["Соус неаполітано", "Моцарела", "Салямі", "Мисливські ковбаски", "Куряче філе", "Квашений огірок", "Кримська цибуля", "Часникова олія", "Зелень"],
-            w: ["Бекон", "Вершковий соус", "Картопля фрі"]
-        },
-        {
-            q: "З чого складається 'Суші бургер з лососем'?",
-            c: ["Рис", "Лосось", "Огірок", "Крем-сир", "Кляр темпура", "Сир чедер", "Ікра тобіко", "Сухарі панко", "Чука", "Соус Спайсі"],
-            w: ["Сніжний краб", "Авокадо", "Соус Унагі"]
-        },
-        {
-            q: "З чого складається 'Теплий салат з телятиною'?",
-            c: ["Фреш салату", "Телятина", "Печериці", "Томати чері", "Перець болгарський", "Кабачок", "Кедрові горіхи", "Соус вінегрет"],
-            w: ["Пармезан", "Сир фета", "Грецькі горіхи", "Гранатовий соус"]
-        },
-        {
-            q: "Які складові коктейлю 'Déjà vu'?",
-            c: ["Джин", "Апероль", "Лимонний фреш", "Полуничний сироп", "Ангостура", "Лід"],
-            w: ["Текіла", "Сік ананасовий", "Сироп чорна смородина", "Лікер Пізан", "Содова", "Віскі"]
-        }
-    ];
-
-    // --- GAME LOGIC ---
-    let qList = [];
-    let curIdx = 0;
-    let score = 0;
-    
-    // States
-    let currentQType = '';
-    let selectedSingle = null;
-    let selectedTF = null;
-    
-    // Multi state
-    let multiCorrectNeeded = 0;
-    
-    // Match state
-    let matchPairs = [];
-    let matchLeftSel = null;
-    let matchRightSel = null;
-    let matchedCount = 0;
-    let matchErrorMade = false;
-
-    let audioUnlocked = false;
-    let audioCtx;
-
-    // --- UTILS ---
-    function shuffle(arr) {
-        let a = [...arr];
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-    }
-
-    function triggerHaptic(type) {
-        if (!navigator.vibrate) return;
-        if(type==='tap') navigator.vibrate(15);
-        if(type==='success') navigator.vibrate([20,40,20]);
-        if(type==='error') navigator.vibrate([50,50,50]);
-    }
-
-    function initAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            gain.gain.value = 0;
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(0); osc.stop(0.1);
-            audioUnlocked = true;
-        } catch(e){}
-    }
-    document.addEventListener('touchstart', initAudio, {once:true});
-    document.addEventListener('click', initAudio, {once:true});
-
-    function playSound(type) {
-        if (!audioUnlocked || !audioCtx) return;
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        try {
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            let n = audioCtx.currentTime;
-            if(type==='correct'){
-                osc.type='sine'; osc.frequency.setValueAtTime(600,n); osc.frequency.exponentialRampToValueAtTime(1200,n+0.1);
-                gain.gain.setValueAtTime(0.3,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.3);
-                osc.start(n); osc.stop(n+0.3);
-            } else if(type==='error') {
-                osc.type='sawtooth'; osc.frequency.setValueAtTime(150,n); osc.frequency.exponentialRampToValueAtTime(80,n+0.3);
-                gain.gain.setValueAtTime(0.3,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.3);
-                osc.start(n); osc.stop(n+0.3);
-            } else if(type==='link') {
-                osc.type='triangle'; osc.frequency.setValueAtTime(800,n);
-                gain.gain.setValueAtTime(0.1,n); gain.gain.exponentialRampToValueAtTime(0.01,n+0.1);
-                osc.start(n); osc.stop(n+0.1);
-            }
-        }catch(e){}
-    }
-
-    function switchScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    // --- SETUP GAME ---
-    function startGame(mode) {
-        triggerHaptic('tap');
-        if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
-        
-        qList = [];
-        if (mode === 'exam') {
-            // 30 questions: 8 Single, 4 TF, 4 Match, 14 Multi (Wait, I only have 10 multi. Let's do 10 Single, 6 TF, 4 Match, 10 Multi)
-            let s = shuffle(dbSingle).slice(0,5); // I only have 5 single here for demo, you can add more
-            let tf = shuffle(dbTF).slice(0,6);
-            let mat = shuffle(dbMatch).slice(0,4);
-            let mul = shuffle(dbMulti).slice(0,10);
-            
-            // Format for engine
-            s.forEach(i => qList.push({t:'single', ...i}));
-            tf.forEach(i => qList.push({t:'tf', ...i}));
-            qList = shuffle(qList); // mix single and TF
-            
-            mat.forEach(i => qList.push({t:'match', ...i}));
-            mul.forEach(i => qList.push({t:'multi', ...i}));
-        } 
-        else if (mode === 'multi') {
-            let mul = shuffle(dbMulti);
-            mul.forEach(i => qList.push({t:'multi', ...i}));
-        }
-        else if (mode === 'match') {
-            let mat = shuffle(dbMatch);
-            mat.forEach(i => qList.push({t:'match', ...i}));
-        }
-        else if (mode === 'tf') {
-            let tf = shuffle(dbTF);
-            tf.forEach(i => qList.push({t:'tf', ...i}));
-        }
-
-        curIdx = 0; score = 0;
-        switchScreen('screen-game');
-        renderQuestion();
-    }
-
-    // --- RENDER ---
-    function renderQuestion() {
-        let q = qList[curIdx];
-        currentQType = q.t;
-        
-        document.getElementById('score-label').innerText = `${curIdx+1}/${qList.length}`;
-        document.getElementById('progress-bar').style.width = `${(curIdx / qList.length)*100}%`;
-        document.getElementById('question-text').innerText = q.q;
-        
-        let desc = document.getElementById('question-desc');
-        let cont = document.getElementById('options-area');
-        let nextBtn = document.getElementById('next-btn');
-        let fb = document.getElementById('feedback-text');
-        
-        cont.innerHTML = '';
-        fb.innerText = '';
-        nextBtn.innerText = "Підтвердити";
-        nextBtn.classList.remove('active');
-        nextBtn.onclick = handleMainAction;
-        
-        // Render based on type
-        if (q.t === 'single') {
-            desc.innerText = "Оберіть один правильний варіант";
-            selectedSingle = null;
-            let opts = shuffle([{t:q.a, c:true}, {t:q.w[0], c:false}, {t:q.w[1], c:false}, {t:q.w[2], c:false}]);
-            let letters = ['A','B','C','D'];
-            opts.forEach((o,i) => {
-                let b = document.createElement('div');
-                b.className = 'opt-btn';
-                b.innerText = o.t;
-                b.setAttribute('data-letter', letters[i]);
-                b.dataset.c = o.c;
-                b.onclick = () => {
-                    triggerHaptic('tap');
-                    document.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
-                    b.classList.add('selected');
-                    selectedSingle = b;
-                    nextBtn.classList.add('active');
-                };
-                cont.appendChild(b);
-            });
-        }
-        else if (q.t === 'tf') {
-            desc.innerText = "Правда чи брехня?";
-            selectedTF = null;
-            let grid = document.createElement('div'); grid.className = 'tf-grid';
-            
-            let btnT = document.createElement('div'); btnT.className = 'tf-btn true-btn'; btnT.innerText = 'ПРАВДА';
-            let btnF = document.createElement('div'); btnF.className = 'tf-btn false-btn'; btnF.innerText = 'БРЕХНЯ';
-            
-            [btnT, btnF].forEach(b => {
-                b.onclick = () => {
-                    triggerHaptic('tap');
-                    btnT.style.opacity = '0.5'; btnF.style.opacity = '0.5';
-                    btnT.style.borderWidth = '2px'; btnF.style.borderWidth = '2px';
-                    b.style.opacity = '1'; b.style.borderWidth = '5px';
-                    selectedTF = (b === btnT); // true or false
-                    nextBtn.classList.add('active');
-                };
-            });
-            grid.appendChild(btnT); grid.appendChild(btnF);
-            cont.appendChild(grid);
-        }
-        else if (q.t === 'multi') {
-            desc.innerText = "Оберіть УСІ правильні інгредієнти (невідома кількість)";
-            let pool = [...q.c, ...q.w];
-            pool = shuffle(pool).slice(0, 12); // take up to 12 items (mix of true and false)
-            // Ensure all corrects are in the pool if length allows. The logic above might slice out corrects.
-            // Better logic:
-            let neededW = 12 - q.c.length;
-            let wPool = shuffle(q.w).slice(0, neededW);
-            pool = shuffle([...q.c, ...wPool]);
-            
-            multiCorrectNeeded = q.c.length;
-            
-            let grid = document.createElement('div'); grid.className = 'multi-grid';
-            pool.forEach(itemText => {
-                let isC = q.c.includes(itemText);
-                let b = document.createElement('div');
-                b.className = 'multi-item';
-                b.innerText = itemText;
-                b.dataset.c = isC;
-                b.dataset.sel = "false";
-                b.onclick = () => {
-                    triggerHaptic('tap');
-                    if (b.dataset.sel === "false") {
-                        b.dataset.sel = "true"; b.classList.add('selected');
-                    } else {
-                        b.dataset.sel = "false"; b.classList.remove('selected');
-                    }
-                    // Any selection makes button active
-                    if(document.querySelectorAll('.multi-item.selected').length > 0) {
-                        nextBtn.classList.add('active');
-                    } else {
-                        nextBtn.classList.remove('active');
-                    }
-                };
-                grid.appendChild(b);
-            });
-            cont.appendChild(grid);
-        }
-        else if (q.t === 'match') {
-            desc.innerText = "З'єднайте пари (натисніть зліва, потім справа)";
-            nextBtn.style.display = 'none'; // Hidden until matched
-            matchErrorMade = false;
-            matchedCount = 0;
-            matchLeftSel = null; matchRightSel = null;
-            
-            let matchCont = document.createElement('div'); matchCont.className = 'match-container';
-            let colL = document.createElement('div'); colL.className = 'match-col';
-            let colR = document.createElement('div'); colR.className = 'match-col';
-            
-            let lefts = shuffle(q.pairs.map((p,i) => ({t:p.l, id:i})));
-            let rights = shuffle(q.pairs.map((p,i) => ({t:p.r, id:i})));
-            
-            lefts.forEach(l => {
-                let b = document.createElement('div'); b.className = 'match-item left-item'; b.innerText = l.t; b.dataset.id = l.id;
-                b.onclick = () => {
-                    triggerHaptic('tap');
-                    document.querySelectorAll('.left-item').forEach(x=>x.classList.remove('active'));
-                    b.classList.add('active'); matchLeftSel = b; checkMatch();
-                };
-                colL.appendChild(b);
-            });
-            
-            rights.forEach(r => {
-                let b = document.createElement('div'); b.className = 'match-item right-item'; b.innerText = r.t; b.dataset.id = r.id;
-                b.onclick = () => {
-                    triggerHaptic('tap');
-                    document.querySelectorAll('.right-item').forEach(x=>x.classList.remove('active'));
-                    b.classList.add('active'); matchRightSel = b; checkMatch();
-                };
-                colR.appendChild(b);
-            });
-            
-            matchCont.appendChild(colL); matchCont.appendChild(colR);
-            cont.appendChild(matchCont);
-        }
-        
-        cont.scrollTop = 0;
-    }
-
-    function checkMatch() {
-        if(matchLeftSel && matchRightSel) {
-            if (matchLeftSel.dataset.id === matchRightSel.dataset.id) {
-                // Correct match
-                playSound('link'); triggerHaptic('success');
-                matchLeftSel.classList.replace('active', 'matched');
-                matchRightSel.classList.replace('active', 'matched');
-                matchLeftSel = null; matchRightSel = null;
-                matchedCount++;
-                if (matchedCount === qList[curIdx].pairs.length) {
-                    // All matched!
-                    let fb = document.getElementById('feedback-text');
-                    let nextBtn = document.getElementById('next-btn');
-                    if(matchErrorMade) {
-                        fb.innerText = "ЗІБРАНО (Але були помилки)"; fb.style.color = "var(--wrong)";
-                    } else {
-                        fb.innerText = "ІДЕАЛЬНО ЗІБРАНО!"; fb.style.color = "var(--correct)";
-                        score++;
-                    }
-                    nextBtn.style.display = 'block';
-                    nextBtn.classList.add('active');
-                    nextBtn.innerText = "Далі ➔";
-                    nextBtn.onclick = goNext;
-                }
-            } else {
-                // Wrong match
-                playSound('error'); triggerHaptic('error');
-                matchErrorMade = true;
-                matchLeftSel.classList.add('error'); matchRightSel.classList.add('error');
-                setTimeout(() => {
-                    if(matchLeftSel) { matchLeftSel.classList.remove('error'); matchLeftSel.classList.remove('active'); }
-                    if(matchRightSel) { matchRightSel.classList.remove('error'); matchRightSel.classList.remove('active'); }
-                    matchLeftSel = null; matchRightSel = null;
-                }, 400);
-            }
-        }
-    }
-
-    // --- VALIDATION ---
-    function handleMainAction() {
-        let q = qList[curIdx];
-        let fb = document.getElementById('feedback-text');
-        let nextBtn = document.getElementById('next-btn');
-        let isCorrect = false;
-
-        if (currentQType === 'single') {
-            document.querySelectorAll('.opt-btn').forEach(b => b.classList.add('locked'));
-            if (selectedSingle.dataset.c === "true") { isCorrect = true; selectedSingle.classList.replace('selected', 'correct'); }
-            else { 
-                selectedSingle.classList.replace('selected', 'wrong');
-                document.querySelectorAll('.opt-btn').forEach(b => { if(b.dataset.c==="true") b.classList.add('correct'); });
-            }
-        }
-        else if (currentQType === 'tf') {
-            document.querySelectorAll('.tf-btn').forEach(b => b.style.pointerEvents = 'none');
-            if (selectedTF === q.a) { isCorrect = true; }
-            else { isCorrect = false; }
-            // Highlight correct side
-            if (q.a === true) { document.querySelector('.true-btn').style.background = 'var(--correct)'; document.querySelector('.true-btn').style.color='#000'; }
-            else { document.querySelector('.false-btn').style.background = 'var(--correct)'; document.querySelector('.false-btn').style.color='#000'; }
-        }
-        else if (currentQType === 'multi') {
-            let items = document.querySelectorAll('.multi-item');
-            items.forEach(b => b.classList.add('locked'));
-            let mistakes = 0;
-            let foundCorrects = 0;
-            
-            items.forEach(b => {
-                let userSel = b.dataset.sel === "true";
-                let realC = b.dataset.c === "true";
-                
-                b.classList.remove('selected');
-                
-                if (userSel && realC) { b.classList.add('correct'); foundCorrects++; }
-                else if (userSel && !realC) { b.classList.add('wrong'); mistakes++; }
-                else if (!userSel && realC) { b.classList.add('missed'); mistakes++; }
-            });
-            
-            if (mistakes === 0 && foundCorrects === multiCorrectNeeded) { isCorrect = true; }
-        }
-
-        // Apply feedback
-        if (isCorrect) {
-            score++;
-            fb.innerText = "БЛИСКУЧЕ!"; fb.style.color = "var(--correct)";
-            playSound('correct'); triggerHaptic('success');
-        } else {
-            fb.innerText = "ПОМИЛКА"; fb.style.color = "var(--wrong)";
-            playSound('error'); triggerHaptic('error');
-        }
-
-        document.getElementById('progress-bar').style.width = `${((curIdx+1) / qList.length)*100}%`;
-        nextBtn.innerText = "Далі ➔";
-        nextBtn.onclick = goNext;
-    }
-
-    function goNext() {
-        triggerHaptic('tap');
-        curIdx++;
-        if(curIdx < qList.length) renderQuestion();
-        else endGame();
-    }
-
-    function endGame() {
-        switchScreen('screen-result');
-        document.getElementById('result-score').innerText = `${score}/${qList.length}`;
-        let d = document.getElementById('result-desc');
-        let p = score / qList.length;
-        if(p === 1) { d.innerText = "Ти машина! Абсолютне знання меню."; d.style.color = "var(--correct)"; }
-        else if (p >= 0.8) { d.innerText = "Майже ідеально. Легке хвилювання, але зміну відпрацюєш на відмінно."; d.style.color = "var(--primary)"; }
-        else if (p >= 0.5) { d.innerText = "Забагато помилок. У запарах гості будуть незадоволені. Тренуйся ще."; d.style.color = "#e0b976"; }
-        else { d.innerText = "Провал. З таким знанням меню краще не підходити до столу. Вчити знову!"; d.style.color = "var(--wrong)"; }
-    }
-
-</script>
-
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

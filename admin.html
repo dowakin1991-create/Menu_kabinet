@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f7474">
+  <meta name="robots" content="noindex,nofollow">
+  <title>KABINET — адміністрування</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <section class="shell" id="login-panel">
+    <form class="modal" id="login-form" style="margin:8vh auto">
+      <div class="brand"><img src="assets/logo.svg" alt=""><h1>Вхід адміністратора</h1></div>
+      <p>Використайте пошту й пароль, створені у Firebase Authentication.</p>
+      <div class="field"><label for="login-email">Пошта</label><input id="login-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="login-password">Пароль</label><input id="login-password" type="password" autocomplete="current-password" required></div>
+      <p id="login-error" role="alert"></p>
+      <button class="button primary" id="login-submit" type="submit">Увійти</button>
+    </form>
+  </section>
+  <main class="shell" id="admin-panel" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/logo.svg" alt="Логотип KABINET">
+        <div><strong>KABINET</strong><span>адміністрування</span></div>
+      </div>
+      <nav class="month-nav" aria-label="Навігація місяцями">
+        <button class="icon-btn" id="previous-month" type="button" aria-label="Попередній місяць">←</button>
+        <div class="month-title" id="month-title">…</div>
+        <button class="icon-btn" id="next-month" type="button" aria-label="Наступний місяць">→</button>
+      </nav>
+      <div class="top-actions">
+        <div class="status" id="connection-status"><span>Підключення…</span></div>
+        <a class="button small" href="index.html">Графік</a>
+        <button class="button small" id="logout" type="button">Вийти</button>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="Адміністрування">
+      <button class="button primary" id="add-employee" type="button">+ Працівник</button>
+      <button class="button" id="today" type="button">Сьогодні</button>
+      <div class="spacer"></div>
+      <button class="button ghost" id="notify" type="button">Підготувати повідомлення</button>
+      <button class="button ghost" id="print" type="button">Друк / PDF</button>
+    </section>
+
+    <div class="notice warning">Адміністративна сторінка. Натисніть працівника для перейменування або видалення, клітинку — для зміни зміни, заголовок дня — для налаштування бенкету.</div>
+
+    <section class="table-card" aria-label="Редагування робочого графіка">
+      <div class="table-scroll" id="table-scroll"><table class="schedule" id="schedule"></table></div>
+    </section>
+
+    <div class="legend">
+      <span><i class="shift full"></i> повний день</span>
+      <span><i class="shift first"></i> перша половина</span>
+      <span><i class="shift second"></i> друга половина</span>
+      <span><i class="dot"></i> бажаний вихідний</span>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="employee-editor" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="employee-editor-title">
+      <div class="modal-header">
+        <h2 id="employee-editor-title">Працівник</h2>
+        <button class="icon-btn" type="button" data-close="employee-editor" aria-label="Закрити">×</button>
+      </div>
+      <div class="field"><label for="employee-name">Ім’я</label><input id="employee-name" maxlength="80" autocomplete="off"></div>
+      <div class="field"><label for="employee-uid">Код доступу працівника</label><input id="employee-uid" maxlength="128" autocomplete="off"><small>Працівник копіює код зі своєї сторінки. Порожнє поле вимикає редагування вихідних.</small></div>
+      <div class="stats" style="margin-top:12px">
+        <div class="stat">Зміни 1–15<strong id="employee-first-half">0</strong></div>
+        <div class="stat">Зміни 16–31<strong id="employee-second-half">0</strong></div>
+      </div>
+      <div class="modal-actions">
+        <button class="button danger" id="delete-employee" type="button">Видалити</button>
+        <span style="flex:1"></span>
+        <button class="button ghost" type="button" data-close="employee-editor">Скасувати</button>
+        <button class="button primary" id="save-employee" type="button">Зберегти</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="shift-editor" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shift-editor-title">
+      <div class="modal-header">
+        <h2 id="shift-editor-title">Робоча зміна</h2>
+        <button class="icon-btn" type="button" data-close="shift-editor" aria-label="Закрити">×</button>
+      </div>
+      <p id="shift-editor-description"></p>
+      <div class="choice-grid">
+        <button class="button" type="button" data-shift="full">× Повний день</button>
+        <button class="button" type="button" data-shift="first">◩ Перша половина</button>
+        <button class="button" type="button" data-shift="second">◪ Друга половина</button>
+        <button class="button danger" type="button" data-shift="none">Без зміни</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="day-editor" hidden>
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="day-editor-title">
+      <div class="modal-header">
+        <h2 id="day-editor-title">Налаштування дня</h2>
+        <button class="icon-btn" type="button" data-close="day-editor" aria-label="Закрити">×</button>
+      </div>
+      <div class="choice-grid">
+        <div class="field"><label for="banquet-time">Час</label><input id="banquet-time" type="time"></div>
+        <div class="field"><label for="banquet-guests">Кількість гостей</label><input id="banquet-guests" type="number" min="1" max="999" inputmode="numeric"></div>
+      </div>
+      <div class="field" style="margin-top:10px"><label for="banquet-note">Примітка</label><textarea id="banquet-note" maxlength="500" placeholder="Наприклад: весілля, 30 гостей"></textarea></div>
+      <div class="field"><label for="receipt-links">Посилання на чеки</label><textarea id="receipt-links" rows="4" placeholder="https://… (по одному посиланню в рядку)"></textarea></div>
+      <p class="muted">Фото не зберігаються у Firebase. Додайте посилання з Google Drive, Dropbox або іншого сервісу.</p>
+      <div class="modal-actions">
+        <button class="button danger" id="delete-banquet" type="button">Скасувати бенкет</button>
+        <span style="flex:1"></span>
+        <button class="button ghost" type="button" data-close="day-editor">Скасувати</button>
+        <button class="button primary" id="save-banquet" type="button">Зберегти бенкет</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="add-editor" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="add-editor-title">
+      <div class="modal-header"><h2 id="add-editor-title">Новий працівник</h2></div>
+      <div class="field"><label for="new-employee-name">Ім’я</label><input id="new-employee-name" maxlength="80" autocomplete="off"></div>
+      <div class="modal-actions">
+        <button class="button ghost" type="button" data-close="add-editor">Скасувати</button>
+        <button class="button primary" id="confirm-add" type="button">Додати</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
