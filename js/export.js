@@ -1,7 +1,7 @@
 import { daysInMonth, dutyName, monthLabel, shiftType } from './ui.js?v=20261015.2';
 
 // Canvas draws text directly: no HTML injection, remote renderer or CSS-mask support needed.
-export async function exportHalfMonth(date, data, half) {
+export async function exportHalfMonth(date, data, half, legacy = null) {
   const start = half === 1 ? 1 : 16;
   const end = half === 1 ? 15 : daysInMonth(date);
   const cell = 62, nameWidth = 210, rowHeight = 46, top = 130;
@@ -58,6 +58,18 @@ export async function exportHalfMonth(date, data, half) {
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   if (!blob) throw new Error('Не вдалося створити PNG.');
   const url = URL.createObjectURL(blob);
+  if (legacy) {
+    if (legacy.container.exportUrl) URL.revokeObjectURL(legacy.container.exportUrl);
+    legacy.container.exportUrl = url;
+    const image = new Image(); image.src = url; image.alt = `Графік за ${start}–${end}`;
+    image.style.cssText = 'width:100%;height:auto;display:block;border-radius:4px';
+    const download = document.createElement('a'); download.href = url;
+    download.download = `kabinet-${date.getFullYear()}-${date.getMonth()+1}-${start}-${end}.png`;
+    download.className = 'modal-btn'; download.textContent = 'Завантажити PNG';
+    legacy.container.replaceChildren(image,download);
+    legacy.modal.style.display = 'flex';
+    return;
+  }
   const dialog = document.createElement('dialog'); dialog.className = 'receipt-viewer';
   const close = document.createElement('button'); close.className = 'button'; close.textContent = 'Закрити'; close.onclick = () => dialog.close();
   const download = document.createElement('a'); download.className = 'button'; download.textContent = 'Завантажити PNG'; download.href = url;

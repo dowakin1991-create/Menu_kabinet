@@ -1,146 +1,229 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon" href="IMG_9802.png">
-  <meta name="theme-color" content="#0f7474">
-  <meta name="robots" content="noindex,nofollow">
-  <title>KABINET — адміністрування</title>
-  <link rel="icon" href="IMG_9802.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261015.2">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KABINET - Панель ШЕФА</title>
+    
+    <link rel="icon" type="image/png" href="IMG_9802.png">
+    <link rel="apple-touch-icon" href="IMG_9802.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KABINET ШЕФ">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #f4f7f6; --bg-card: #ffffff; --text-main: #2c3e50;
+            --primary: #1F6B6B; --weekend: #e9ecef; --border: #c4cdd5; 
+            --row-1: #fdf2f2; --row-2: #f0f7f4; --row-3: #fef6e3; --row-4: #f3f0f7; --row-5: #eef5fb;
+            --today-border: #e74c3c;
+            
+            --highlight-green-solid: #2ecc71; 
+            --highlight-green-bg: rgba(46, 204, 113, 0.3);
+            --highlight-green-sticky: #d5f5e3; 
+            
+            --highlight-blue-solid: #3498db; 
+            --highlight-blue-bg: rgba(52, 152, 219, 0.35); 
+            --highlight-blue-sticky: #d6eaf8; 
+
+            --banquet-solid: #f39c12;
+            --banquet-bg: rgba(243, 156, 18, 0.15);
+            --banquet-th-bg: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0;
+                --primary: #2ebfbf; --weekend: #2a2a2a; --border: #444444;
+                --row-1: #3a2a2a; --row-2: #2a3a32; --row-3: #3a352a; --row-4: #2e2a3a; --row-5: #2a333a;
+                --today-border: #ff6b6b;
+                
+                --highlight-green-bg: rgba(46, 204, 113, 0.4); 
+                --highlight-green-sticky: #1d5233; 
+                
+                --highlight-blue-bg: rgba(52, 152, 219, 0.45); 
+                --highlight-blue-sticky: #1f4766; 
+
+                --banquet-bg: rgba(243, 156, 18, 0.25);
+                --banquet-th-bg: linear-gradient(135deg, #b95d09, #d68910);
+            }
+        }
+
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding: 10px; transition: background-color 0.3s ease; -webkit-user-select: none; user-select: none; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        
+        header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; background: var(--bg-card); padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid var(--border); }
+        .logo-block { display: flex; align-items: center; gap: 10px; }
+        .logo { height: 42px; width: 42px; border-radius: 50%; background-color: #ffffff; padding: 2px; object-fit: contain; border: 2px solid var(--border); box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .admin-badge { background: #e74c3c; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; display: inline-block; }
+        
+        .month-selector { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+        .nav-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 15px; color: var(--text-main); }
+        
+        .admin-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); align-items: center; }
+        .input-group { display: flex; flex-grow: 1; gap: 8px; min-width: 250px; }
+        
+        input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; -webkit-user-select: auto; user-select: auto; }
+        button { padding: 10px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px; transition: opacity 0.2s;}
+        button:active { opacity: 0.7; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .add-btn { background: #3498db; color: white; }
+        .export-btn { background: #9b59b6; color: white; flex-grow: 1; }
+        .tg-btn { background: #0088cc; color: white; flex-grow: 1; }
+        
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg-card); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; background: var(--bg-card); }
+        
+        th, td { padding: 4px; height: 50px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); box-sizing: border-box; transition: background-color 0.2s; }
+        th { background: #34495e; color: white; position: sticky; top: 0; z-index: 4; font-size: 0.9rem; }
+        th.weekend { color: var(--text-main) !important; }
+
+        th:first-child, td:first-child { 
+            position: sticky; left: 0; z-index: 5; background: inherit; text-align: left; padding-left: 10px; font-weight: 700; border-left: 1px solid var(--border); min-width: 120px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 2px 0 5px rgba(0,0,0,0.05); cursor: pointer; 
+        }
+        th:first-child { background: #34495e; color: white !important; z-index: 6; cursor: default; }
+        
+        .current-day-th { border-top: 3px solid var(--today-border) !important; border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: #2c3e50 !important; color: white !important; }
+        .current-day-td { border-left: 3px solid var(--today-border) !important; border-right: 3px solid var(--today-border) !important; background-color: rgba(231, 76, 60, 0.08) !important; }
+        .current-day-td-bottom { border-bottom: 3px solid var(--today-border) !important; }
+
+        .highlight-col { background-color: var(--highlight-green-bg) !important; border-left: 2px solid var(--highlight-green-solid) !important; border-right: 2px solid var(--highlight-green-solid) !important;}
+        th.highlight-col { border-top: 2px solid var(--highlight-green-solid) !important; color: var(--text-main) !important; }
+        .highlight-name { background-color: var(--highlight-green-sticky) !important; border-left: 4px solid var(--highlight-green-solid) !important; }
+        .highlight-row td { background-color: var(--highlight-blue-bg) !important;}
+        .highlight-row td:first-child { background-color: var(--highlight-blue-sticky) !important; border-left: 4px solid var(--highlight-blue-solid) !important; }
+
+        .banquet-th { background: var(--banquet-th-bg) !important; color: white !important; border-top: 2px solid var(--banquet-solid) !important; border-left: 2px solid var(--banquet-solid) !important; border-right: 2px solid var(--banquet-solid) !important; }
+        .banquet-td { background-color: var(--banquet-bg) !important; border-left: 2px solid rgba(243, 156, 18, 0.4) !important; border-right: 2px solid rgba(243, 156, 18, 0.4) !important; }
+        .banquet-label { display: block; font-size: 0.55rem; background: #ffffff; color: #d35400; border-radius: 4px; padding: 2px; margin-top: 4px; font-weight: 900; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+        .weekend { background-color: var(--weekend) !important; }
+        .unavail-marker { color: #ff4d4d; font-weight: 900; font-size: 1.5rem; line-height: 0; vertical-align: -2px; display: inline-block; }
+        
+        tr:nth-child(5n+1) td:not(.current-day-td):not(.banquet-td) { background-color: var(--row-1); }
+        tr:nth-child(5n+2) td:not(.current-day-td):not(.banquet-td) { background-color: var(--row-2); }
+        tr:nth-child(5n+3) td:not(.current-day-td):not(.banquet-td) { background-color: var(--row-3); }
+        tr:nth-child(5n+4) td:not(.current-day-td):not(.banquet-td) { background-color: var(--row-4); }
+        tr:nth-child(5n+5) td:not(.current-day-td):not(.banquet-td) { background-color: var(--row-5); }
+
+        .duty-text { font-size: 0.55rem; color: #f1c40f; font-weight: bold; display: block; margin-top: 3px; letter-spacing: 0.5px; }
+
+        .shift-icon { display: inline-block; width: 18px; height: 18px; background-color: var(--primary); vertical-align: middle; cursor: pointer; }
+        .shift-full { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+        .shift-first { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+        .shift-second { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14,3 L5,18 M9.5,11 L16,17' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--bg-card); padding: 20px; border-radius: 15px; width: 320px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { margin: 0 0 10px 0; text-align: center; font-size: 1.2rem; color: var(--primary); }
+        
+        .modal-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modal-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+
+        .emp-stats { background: var(--bg-body); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; }
+        .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
+        
+        .edit-btn { background: rgba(243, 156, 18, 0.7); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px; cursor: pointer; border: none; }
+
+        #export-wrapper { position: absolute; top: -9999px; left: -9999px; z-index: -100; }
+        #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
+    </style>
+<link rel="stylesheet" href="assets/legacy-extras.css?v=20261015.3">
 </head>
-<body>
-  <section class="shell" id="login-panel">
-    <form class="modal" id="login-form" style="margin:8vh auto">
-      <div class="brand"><img src="IMG_9802.png" alt=""><h1>Вхід адміністратора</h1></div>
-      <p>Використайте пошту й пароль, створені у Firebase Authentication.</p>
-      <div class="field"><label for="login-email">Пошта</label><input id="login-email" type="email" autocomplete="username" required></div>
-      <div class="field"><label for="login-password">Пароль</label><input id="login-password" type="password" autocomplete="current-password" required></div>
-      <p id="login-error" role="alert"></p>
-      <button class="button primary" id="login-submit" type="submit">Увійти</button>
-    </form>
-  </section>
-  <main class="shell" id="admin-panel" hidden>
-    <header class="topbar">
-      <div class="brand">
-        <img src="IMG_9802.png" alt="Логотип KABINET">
-        <div><strong>KABINET</strong><span>адміністрування</span></div>
-      </div>
-      <nav class="month-nav" aria-label="Навігація місяцями">
-        <button class="icon-btn" id="previous-month" type="button" aria-label="Попередній місяць">←</button>
-        <div class="month-title" id="month-title">…</div>
-        <button class="icon-btn" id="next-month" type="button" aria-label="Наступний місяць">→</button>
-      </nav>
-      <div class="top-actions">
-        <div class="status" id="connection-status"><span>Підключення…</span></div>
-        <a class="button small" href="index.html">Графік</a>
-        <button class="button small" id="logout" type="button">Вийти</button>
-      </div>
+<body data-page="admin"><section id="login-panel"><form id="login-form" class="modal-content">
+<h3>Вхід адміністратора</h3><label>Пошта<input id="login-email" type="email" autocomplete="username" required></label>
+<label>Пароль<input id="login-password" type="password" autocomplete="current-password" required></label>
+<p id="login-error" role="alert"></p><button id="login-submit" class="modal-btn" type="submit">Увійти</button></form></section>
+
+<div class="container" id="admin-panel" hidden>
+    <header>
+        <div class="logo-block">
+            <div>
+                <span class="admin-badge">ШЕФ</span><br>
+                <img src="IMG_9802.png" alt="Logo" class="logo">
+            </div>
+        </div>
+        <div class="month-selector">
+            <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
+            <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
+            <button class="nav-btn" onclick="changeMonth(1)">▶</button>
+        </div>
     </header>
+    <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
-    <section class="toolbar" aria-label="Адміністрування">
-      <button class="button primary" id="add-employee" type="button">+ Працівник</button>
-      <button class="button" id="today" type="button">Сьогодні</button>
-      <div class="spacer"></div>
-      <button class="button ghost" id="notify" type="button">Підготувати повідомлення</button>
-      <button class="button ghost" id="export-1" type="button">PNG 1–15</button>
-      <button class="button ghost" id="export-2" type="button">PNG 16–кінець</button>
-      <button class="button ghost" id="print" type="button">Друк / PDF</button>
-    </section>
-
-    <div class="notice warning">Адміністративна сторінка. Натисніть працівника для перейменування або видалення, клітинку — для зміни зміни, заголовок дня — для налаштування бенкету.</div>
-
-    <section class="table-card" aria-label="Редагування робочого графіка">
-      <div class="table-scroll" id="table-scroll"><table class="schedule" id="schedule"></table></div>
-    </section>
-
-    <div class="legend">
-      <span><i class="shift full"></i> повний день</span>
-      <span><i class="shift first"></i> перша половина</span>
-      <span><i class="shift second"></i> друга половина</span>
-      <span><i class="dot"></i> бажаний вихідний</span>
+    <button id="logout" type="button" class="account-control">Вийти</button>
+    <div class="admin-controls">
+        <div class="input-group">
+            <input type="text" id="newEmpName" placeholder="Введіть ім'я">
+            <button class="add-btn" onclick="addEmployee()">+ Додати</button>
+        </div>
+        <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
+            <button class="export-btn" onclick="exportHalfMonth(event, 1)">📸 (1-15)</button>
+            <button class="export-btn" onclick="exportHalfMonth(event, 2)">📸 (16-31)</button>
+            <button id="tgNotifyBtn" class="tg-btn" onclick="notifyTelegramAuto()">🔔 Сповістити (Telegram)</button>
+        </div>
     </div>
-  </main>
 
-  <div class="modal-backdrop" id="employee-editor" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="employee-editor-title">
-      <div class="modal-header">
-        <h2 id="employee-editor-title">Працівник</h2>
-        <button class="icon-btn" type="button" data-close="employee-editor" aria-label="Закрити">×</button>
-      </div>
-      <div class="field"><label for="employee-name">Ім’я</label><input id="employee-name" maxlength="80" autocomplete="off"></div>
-      <div class="field"><label for="employee-uid">Код доступу працівника</label><input id="employee-uid" maxlength="128" autocomplete="off"><small>Працівник копіює код зі своєї сторінки. Порожнє поле вимикає редагування вихідних.</small></div>
-      <div class="stats" style="margin-top:12px">
-        <div class="stat">Зміни 1–15<strong id="employee-first-half">0</strong></div>
-        <div class="stat">Зміни 16–31<strong id="employee-second-half">0</strong></div>
-      </div>
-      <div class="modal-actions">
-        <button class="button danger" id="delete-employee" type="button">Видалити</button>
-        <span style="flex:1"></span>
-        <button class="button ghost" type="button" data-close="employee-editor">Скасувати</button>
-        <button class="button primary" id="save-employee" type="button">Зберегти</button>
-      </div>
-    </section>
-  </div>
+    <div class="table-wrapper">
+        <table id="admin-table">
+            <thead><tr id="h-row"></tr></thead>
+            <tbody id="b-row"></tbody>
+        </table>
+    </div>
+</div>
 
-  <div class="modal-backdrop" id="shift-editor" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shift-editor-title">
-      <div class="modal-header">
-        <h2 id="shift-editor-title">Робоча зміна</h2>
-        <button class="icon-btn" type="button" data-close="shift-editor" aria-label="Закрити">×</button>
-      </div>
-      <p id="shift-editor-description"></p>
-      <div class="choice-grid">
-        <button class="button" type="button" data-shift="full">× Повний день</button>
-        <button class="button" type="button" data-shift="first">◩ Перша половина</button>
-        <button class="button" type="button" data-shift="second">◪ Друга половина</button>
-        <button class="button danger" type="button" data-shift="none">Без зміни</button>
-      </div>
-    </section>
-  </div>
+<!-- Модальні вікна -->
+<div id="shiftModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Оберіть тип зміни</h3>
+        <button class="modal-btn" onclick="setShiftType('full')"><span class="shift-icon shift-full" style="background-color: var(--text-main);"></span> Повний день</button>
+        <button class="modal-btn" onclick="setShiftType('first')"><span class="shift-icon shift-first" style="background-color: var(--text-main);"></span> Перша половина</button>
+        <button class="modal-btn" onclick="setShiftType('second')"><span class="shift-icon shift-second" style="background-color: var(--text-main);"></span> Друга половина</button>
+        <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
+        <button class="modal-btn" onclick="closeModal('shiftModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
+    </div>
+</div>
 
-  <div class="modal-backdrop" id="day-editor" hidden>
-    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="day-editor-title">
-      <div class="modal-header">
-        <h2 id="day-editor-title">Налаштування дня</h2>
-        <button class="icon-btn" type="button" data-close="day-editor" aria-label="Закрити">×</button>
-      </div>
-      <div class="choice-grid">
-        <div class="field"><label for="banquet-time">Час</label><input id="banquet-time" type="time"></div>
-        <div class="field"><label for="banquet-guests">Кількість гостей</label><input id="banquet-guests" type="number" min="1" max="999" inputmode="numeric"></div>
-      </div>
-      <div class="field" style="margin-top:10px"><label for="banquet-note">Примітка</label><textarea id="banquet-note" maxlength="500" placeholder="Наприклад: весілля, 30 гостей"></textarea></div>
-      <h3>Фото чеків</h3><div id="admin-receipts" class="receipts"></div>
-      <input id="receipt-files" type="file" accept="image/*" multiple hidden>
-      <button id="receipt-upload" class="button" type="button">+ Додати фото чека</button>
-      <p id="receipt-help"></p>
-      <div class="field"><label for="receipt-links">Посилання на чеки</label><textarea id="receipt-links" rows="4" placeholder="https://… (по одному посиланню в рядку)"></textarea></div>
-      <p class="muted">За бажанням можна також залишити посилання на оригінали.</p>
-      <div class="modal-actions">
-        <button class="button danger" id="delete-banquet" type="button">Скасувати бенкет</button>
-        <span style="flex:1"></span>
-        <button class="button ghost" type="button" data-close="day-editor">Скасувати</button>
-        <button class="button primary" id="save-banquet" type="button">Зберегти бенкет</button>
-      </div>
-    </section>
-  </div>
+<div id="infoModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="infoModalName">Ім'я</h3>
+        <div class="emp-stats">
+            <p>Зміни (1-15): <strong id="statFirstHalf">0</strong></p>
+            <p id="statSecondLabel">Зміни (16-31): <strong id="statSecondHalf">0</strong></p>
+        </div>
+        <button class="modal-btn" onclick="editEmployeeAccess()">🔑 Доступ працівника</button>
+        <button class="modal-btn" style="background: #f39c12; color: white; border: none;" onclick="triggerEditName()">✏️ Редагувати ім'я</button>
+        <button class="modal-btn danger" onclick="triggerDeleteEmp()">🗑 Видалити працівника</button>
+        <button class="modal-btn" onclick="closeModal('infoModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Закрити</button>
+    </div>
+</div>
 
-  <div class="modal-backdrop" id="add-editor" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="add-editor-title">
-      <div class="modal-header"><h2 id="add-editor-title">Новий працівник</h2></div>
-      <div class="field"><label for="new-employee-name">Ім’я</label><input id="new-employee-name" maxlength="80" autocomplete="off"></div>
-      <div class="modal-actions">
-        <button class="button ghost" type="button" data-close="add-editor">Скасувати</button>
-        <button class="button primary" id="confirm-add" type="button">Додати</button>
-      </div>
-    </section>
-  </div>
+<!-- Модальне вікно НАЛАШТУВАННЯ ДНЯ (БЕНКЕТИ) -->
+<div id="daySettingsModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="daySettingsTitle">Налаштування дня</h3>
+        <button class="modal-btn" onclick="toggleColFromSettings()">🟩 Виділити / Зняти виділення стовпця</button>
+        <hr style="width:100%; border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+        <h4 style="margin: 0 0 10px 0; text-align: center; color: #e67e22; font-size: 1.1rem;">🎉 БЕНКЕТ (Попереднє замовлення)</h4>
+        <div id="banquetContainer" style="text-align: center;"></div>
+        <button class="modal-btn" onclick="closeModal('daySettingsModal')" style="margin-top: 15px; background: transparent; border: none; text-decoration: underline;">Закрити</button>
+    </div>
+</div>
 
-  <script type="module" src="js/admin.js?v=20261015.2"></script>
+<div id="resultModal" class="modal-overlay">
+    <div class="modal-content" style="width: 95%; max-width: 800px;">
+        <h3 style="color: var(--primary);">✅ Графік створено!</h3>
+        <p style="font-size: 0.85rem; opacity: 0.8; text-align: center; margin-bottom: 10px;">Затисніть картинку пальцем, щоб скопіювати або поділитися у Viber.</p>
+        <div id="resultImageContainer" style="width: 100%; max-height: 60vh; overflow-y: auto; background: #f0f0f0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
+        <button class="modal-btn" onclick="closeModal('resultModal')" style="margin-top: 10px; background: var(--primary); color: white;">Закрити</button>
+    </div>
+</div>
+
+<div id="export-wrapper"></div>
+
+<script type="module" src="js/legacy-ui.js?v=20261015.3"></script>
 </body>
 </html>
-

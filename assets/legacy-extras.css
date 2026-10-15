@@ -1,0 +1,19 @@
+/* Original layouts and colors remain in index.html/admin.html. */
+[hidden] { display: none !important; }
+#connection-status { font-size: .72rem; margin: -5px 0 10px; color: #777; }
+#connection-status.error { color: #c0392b; }
+#retry-load { margin-left: 8px; }
+.account-control { display:block; margin:10px 0; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text-main); background:var(--bg-card); cursor:pointer; }
+#login-panel { display:flex; justify-content:center; padding-top:10vh; }
+#login-form label { text-align:left; }
+#login-form input { width:100%; box-sizing:border-box; padding:12px; margin:6px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font:inherit; }
+#login-error { color:#e74c3c; }
+.toast { position:fixed; z-index:4000; left:50%; bottom:20px; transform:translateX(-50%); padding:12px 16px; max-width:90vw; width:max-content; box-sizing:border-box; background:#1f6b6b; color:white; border-radius:10px; box-shadow:0 4px 16px #0003; }
+.toast.error { background:#a52b2b; }
+.receipt-viewer { width:95vw; max-width:1100px; height:90dvh; box-sizing:border-box; background:var(--bg-card); color:var(--text-main); border:0; border-radius:15px; padding:12px; }
+.receipt-viewer::backdrop { background:#000b; }
+.receipt-viewer .button { display:inline-block; padding:10px; margin:0 8px 12px 0; border:1px solid var(--border); border-radius:8px; background:var(--bg-body); color:var(--text-main); cursor:pointer; }
+.receipt-photo { max-width:100%; max-height:200px; border-radius:6px; box-shadow:0 2px 8px #0002; object-fit:contain; cursor:zoom-in; }
+.receipt-full { width:100%; max-height:none; }
+button:disabled { opacity:.55; cursor:wait; }
+.modal-content { box-sizing:border-box; max-width:calc(100vw - 24px); }

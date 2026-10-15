@@ -1,0 +1,47 @@
+{
+  "index": {
+    "ids": [
+      "month-label",
+      "redDotToggleBtn",
+      "schedule",
+      "header-row",
+      "body-row",
+      "confirmModal",
+      "confirmTitle",
+      "confirmText",
+      "confirmBtn",
+      "infoModal",
+      "infoModalName",
+      "statFirstHalf",
+      "statSecondLabel",
+      "statSecondHalf",
+      "receiptModal",
+      "receiptDate",
+      "receiptImagesContainer"
+    ],
+    "cssSha256": "76969d460bb5e803c021613b6bd9a0d60b0e0ca0c85eeabfbf7f12548a14e554"
+  },
+  "admin": {
+    "ids": [
+      "month-label",
+      "newEmpName",
+      "tgNotifyBtn",
+      "admin-table",
+      "h-row",
+      "b-row",
+      "shiftModal",
+      "infoModal",
+      "infoModalName",
+      "statFirstHalf",
+      "statSecondLabel",
+      "statSecondHalf",
+      "daySettingsModal",
+      "daySettingsTitle",
+      "banquetContainer",
+      "resultModal",
+      "resultImageContainer",
+      "export-wrapper"
+    ],
+    "cssSha256": "067c8c02f1c06184c84d2f4c9fcf064180865e9b08e504f40e5740ed47f0ddb7"
+  }
+}
