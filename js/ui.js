@@ -28,8 +28,7 @@ export function shiftCount(employee, start, end) {
   let count = 0;
   for (let day = start; day <= end; day += 1) {
     if (employee.shifts.includes(day)) count += 1;
-    if (employee.shiftsFirst.includes(day)) count += .5;
-    if (employee.shiftsSecond.includes(day)) count += .5;
+    else if (employee.shiftsFirst.includes(day) || employee.shiftsSecond.includes(day)) count += .5;
   }
   return count;
 }
@@ -72,7 +71,7 @@ export function renderSchedule({ table, date, data, selectedEmployeeId = null, h
       th.setAttribute("role", "button");
       th.addEventListener("click", () => onDay(day));
       th.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === " ") onDay(day);
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onDay(day); }
       });
     }
     header.append(th);
@@ -119,7 +118,7 @@ export function renderSchedule({ table, date, data, selectedEmployeeId = null, h
         cell.setAttribute("aria-label", `${employee.name}, ${day}: змінити`);
         cell.addEventListener("click", () => onCell(employee, day));
         cell.addEventListener("keydown", event => {
-          if (event.key === "Enter" || event.key === " ") onCell(employee, day);
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onCell(employee, day); }
         });
       }
       row.append(cell);
@@ -199,3 +198,4 @@ export async function shareOrCopy(text) {
 export function safePhotoUrl(url) {
   return typeof url === "string" && /^(https:\/\/firebasestorage\.googleapis\.com\/|data:image\/(jpeg|png|webp);base64,)/.test(url);
 }
+

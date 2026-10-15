@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" href="IMG_9802.png">
   <meta name="theme-color" content="#0f7474">
   <meta name="robots" content="noindex,nofollow">
   <title>KABINET — адміністрування</title>
-  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="IMG_9802.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=receipts1">
+  <link rel="stylesheet" href="assets/styles.css?v=20261015.2">
 </head>
 <body>
   <section class="shell" id="login-panel">
     <form class="modal" id="login-form" style="margin:8vh auto">
-      <div class="brand"><img src="assets/logo.svg" alt=""><h1>Вхід адміністратора</h1></div>
+      <div class="brand"><img src="IMG_9802.png" alt=""><h1>Вхід адміністратора</h1></div>
       <p>Використайте пошту й пароль, створені у Firebase Authentication.</p>
       <div class="field"><label for="login-email">Пошта</label><input id="login-email" type="email" autocomplete="username" required></div>
       <div class="field"><label for="login-password">Пароль</label><input id="login-password" type="password" autocomplete="current-password" required></div>
@@ -26,7 +27,7 @@
   <main class="shell" id="admin-panel" hidden>
     <header class="topbar">
       <div class="brand">
-        <img src="assets/logo.svg" alt="Логотип KABINET">
+        <img src="IMG_9802.png" alt="Логотип KABINET">
         <div><strong>KABINET</strong><span>адміністрування</span></div>
       </div>
       <nav class="month-nav" aria-label="Навігація місяцями">
@@ -46,6 +47,8 @@
       <button class="button" id="today" type="button">Сьогодні</button>
       <div class="spacer"></div>
       <button class="button ghost" id="notify" type="button">Підготувати повідомлення</button>
+      <button class="button ghost" id="export-1" type="button">PNG 1–15</button>
+      <button class="button ghost" id="export-2" type="button">PNG 16–кінець</button>
       <button class="button ghost" id="print" type="button">Друк / PDF</button>
     </section>
 
@@ -137,6 +140,7 @@
     </section>
   </div>
 
-  <script type="module" src="js/admin.js?v=receipts1"></script>
+  <script type="module" src="js/admin.js?v=20261015.2"></script>
 </body>
 </html>
+

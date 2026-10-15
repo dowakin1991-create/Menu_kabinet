@@ -15,3 +15,4 @@ export const APP = Object.freeze({
   locale: "uk-UA",
   maxReceiptLinks: 8
 });
+

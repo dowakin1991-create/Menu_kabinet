@@ -1,6 +1,8 @@
-import { renderReceipts, compressReceipt } from "./receipts.js?v=receipts1";
-import { isAdmin, login, logout, watchAuth } from "./auth.js?v=receipts1";
-import { addReceipt, deleteReceipt, removeBanquet, bindEmployee, employeeAccess, monthId, subscribeSchedule, updateSchedule } from "./store.js?v=receipts1";
+import { changeJournal, recordChange, withBusy } from "./session.js?v=20261015.2";
+import { exportHalfMonth } from "./export.js?v=20261015.2";
+import { renderReceipts, compressReceipt } from "./receipts.js?v=20261015.2";
+import { isAdmin, login, logout, watchAuth } from "./auth.js?v=20261015.2";
+import { addReceipt, deleteReceipt, removeBanquet, saveEmployeeProfile, employeeAccess, monthId, subscribeSchedule, updateSchedule } from "./store.js?v=20261015.2";
 import {
   bindModalDismissals,
   closeModal,
@@ -14,12 +16,14 @@ import {
   shiftCount,
   showModal,
   toast
-} from "./ui.js?v=receipts1";
+} from "./ui.js?v=20261015.2";
 
 const state = {
   date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   data: { employees: [], banquets: {} },
   unsubscribe: null,
+  loaded: false,
+  generation: 0,
   employeeId: null,
   shift: null,
   banquetDay: null,
@@ -37,8 +41,8 @@ function render() {
     date: state.date,
     data: state.data,
     highlightedDay: state.highlightedDay,
-    editableEmployeeId: "*",
-    onEmployee: openEmployee,
+    editableEmployeeId: state.loaded ? "*" : null,
+    onEmployee: withBusy(openEmployee),
     onDay: openDay,
     onCell: openShift
   });
@@ -46,19 +50,29 @@ function render() {
 
 function subscribe() {
   state.unsubscribe?.();
-  state.changedShiftDays.clear();
-  state.changedBanquetDays.clear();
+  const generation = ++state.generation;
+  state.loaded = false;
+  state.data = { employees: [], banquets: {} };
+  document.querySelectorAll(".modal-backdrop").forEach(node => { node.hidden = true; });
+  render();
+  let scrolled = false;
   setConnection("", "Підключення…");
   state.unsubscribe = subscribeSchedule(
     monthId(state.date),
     data => {
+      if (generation !== state.generation) return;
+      state.loaded = true;
       state.data = data;
       setConnection("online", "Дані актуальні");
       render();
       if (!qs("#day-editor").hidden) loadAdminReceipts();
-      if (state.date.getFullYear() === new Date().getFullYear() && state.date.getMonth() === new Date().getMonth()) scrollToToday();
+      if (!scrolled && data.employees.length) { scrollToToday(); scrolled = true; }
     },
     error => {
+      if (generation !== state.generation) return;
+      state.loaded = false;
+      state.data = { employees: [], banquets: {} };
+      render();
       console.error(error);
       setConnection("error", "Немає доступу");
       toast("Firebase відхилив доступ до графіка.", "error");
@@ -74,6 +88,7 @@ function changeMonth(offset) {
 }
 
 async function openEmployee(employee) {
+  const generation = state.generation;
   state.employeeId = employee.id;
   qs("#employee-editor-title").textContent = employee.name;
   qs("#employee-name").value = employee.name;
@@ -82,11 +97,12 @@ async function openEmployee(employee) {
   qs("#employee-uid").value = "";
   try { qs("#employee-uid").value = await employeeAccess(employee.id); }
   catch { return toast("Не вдалося прочитати доступ працівника.", "error"); }
-  showModal("employee-editor");
+  if (generation === state.generation) showModal("employee-editor");
 }
 
 async function addEmployee() {
   const input = qs("#new-employee-name");
+  if (!state.loaded) return toast("Дочекайтеся завантаження графіка.", "error");
   const name = input.value.trim();
   if (!name) return toast("Введіть ім’я працівника.", "error");
   const button = qs("#confirm-add");
@@ -94,7 +110,7 @@ async function addEmployee() {
   try {
     await updateSchedule(monthId(state.date), draft => {
       if (draft.employees.some(employee => employee.name.toLocaleLowerCase("uk") === name.toLocaleLowerCase("uk"))) throw new Error("Працівник із таким ім’ям уже існує.");
-      draft.employees.push({ id: Date.now(), name, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] });
+      draft.employees.push({ id: crypto.randomUUID(), name, shifts: [], shiftsFirst: [], shiftsSecond: [], unavail: [] });
     });
     input.value = "";
     closeModal("add-editor");
@@ -109,12 +125,7 @@ async function saveEmployee() {
   const name = qs("#employee-name").value.trim();
   if (!name) return toast("Ім’я не може бути порожнім.", "error");
   try {
-    await updateSchedule(monthId(state.date), draft => {
-      const employee = draft.employees.find(item => sameId(item.id, state.employeeId));
-      if (!employee) throw new Error("Працівника вже видалено.");
-      employee.name = name;
-    });
-    await bindEmployee(state.employeeId, qs("#employee-uid").value);
+    await saveEmployeeProfile(monthId(state.date), state.employeeId, name, qs("#employee-uid").value);
     closeModal("employee-editor");
     toast("Працівника та доступ оновлено.");
   } catch (error) { console.error(error); toast(error.message || "Не вдалося зберегти.", "error"); }
@@ -131,6 +142,7 @@ async function deleteEmployee() {
 }
 
 function openShift(employee, day) {
+  if (!state.loaded) return;
   state.shift = { employeeId: employee.id, day };
   qs("#shift-editor-title").textContent = `${employee.name} — ${day} число`;
   qs("#shift-editor-description").textContent = employee.unavail.includes(day)
@@ -153,13 +165,14 @@ async function setShift(type) {
       if (type === "first") employee.shiftsFirst.push(day);
       if (type === "second") employee.shiftsSecond.push(day);
     });
-    state.changedShiftDays.add(day);
+    recordChange(monthId(state.date), "shifts", day);
     closeModal("shift-editor");
     toast("Зміну збережено.");
   } catch (error) { console.error(error); toast(error.message || "Не вдалося зберегти зміну.", "error"); }
 }
 
 function openDay(day) {
+  if (!state.loaded) return;
   state.banquetDay = day;
   state.highlightedDay = day;
   render();
@@ -195,7 +208,7 @@ async function saveBanquet() {
         note
       };
     });
-    state.changedBanquetDays.add(day);
+    recordChange(monthId(state.date), "banquets", day);
     closeModal("day-editor");
     toast("Бенкет збережено.");
   } catch (error) { console.error(error); toast("Не вдалося зберегти бенкет.", "error"); }
@@ -207,15 +220,16 @@ async function deleteBanquet() {
   if (!banquet || !confirm(`Скасувати бенкет на ${day} число?`)) return;
   try {
     await removeBanquet(monthId(state.date), day);
-    state.changedBanquetDays.add(day);
+    recordChange(monthId(state.date), "banquets", day);
     closeModal("day-editor");
     toast("Бенкет скасовано.");
   } catch (error) { console.error(error); toast("Не вдалося скасувати бенкет.", "error"); }
 }
 
 async function prepareNotification() {
-  const shifts = [...state.changedShiftDays].sort((a, b) => a - b);
-  const banquets = [...state.changedBanquetDays].sort((a, b) => a - b);
+  const journal = changeJournal(monthId(state.date));
+  const shifts = [...journal.shifts].sort((a, b) => a - b);
+  const banquets = [...journal.banquets].sort((a, b) => a - b);
   let text = `Оновлено графік KABINET за ${monthLabel(state.date)}.`;
   if (shifts.length) text += `\nЗміни в робочих днях: ${shifts.join(", ")}.`;
   if (banquets.length) text += `\nЗміни щодо бенкетів: ${banquets.join(", ")}.`;
@@ -231,13 +245,13 @@ qs("#today").addEventListener("click", () => {
   subscribe();
 });
 qs("#add-employee").addEventListener("click", () => showModal("add-editor"));
-qs("#confirm-add").addEventListener("click", addEmployee);
-qs("#new-employee-name").addEventListener("keydown", event => { if (event.key === "Enter") addEmployee(); });
-qs("#save-employee").addEventListener("click", saveEmployee);
-qs("#delete-employee").addEventListener("click", deleteEmployee);
-document.querySelectorAll("[data-shift]").forEach(button => button.addEventListener("click", () => setShift(button.dataset.shift)));
-qs("#save-banquet").addEventListener("click", saveBanquet);
-qs("#delete-banquet").addEventListener("click", deleteBanquet);
+qs("#confirm-add").addEventListener("click", withBusy(addEmployee));
+qs("#new-employee-name").addEventListener("keydown", event => { if (event.key === "Enter") qs("#confirm-add").click(); });
+qs("#save-employee").addEventListener("click", withBusy(saveEmployee));
+qs("#delete-employee").addEventListener("click", withBusy(deleteEmployee));
+document.querySelectorAll("[data-shift]").forEach(button => button.addEventListener("click", withBusy(() => setShift(button.dataset.shift))));
+qs("#save-banquet").addEventListener("click", withBusy(saveBanquet));
+qs("#delete-banquet").addEventListener("click", withBusy(deleteBanquet));
 qs("#notify").addEventListener("click", prepareNotification);
 qs("#print").addEventListener("click", () => window.print());
 
@@ -264,6 +278,8 @@ qs("#logout").addEventListener("click", () => logout().catch(() => toast("Не �
 watchAuth(user => {
   state.unsubscribe?.();
   state.unsubscribe = null;
+  state.generation++;
+  state.loaded = false;
   state.data = { employees: [], banquets: {} };
   state.employeeId = null;
   state.shift = null;
@@ -287,11 +303,12 @@ function loadAdminReceipts() {
   const ids = state.data.banquets[String(day)]?.receiptIds || [];
   renderReceipts(qs("#admin-receipts"), month, ids, async id => {
     if (!confirm("Видалити фото чека?")) return;
-    await deleteReceipt(month, day, id);
+    await withBusy(() => deleteReceipt(month, day, id))();
+    recordChange(month, "banquets", day);
   });
 }
 qs("#receipt-upload").addEventListener("click", () => qs("#receipt-files").click());
-qs("#receipt-files").addEventListener("change", async event => {
+qs("#receipt-files").addEventListener("change", withBusy(async event => {
   const files = [...event.target.files];
   const month = monthId(state.date), day = state.banquetDay;
   const button = qs("#receipt-upload");
@@ -302,6 +319,7 @@ qs("#receipt-files").addEventListener("change", async event => {
       button.textContent = `Збереження ${saved + 1}/${files.length}…`;
       await addReceipt(month, day, await compressReceipt(file));
       saved++;
+      recordChange(month, "banquets", day);
     }
     if (saved) toast(`Збережено фото: ${saved}.`);
   } catch (error) {
@@ -313,4 +331,11 @@ qs("#receipt-files").addEventListener("change", async event => {
     button.disabled = !state.data.banquets[String(state.banquetDay)]?.active;
     event.target.value = "";
   }
-});
+}));
+
+
+for (const half of [1, 2]) qs(`#export-${half}`).addEventListener("click", withBusy(async () => {
+  if (!state.loaded) return toast("Дочекайтеся завантаження.", "error");
+  try { await exportHalfMonth(state.date, state.data, half); }
+  catch { toast("Не вдалося створити зображення.", "error"); }
+}));

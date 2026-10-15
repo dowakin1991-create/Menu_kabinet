@@ -9,7 +9,7 @@ import {
   serverTimestamp,
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { firebaseConfig } from "./config.js?v=receipts1";
+import { firebaseConfig } from "./config.js?v=20261015.2";
 
 export const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
@@ -22,12 +22,15 @@ function safeText(value, fallback = "") {
 }
 
 function normalizeEmployee(employee, index) {
+  const full = days(employee?.shifts);
+  const first = days(employee?.shiftsFirst).filter(day => !full.includes(day));
+  const second = days(employee?.shiftsSecond).filter(day => !full.includes(day) && !first.includes(day));
   return {
-    id: employee?.id ?? Date.now() + index,
+    id: employee?.id ?? `legacy-${index}`,
     name: safeText(employee?.name, "Без імені").trim() || "Без імені",
-    shifts: days(employee?.shifts),
-    shiftsFirst: days(employee?.shiftsFirst),
-    shiftsSecond: days(employee?.shiftsSecond),
+    shifts: full,
+    shiftsFirst: first,
+    shiftsSecond: second,
     unavail: days(employee?.unavail)
   };
 }
@@ -67,24 +70,28 @@ export function monthId(date) {
 
 export function subscribeSchedule(id, onData, onError) {
   let schedule = normalizeSchedule();
+  let scheduleReady = false, availabilityReady = false, stopped = false, failed = false;
+  const fail = error => { failed = true; onError(error); };
   const availability = new Map();
-  const emit = () => onData({
+  const emit = () => { if (stopped || failed || !scheduleReady || !availabilityReady) return; onData({
     ...schedule,
     employees: schedule.employees.map(employee => ({
       ...employee,
       unavail: availability.has(String(employee.id)) ? availability.get(String(employee.id)) : employee.unavail
     }))
-  });
+  }); };
   const stopSchedule = onSnapshot(doc(db, "schedules", id), snapshot => {
     schedule = normalizeSchedule(snapshot.exists() ? snapshot.data() : {});
+    scheduleReady = true;
     emit();
-  }, onError);
+  }, fail);
   const stopAvailability = onSnapshot(collection(db, "availability", id, "employees"), snapshot => {
+    availabilityReady = true;
     availability.clear();
     snapshot.forEach(item => availability.set(item.id, days(item.data()?.days)));
     emit();
-  }, onError);
-  return () => { stopSchedule(); stopAvailability(); };
+  }, fail);
+  return () => { stopped = true; stopSchedule(); stopAvailability(); };
 }
 
 export async function updateSchedule(id, mutate) {
@@ -102,10 +109,36 @@ export async function updateSchedule(id, mutate) {
   });
 }
 
-export async function setAvailability(id, employeeId, values) {
-  await setDoc(doc(db, "availability", id, "employees", String(employeeId)), {
-    days: days(values),
-    updatedAt: serverTimestamp()
+export async function setAvailability(id, employeeId, day, unavailable) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(id)) throw new Error("Неправильний місяць.");
+  const [year, month] = id.split("-").map(Number);
+  if (!Number.isInteger(day) || day < 1 || day > new Date(year, month, 0).getDate()) throw new Error("Неправильний день.");
+  const reference = doc(db, "availability", id, "employees", String(employeeId));
+  await runTransaction(db, async tx => {
+    const snapshot = await tx.get(reference);
+    const schedule = await tx.get(doc(db, "schedules", id));
+    const employee = normalizeSchedule(schedule.data()).employees.find(e => String(e.id) === String(employeeId));
+    if (!employee) throw new Error("Працівника вже видалено.");
+    const selected = new Set(snapshot.exists() ? days(snapshot.data().days) : employee.unavail);
+    if (unavailable) selected.add(day); else selected.delete(day);
+    tx.set(reference, { days: [...selected].sort((a, b) => a - b), updatedAt: serverTimestamp() });
+  });
+}
+
+// Name and access must either both be saved or neither.
+export async function saveEmployeeProfile(month, id, name, uid) {
+  name = name.trim(); uid = uid.trim();
+  if (!name || name.length > 80 || uid.length > 128) throw new Error("Перевірте ім’я та код доступу.");
+  const reference = doc(db, "schedules", month);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(reference);
+    const data = normalizeSchedule(snap.data());
+    const employee = data.employees.find(e => String(e.id) === String(id));
+    if (!employee) throw new Error("Працівника вже видалено.");
+    if (data.employees.some(e => String(e.id) !== String(id) && e.name.toLocaleLowerCase("uk") === name.toLocaleLowerCase("uk"))) throw new Error("Таке ім’я вже існує.");
+    employee.name = name;
+    tx.update(reference, { employees: data.employees, updatedAt: serverTimestamp() });
+    tx.set(doc(db, "employeeAccess", String(id)), { uid });
   });
 }
 
@@ -166,3 +199,4 @@ export async function removeBanquet(month, day) {
     tx.update(reference, { banquets: data.banquets, updatedAt: serverTimestamp() });
   });
 }
+

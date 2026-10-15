@@ -1,5 +1,5 @@
-import { readReceipt } from "./store.js?v=receipts1";
-import { toast } from "./ui.js?v=receipts1";
+import { readReceipt } from "./store.js?v=20261015.2";
+import { toast } from "./ui.js?v=20261015.2";
 
 // JPEG re-encoding removes metadata and keeps each photo below the document limit.
 export async function compressReceipt(file) {
@@ -101,3 +101,4 @@ export async function renderReceipts(container, month, ids, onRemove) {
     });
   }
 }
+

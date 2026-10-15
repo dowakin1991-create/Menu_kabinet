@@ -1,6 +1,7 @@
-import { renderReceipts } from "./receipts.js?v=receipts1";
-import { ensureWorkerSession } from "./auth.js?v=receipts1";
-import { monthId, setAvailability, subscribeSchedule } from "./store.js?v=receipts1";
+import { readLocal, writeLocal, withBusy } from "./session.js?v=20261015.2";
+import { renderReceipts } from "./receipts.js?v=20261015.2";
+import { ensureWorkerSession } from "./auth.js?v=20261015.2";
+import { monthId, setAvailability, subscribeSchedule } from "./store.js?v=20261015.2";
 import {
   bindModalDismissals,
   closeModal,
@@ -14,16 +15,19 @@ import {
   shiftCount,
   showModal,
   toast
-} from "./ui.js?v=receipts1";
+} from "./ui.js?v=20261015.2";
 
 const state = {
   date: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   data: { employees: [], banquets: {} },
-  selectedEmployeeId: localStorage.getItem("kabinet.employee") || "",
+  selectedEmployeeId: readLocal("kabinet.employee") || "",
   editing: false,
   highlightedDay: null,
   pending: null,
-  unsubscribe: null
+  unsubscribe: null,
+  generation: 0,
+  loaded: false,
+  authenticated: false
 };
 
 function currentEmployee() {
@@ -36,11 +40,11 @@ function updateProfileSelect() {
   select.replaceChildren(new Option("Оберіть своє ім’я", ""));
   for (const employee of state.data.employees) select.add(new Option(employee.name, String(employee.id)));
   if (state.data.employees.some(employee => String(employee.id) === previous)) select.value = previous;
-  else {
+  else if (state.loaded) {
     state.selectedEmployeeId = "";
-    localStorage.removeItem("kabinet.employee");
+    writeLocal("kabinet.employee", null);
   }
-  qs("#edit-availability").disabled = !state.selectedEmployeeId;
+  qs("#edit-availability").disabled = !state.loaded || !state.selectedEmployeeId;
 }
 
 function render() {
@@ -69,16 +73,31 @@ function render() {
 
 function subscribe() {
   state.unsubscribe?.();
+  const generation = ++state.generation;
+  state.loaded = false;
+  state.editing = false;
+  state.pending = null;
+  state.data = { employees: [], banquets: {} };
+  document.querySelectorAll(".modal-backdrop").forEach(node => { node.hidden = true; });
+  render();
+  if (!state.authenticated) return;
+  let scrolled = false;
   setConnection("", "Підключення…");
   state.unsubscribe = subscribeSchedule(
     monthId(state.date),
     data => {
+      if (generation !== state.generation) return;
+      state.loaded = true;
       state.data = data;
       setConnection("online", "Дані актуальні");
       render();
-      if (state.date.getFullYear() === new Date().getFullYear() && state.date.getMonth() === new Date().getMonth()) scrollToToday();
+      if (!scrolled && data.employees.length) { scrollToToday(); scrolled = true; }
     },
     error => {
+      if (generation !== state.generation) return;
+      state.loaded = false;
+      state.data = { employees: [], banquets: {} };
+      render();
       console.error(error);
       setConnection("error", "Немає доступу");
       toast("Не вдалося завантажити графік. Перевірте інтернет або правила Firebase.", "error");
@@ -130,7 +149,7 @@ function showBanquetOrHighlight(day) {
 
 function askAvailability(employee, day) {
   const removing = employee.unavail.includes(day);
-  state.pending = { employeeId: employee.id, day };
+  state.pending = { employeeId: employee.id, day, month: monthId(state.date), unavailable: !removing };
   qs("#confirm-title").textContent = removing ? "Прибрати вихідний?" : "Додати бажаний вихідний?";
   qs("#confirm-message").textContent = `${employee.name}, ${day} ${monthLabel(state.date).split(" ")[0]}.`;
   qs("#confirm-action").textContent = removing ? "Прибрати" : "Додати";
@@ -139,16 +158,12 @@ function askAvailability(employee, day) {
 
 async function confirmAvailability() {
   if (!state.pending) return;
-  const { employeeId, day } = state.pending;
+  const { employeeId, day, month, unavailable } = state.pending;
   const button = qs("#confirm-action");
   button.disabled = true;
   try {
-    const employee = state.data.employees.find(item => String(item.id) === String(employeeId));
-    if (!employee) throw new Error("Працівника не знайдено.");
-    const nextDays = employee.unavail.includes(day)
-      ? employee.unavail.filter(value => value !== day)
-      : [...employee.unavail, day].sort((a, b) => a - b);
-    await setAvailability(monthId(state.date), employeeId, nextDays);
+    await setAvailability(month, employeeId, day, unavailable);
+    state.pending = null;
     closeModal("confirm-modal");
     toast("Бажаний вихідний збережено.");
   } catch (error) {
@@ -156,7 +171,6 @@ async function confirmAvailability() {
     toast(error.code === "permission-denied" ? "Адміністратор має прив’язати ваш код доступу до цього працівника." : "Не вдалося зберегти зміну.", "error");
   } finally {
     button.disabled = false;
-    state.pending = null;
   }
 }
 
@@ -171,21 +185,22 @@ qs("#today").addEventListener("click", () => {
 qs("#employee-select").addEventListener("change", event => {
   state.selectedEmployeeId = event.target.value;
   state.editing = false;
-  if (state.selectedEmployeeId) localStorage.setItem("kabinet.employee", state.selectedEmployeeId);
-  else localStorage.removeItem("kabinet.employee");
+  if (state.selectedEmployeeId) writeLocal("kabinet.employee", state.selectedEmployeeId);
+  else writeLocal("kabinet.employee", null);
   render();
 });
 qs("#edit-availability").addEventListener("click", () => { state.editing = !state.editing; render(); });
-qs("#confirm-action").addEventListener("click", confirmAvailability);
-qs("#share").addEventListener("click", async () => toast(await shareOrCopy(`Графік KABINET: ${monthLabel(state.date)}`)));
+qs("#confirm-action").addEventListener("click", withBusy(confirmAvailability));
+qs("#share").addEventListener("click", async () => { try { toast(await shareOrCopy(`Графік KABINET: ${monthLabel(state.date)}`)); } catch { toast("Не вдалося поділитися посиланням.", "error"); } });
 
 qs("#copy-access").addEventListener("click", async () => {
   try { const user = await ensureWorkerSession(); await navigator.clipboard.writeText(user.uid); toast("Код скопійовано. Передайте адміністратору."); }
   catch { toast("Не вдалося скопіювати код.", "error"); }
 });
 bindModalDismissals();
-ensureWorkerSession().then(subscribe).catch(error => {
+ensureWorkerSession().then(() => { state.authenticated = true; subscribe(); }).catch(error => {
   console.error(error);
   setConnection("error", "Потрібен вхід");
   toast("Не вдалося створити гостьову сесію. Увімкніть Anonymous у Firebase Authentication.", "error");
 });
+

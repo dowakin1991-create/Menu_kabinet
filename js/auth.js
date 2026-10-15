@@ -2,8 +2,8 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   signInAnonymously, signOut, setPersistence, browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { firebaseApp } from "./store.js?v=receipts1";
-import { ADMIN_UID } from "./config.js?v=receipts1";
+import { firebaseApp } from "./store.js?v=20261015.2";
+import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
 export const isAdmin = user => user?.uid === ADMIN_UID;
@@ -20,3 +20,4 @@ export async function login(email, password) {
   const result = await signInWithEmailAndPassword(auth, email.trim(), password);
   return result.user;
 }
+
