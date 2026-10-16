@@ -1,8 +1,8 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
 function setup(user) {
- const calls=[];const auth={currentUser:user,authStateReady:async()=>{}};
- const context={getAuth:()=>auth,firebaseApp:{},ADMIN_UID:'admin',browserSessionPersistence:'session',
- onAuthStateChanged:()=>{},signOut:async()=>{auth.currentUser=null},setPersistence:async()=>{},
+ const calls=[],authListeners=[],roleListeners=[];const auth={currentUser:user,authStateReady:async()=>{}};
+ const context={getAdminRole:async()=>false,watchAdminRole:(uid,next,fail)=>{const listener={uid,next,fail};roleListeners.push(listener);return()=>{listener.stopped=true}},getAuth:()=>auth,firebaseApp:{},ADMIN_UID:'admin',browserSessionPersistence:'session',
+ onAuthStateChanged:(_,callback)=>{authListeners.push(callback);return()=>{}},signOut:async()=>{auth.currentUser=null},setPersistence:async()=>{},
  signInWithEmailAndPassword:async(_,email)=>{calls.push(['login',email]);return {user:auth.currentUser}},
  signInAnonymously:async()=>{},EmailAuthProvider:{credential:(email,password)=>({email,password})},
  linkWithCredential:async(u,c)=>{calls.push(['link',u.uid,c.email]);u.isAnonymous=false;u.email=c.email;return {user:u}},
@@ -10,8 +10,8 @@ function setup(user) {
  updateProfile:async(u,profile)=>Object.assign(u,profile),sendEmailVerification:async u=>calls.push(['verify',u.uid]),
  sendPasswordResetEmail:async(_,email)=>calls.push(['reset',email]),reload:async u=>{u.emailVerified=true},
  };
- vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/auth.js'),'utf8').replace(/import[\s\S]*?from\s+["'][^"']+["'];/g,'').replace(/export /g,'')+';globalThis.api={registerWorker,sendVerification,refreshVerification,canEditWorker,login,resetPassword};',context);
- return {api:context.api,auth,calls};
+ vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/auth.js'),'utf8').replace(/import[\s\S]*?from\s+["'][^"']+["'];/g,'').replace(/export /g,'')+';globalThis.api={isAdmin,isOwner,watchAuth,registerWorker,sendVerification,refreshVerification,canEditWorker,login,resetPassword};',context);
+ return {api:context.api,auth,calls,authListeners,roleListeners};
 }
 test('registration upgrades anonymous UID, preserving employee binding',async()=>{
  const {api,auth,calls}=setup({uid:'bound-worker',isAnonymous:true,emailVerified:false});
@@ -29,4 +29,18 @@ test('verification reload refreshes token before allowing edits',async()=>{
 });
 test('new registration and verification are separate for recoverable email delivery failures',async()=>{
  const {api,auth,calls}=setup(null);await api.registerWorker('Олег','a@example.com','password123');assert.equal(auth.currentUser.uid,'new');assert.deepEqual(calls,[['create','a@example.com']]);await api.sendVerification();assert.deepEqual(calls[1],['verify','new']);
+});
+
+test('owner has immutable access; admins gain and lose access from live role updates',()=>{
+ const user={uid:'candidate',isAnonymous:false,emailVerified:true};
+ const {api,authListeners,roleListeners}=setup(user);const states=[];
+ const stop=api.watchAuth(u=>states.push(api.isAdmin(u)));
+ authListeners[0](user);roleListeners[0].next({status:'pending'});roleListeners[0].next({status:'approved'});roleListeners[0].next({status:'revoked'});
+ assert.deepEqual(states,[false,true,false]);assert(api.isOwner({uid:'admin'}));assert(api.isAdmin({uid:'admin'}));
+ stop();roleListeners[0].next({status:'approved'});assert.equal(states.length,3);
+});
+test('unverified users and failed role reads cannot become admins',()=>{
+ const user={uid:'candidate',isAnonymous:false,emailVerified:false};const {api,authListeners,roleListeners}=setup(user);
+ api.watchAuth(()=>{});authListeners[0](user);assert.equal(roleListeners.length,0);assert.equal(api.isAdmin(user),false);
+ user.emailVerified=true;authListeners[0](user);roleListeners[0].next({status:'approved'});assert(api.isAdmin(user));roleListeners[0].fail(Error('denied'));assert.equal(api.isAdmin(user),false);
 });

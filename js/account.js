@@ -1,6 +1,7 @@
-import { currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261016.3';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261016.4';
+import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261016.4';
 const $ = id => document.getElementById(id);
-let busy = false, lastSent = 0;
+let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
   const user = currentUser(), signed = user && !user.isAnonymous;
   $('account-forms').hidden = !!signed;
@@ -9,6 +10,10 @@ function renderAccount() {
   $('verification-controls').hidden = !signed || canEditWorker();
   $('account-status').textContent = signed ? (canEditWorker() ? 'Пошту підтверджено. Передайте адміну код доступу для прив’язки до вашого рядка.' : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Графік можна переглядати без реєстрації. Для своїх вихідних увійдіть і підтвердьте пошту.';
   $('copy-access').hidden = !canEditWorker();
+  $('admin-link').hidden = !isAdmin(user);
+  $('request-admin').hidden = !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
+  $('admin-request-status').textContent = isOwner(user) ? 'Ви — власник. Тільки ви призначаєте адміністраторів.' : isAdmin(user) ? 'Ви — адміністратор.' : ({pending:'Заявка очікує рішення власника.',rejected:'Власник відхилив заявку.',revoked:'Права адміністратора відкликано.',error:'Заявки недоступні. Потрібно перевірити правила Firebase.'}[roleStatus] || '');
+
 }
 async function task(fn) {
   if (busy) return;
@@ -46,9 +51,21 @@ export function initAccount() {
   $('resend-verification').addEventListener('click',()=>task(sendLetter));
   $('check-verification').addEventListener('click',()=>task(async()=>{
     const verified=await refreshVerification();
+    if (verified) { window.location.reload(); return; }
     $('account-message').textContent=verified?'Пошту підтверджено. Тепер можна отримати код доступу.':'Пошту ще не підтверджено. Відкрийте посилання в листі.';
   }));
   $('worker-logout').addEventListener('click',()=>task(logout));
-  watchAuth(renderAccount);
+  $('request-admin').addEventListener('click',()=>task(async()=>{
+    await requestAdmin(currentUser()); $('account-message').textContent='Заявку надіслано власнику.';
+  }));
+  watchAuth(()=>{
+    const user=currentUser();
+    const key=user && !user.isAnonymous && user.emailVerified && !isOwner(user) ? user.uid : null;
+    if (key !== roleUser) {
+      stopRole?.(); roleUser=key; roleStatus=null;
+      if (key) stopRole=watchAdminRole(key,data=>{if(roleUser!==key)return;roleStatus=data?.status;renderAccount();},()=>{if(roleUser!==key)return;roleStatus='error';renderAccount();});
+    }
+    renderAccount();
+  });
   renderAccount();
 }

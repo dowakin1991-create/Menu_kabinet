@@ -1,5 +1,6 @@
-import { initAccount, openAccount } from './account.js?v=20261016.3';
-import { currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.3';
+import { initOwnerPanel } from './owner.js?v=20261016.4';
+import { initAccount, openAccount } from './account.js?v=20261016.4';
+import { currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.4';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.2';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
@@ -318,6 +319,7 @@ window.exportHalfMonth = action(async (event,half) => {
 });
 $('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startWorker(); });
 if (admin) {
+  initOwnerPanel();
   $('newEmpName').maxLength=80;
   $('newEmpName').addEventListener('keydown',event=>{if(event.key==='Enter')window.addEmployee();});
   $('login-form').addEventListener('submit',async event=>{

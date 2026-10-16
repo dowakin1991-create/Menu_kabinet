@@ -1,8 +1,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
+    function isOwner() {
       return request.auth != null && request.auth.uid == 'yBHHkxuh4OSboz1gGOtZFqmfVHE3';
+    }
+    function isAdmin() {
+      return isOwner() || (request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/adminRequests/$(request.auth.uid))
+        && get(/databases/$(database)/documents/adminRequests/$(request.auth.uid)).data.status == 'approved');
+    }
+    match /adminRequests/{uid} {
+      allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
+      allow create: if request.auth != null && request.auth.uid == uid
+        && !isOwner() && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['name','email','status','updatedAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'pending' && request.resource.data.updatedAt == request.time;
+      allow update: if uid != 'yBHHkxuh4OSboz1gGOtZFqmfVHE3'
+        && request.resource.data.keys().hasOnly(['name','email','status','updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && ((isOwner()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+          && ((resource.data.status == 'pending' && request.resource.data.status in ['approved','rejected'])
+            || (resource.data.status == 'approved' && request.resource.data.status == 'revoked')))
+          || (request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true
+            && resource.data.status in ['rejected','revoked'] && request.resource.data.status == 'pending'
+            && request.resource.data.email == request.auth.token.email
+            && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80));
+      allow delete: if false;
     }
     match /schedules/{month} {
       allow read: if request.auth != null;

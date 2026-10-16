@@ -131,7 +131,7 @@
         #export-wrapper { position: absolute; top: -9999px; left: -9999px; z-index: -100; }
         #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
     </style>
-<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.3">
+<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
 </head>
 <body data-page="admin"><section id="login-panel"><form id="login-form" class="modal-content">
 <h3>Вхід адміністратора</h3><label>Пошта<input id="login-email" type="email" autocomplete="username" required></label>
@@ -139,6 +139,14 @@
 <p id="login-error" role="alert"></p><button id="login-submit" class="modal-btn" type="submit">Увійти</button></form></section>
 
 <div class="container" id="admin-panel" hidden>
+    <section id="owner-panel" class="account-panel" hidden>
+      <h2>Кабінет власника</h2>
+      <p>Тільки ви схвалюєте адміністраторів та відкликаєте їхні права.</p>
+      <p id="owner-message" role="status"></p>
+      <button id="owner-retry" type="button" hidden>Оновити заявки</button>
+      <div id="owner-requests"></div>
+    </section>
+
     <header>
         <div class="logo-block">
             <div>
@@ -224,6 +232,6 @@
 
 <div id="export-wrapper"></div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.3"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.4"></script>
 </body>
 </html>

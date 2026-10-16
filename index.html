@@ -132,7 +132,7 @@
         .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; opacity: 1; }
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
-<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.3">
+<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
 </head>
 <body data-page="index">
 <div class="container">
@@ -171,6 +171,9 @@
           <button id="resend-verification" type="button">Надіслати лист повторно</button>
           <button id="check-verification" type="button">Я підтвердив пошту</button>
         </div>
+        <p id="admin-request-status" role="status"></p>
+        <button id="request-admin" type="button" hidden>Подати заявку на адміністратора</button>
+        <a id="admin-link" href="admin.html" hidden>Відкрити адмінку</a>
         <button id="worker-logout" type="button">Вийти</button>
       </div>
       <p id="account-message" role="status" aria-live="polite"></p>
@@ -235,6 +238,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.3"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.4"></script>
 </body>
 </html>

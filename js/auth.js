@@ -1,3 +1,4 @@
+import { getAdminRole, watchAdminRole } from './roles.js?v=20261016.4';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   signInAnonymously, signOut, setPersistence, browserSessionPersistence,
@@ -9,8 +10,22 @@ import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
 auth.languageCode = 'uk';
-export const isAdmin = user => user?.uid === ADMIN_UID;
-export const watchAuth = callback => onAuthStateChanged(auth, callback);
+let approvedUid = null;
+export const isOwner = user => !!user && user.uid === ADMIN_UID;
+export const isAdmin = user => isOwner(user) || !!(user && user.emailVerified && approvedUid === user.uid);
+export function watchAuth(callback) {
+  let stopRole = null, generation = 0;
+  const stopAuth = onAuthStateChanged(auth, user => {
+    const ticket = ++generation; stopRole?.(); stopRole = null; approvedUid = null;
+    if (!user || user.isAnonymous || isOwner(user) || !user.emailVerified) { callback(user); return; }
+    stopRole = watchAdminRole(user.uid, data => {
+      if (ticket !== generation) return;
+      approvedUid = data?.status === 'approved' ? user.uid : null;
+      callback(user);
+    }, () => { if (ticket === generation) { approvedUid = null; callback(user); } });
+  });
+  return () => { generation++; stopRole?.(); stopAuth(); };
+}
 export const logout = () => signOut(auth);
 export const currentUser = () => auth.currentUser;
 export const canEditWorker = () => isAdmin(auth.currentUser) || !!(auth.currentUser && !auth.currentUser.isAnonymous && auth.currentUser.emailVerified);
@@ -22,6 +37,10 @@ export const ensureWorkerSession = async () => {
 export async function login(email, password) {
   await setPersistence(auth, browserSessionPersistence);
   const result = await signInWithEmailAndPassword(auth, email.trim(), password);
+  approvedUid = null;
+  if (!isOwner(result.user) && result.user.emailVerified) {
+    try { if (await getAdminRole(result.user.uid)) approvedUid = result.user.uid; } catch { /* Deny administrator access if role cannot be read. */ }
+  }
   return result.user;
 }
 export async function registerWorker(name, email, password) {
