@@ -133,7 +133,10 @@
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
-<link rel="stylesheet" href="assets/glass.css?v=20261016.6">
+<link rel="stylesheet" href="assets/glass.css?v=20261017.1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="IMG_9802.png">
+<meta name="theme-color" content="#173e3a">
 </head>
 <body data-page="index">
 <div class="container">
@@ -190,6 +193,13 @@
       <p id="account-message" role="status" aria-live="polite"></p>
     </section>
 
+    <section id="push-panel" class="account-panel push-panel" hidden>
+      <strong>🔔 Сповіщення про графік</strong>
+      <p id="push-status" role="status" aria-live="polite"></p>
+      <div class="push-actions"><button id="push-enable" type="button" disabled>Увімкнути сповіщення</button>
+      <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
+      <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
+    </section>
     <div id="private-schedule" hidden>
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
@@ -251,6 +261,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.6"></script>
+<script type="module" src="js/legacy-ui.js?v=20261017.1"></script>
 </body>
 </html>

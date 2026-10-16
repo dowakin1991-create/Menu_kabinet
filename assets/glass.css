@@ -92,3 +92,8 @@ button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visibl
 .auth-divider::before,.auth-divider::after { content:''; height:1px; flex:1; background:var(--border); }
 .account-panel .social-button { width:100%; margin:5px 0; }
 .auth-note { font-size:.78rem !important; color:var(--muted); }
+
+.push-panel { margin: 14px 0; }
+.push-panel p { line-height: 1.5; color: var(--text-main); }
+.push-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.push-actions button { min-height:44px; }

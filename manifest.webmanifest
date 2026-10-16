@@ -1,0 +1,6 @@
+{
+  "id": "./", "name": "KABINET — графік команди", "short_name": "KABINET",
+  "lang": "uk", "start_url": "./index.html", "scope": "./", "display": "standalone",
+  "background_color": "#111818", "theme_color": "#173e3a",
+  "icons": [{"src": "IMG_9802.png", "sizes": "any", "type": "image/png", "purpose": "any"}]
+}

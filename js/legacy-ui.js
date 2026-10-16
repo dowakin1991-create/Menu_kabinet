@@ -1,10 +1,11 @@
-import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261016.6';
-import { initOwnerPanel } from './owner.js?v=20261016.6';
-import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261016.6';
-import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.6';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.6';
-import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
-import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
+import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.1';
+import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.1';
+import { initOwnerPanel } from './owner.js?v=20261017.1';
+import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.1';
+import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.1';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.1';
+import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
+import { withBusy, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
 import { exportHalfMonth as exportPNG } from './export.js?v=20261015.3';
 
@@ -322,17 +323,15 @@ window.handleBanquetUpload = action(async event => {
   } catch(error) {throw new Error(`Збережено фото: ${saved}. ${error.message || 'Помилка завантаження.'}`);}
   finally {event.target.value='';}
 });
-window.notifyTelegramAuto = action(async () => {
-  const journal=changeJournal(getDocId());
-  let message=`🔔 Оновлено графік KABINET: ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}.`;
-  if(journal.shifts.size)message+=`\n⚠️ Зміни: ${[...journal.shifts].sort((a,b)=>a-b).join(', ')}.`;
-  if(journal.banquets.size)message+=`\n🎉 Бенкети: ${[...journal.banquets].sort((a,b)=>a-b).join(', ')}.`;
-  if(confirm(`${message}\n\nВідкрити меню поширення для надсилання в Telegram?`))toast(await shareOrCopy(message));
+window.notifyTeam = action(async () => {
+  if (!allowed || !isAdmin(currentUser())) return;
+  if (confirm('Сповістити команду про оновлення графіка? Повідомлення отримають працівники, які увімкнули сповіщення.')) toast(await notifySchedule(getDocId()));
 });
 window.exportHalfMonth = action(async (event,half) => {
   await exportPNG(currentDate,{employees,banquets},half,{container:$('resultImageContainer'),modal:$('resultModal')});
 });
 $('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startWorker(); });
+initPush();
 if (admin) {
   initOwnerPanel();
   $('newEmpName').maxLength=80;
@@ -343,8 +342,8 @@ if (admin) {
     catch(error){$('login-error').textContent=error.code?'Не вдалося увійти. Перевірте пошту, пароль і з’єднання.':error.message;}
     finally{$('login-submit').disabled=false;$('login-password').value='';}
   });
-  $('logout').addEventListener('click',()=>logout().catch(()=>toast('Не вдалося вийти.','error')));
-  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
+  $('logout').addEventListener('click',async()=>{try{await disconnectPush();await logout();}catch{toast('Не вдалося вийти. Перевірте з’єднання.','error');}});
+  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
 } else {
   initAccount();
   $('copy-access').addEventListener('click',async()=>{
@@ -365,6 +364,7 @@ if (admin) {
       $('private-schedule').hidden=!access;
       document.querySelectorAll('[data-schedule-only]').forEach(node=>node.hidden=!access);
       setScheduleAccess(access);
+      setPushAccess(access);
       if(access)loadData();else clearPrivateContent();
     };
     applyAccess(false);

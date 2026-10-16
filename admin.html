@@ -132,7 +132,10 @@
         #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
-<link rel="stylesheet" href="assets/glass.css?v=20261016.6">
+<link rel="stylesheet" href="assets/glass.css?v=20261017.1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="IMG_9802.png">
+<meta name="theme-color" content="#173e3a">
 </head>
 <body data-page="admin"><section id="login-panel"><form id="login-form" class="modal-content">
 <h3>Вхід адміністратора</h3><label>Пошта<input id="login-email" type="email" autocomplete="username" required></label>
@@ -164,6 +167,13 @@
     </details>
     <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
+    <section id="push-panel" class="account-panel push-panel" hidden>
+      <strong>🔔 Сповіщення про графік</strong>
+      <p id="push-status" role="status" aria-live="polite"></p>
+      <div class="push-actions"><button id="push-enable" type="button" disabled>Увімкнути сповіщення</button>
+      <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
+      <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
+    </section>
     <button id="logout" type="button" class="account-control">Вийти</button>
     <div class="admin-controls">
         <div class="input-group">
@@ -173,7 +183,7 @@
         <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
             <button class="export-btn" onclick="exportHalfMonth(event, 1)">📸 (1-15)</button>
             <button class="export-btn" onclick="exportHalfMonth(event, 2)">📸 (16-31)</button>
-            <button id="tgNotifyBtn" class="tg-btn" onclick="notifyTelegramAuto()">🔔 Сповістити (Telegram)</button>
+            <button id="pushNotifyBtn" class="tg-btn" onclick="notifyTeam()">🔔 Сповістити команду</button>
         </div>
     </div>
 
@@ -234,6 +244,6 @@
 
 <div id="export-wrapper"></div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.6"></script>
+<script type="module" src="js/legacy-ui.js?v=20261017.1"></script>
 </body>
 </html>

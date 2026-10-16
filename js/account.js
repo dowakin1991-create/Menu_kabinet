@@ -1,5 +1,6 @@
-import { requestAdmin, watchAdminRole } from './roles.js?v=20261016.6';
-import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261016.6';
+import {disconnectPush} from './push.js?v=20261017.1';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.1';
+import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.1';
 const $ = id => document.getElementById(id);
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
@@ -65,7 +66,7 @@ export function initAccount() {
     if (verified) { window.location.reload(); return; }
     $('account-message').textContent=verified?'Пошту підтверджено. Тепер можна отримати код доступу.':'Пошту ще не підтверджено. Відкрийте посилання в листі.';
   }));
-  $('worker-logout').addEventListener('click',()=>task(logout));
+  $('worker-logout').addEventListener('click',()=>task(async()=>{await disconnectPush();await logout();}));
   $('request-admin').addEventListener('click',()=>task(async()=>{
     await requestAdmin(currentUser()); $('account-message').textContent='Заявку надіслано власнику.';
   }));
