@@ -23,3 +23,10 @@ test('legacy table escapes names and supports UUID employee identifiers',()=>{
  const {elements,run}=setup();run(`ready=true;employees=[{id:'test-uuid',name:'<img src=x onerror=alert(1)>',shifts:[],shiftsFirst:[],shiftsSecond:[],unavail:[]}];renderAdmin();renderIndex();`);
  for(const id of ['b-row','body-row']){assert(!elements[id].innerHTML.includes('<img'));assert(elements[id].innerHTML.includes('&lt;img'));assert(elements[id].innerHTML.includes('&quot;test-uuid&quot;'));}
 });
+test('admin row controls have boundary guards and are absent from worker table',()=>{
+ const {elements,run}=setup();run(`ready=true;employees=[{id:'a',name:'Антон',shifts:[],shiftsFirst:[],shiftsSecond:[],unavail:[]},{id:'b',name:'Олег',shifts:[],shiftsFirst:[],shiftsSecond:[],unavail:[]}];renderAdmin();renderIndex();`);
+ assert(elements['b-row'].innerHTML.includes('startEmployeeDrag'));
+ assert.match(elements['b-row'].innerHTML,/moveEmployeeRow\(event, &quot;a&quot;, -1\)" disabled/);
+ assert.match(elements['b-row'].innerHTML,/moveEmployeeRow\(event, &quot;b&quot;, 1\)" disabled/);
+ assert(!elements['body-row'].innerHTML.includes('row-order-controls'));
+});
