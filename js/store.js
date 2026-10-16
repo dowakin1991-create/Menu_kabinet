@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  collection,
+  collection, query, where, orderBy, documentId, limit, getDocs,
   getDoc,
   doc,
   getFirestore,
@@ -211,5 +211,28 @@ export async function moveEmployee(month, employeeId, targetId, after = false) {
     const [employee] = draft.employees.splice(from, 1);
     const to = draft.employees.findIndex(e => String(e.id) === String(targetId));
     draft.employees.splice(to + (after ? 1 : 0), 0, employee);
+  });
+}
+
+// Seed an unopened month from the most recent earlier roster, never overwrite it.
+export async function ensureMonthRoster(month) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new Error('Некоректний місяць.');
+  const target = doc(db, 'schedules', month);
+  if ((await getDoc(target)).exists()) return false;
+  const previous = await getDocs(query(collection(db, 'schedules'), where(documentId(), '<', month), orderBy(documentId(), 'desc'), limit(1)));
+  if (previous.empty) return false;
+  const source = previous.docs[0].ref;
+  return runTransaction(db, async tx => {
+    const current = await tx.get(target);
+    if (current.exists()) return false;
+    const prior = await tx.get(source);
+    if (!prior.exists()) return false;
+    const roster = normalizeSchedule(prior.data()).employees;
+    if (!roster.length) return false;
+    tx.set(target, {
+      employees: roster.map(({id, name}) => ({id, name, shifts:[], shiftsFirst:[], shiftsSecond:[], unavail:[]})),
+      banquets: {}, schemaVersion: 2, updatedAt: serverTimestamp()
+    });
+    return true;
   });
 }

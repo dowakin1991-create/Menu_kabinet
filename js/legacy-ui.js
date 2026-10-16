@@ -1,5 +1,5 @@
 import { ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261015.2';
-import { moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.1';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.2';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -35,12 +35,23 @@ function closeAll() {
   document.querySelectorAll('.modal-overlay').forEach(node => { node.style.display = 'none'; });
   pendingAction = null; currentEditEmpId = null; currentEditDay = null; currentSettingsDay = null; currentReceiptDay = null;
 }
-function loadData() {
+async function loadData() {
   unsubscribe?.();
   const ticket = ++generation;
   ready = false; loadError = false; employees = []; banquets = {}; closeAll(); render();
   if (!allowed) return;
   status('Підключення…');
+  if (admin) {
+    try { await ensureMonthRoster(getDocId()); }
+    catch (error) {
+      if (ticket !== generation) return;
+      console.error(error); loadError = true; render();
+      status('Не вдалося підготувати місяць', true);
+      toast('Не вдалося перенести список працівників. Натисніть «Повторити».', 'error');
+      return;
+    }
+    if (ticket !== generation || !allowed) return;
+  }
   unsubscribe = subscribeSchedule(getDocId(), data => {
     if (ticket !== generation) return;
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;

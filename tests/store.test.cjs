@@ -10,12 +10,13 @@ function setup() {
   const docs = new Map([['schedules/2026-10', seed()]]), listeners=[];
   let queue = Promise.resolve();
   const snap = ref => ({exists:()=>docs.has(ref),data:()=>structuredClone(docs.get(ref))});
-  const ctx = {console, crypto:require('node:crypto').webcrypto, firebaseConfig:{}, initializeApp:()=>({}),getFirestore:()=>({}),serverTimestamp:()=>1,
+  const ctx = {query:(ref,...filters)=>({ref,filters}),where:(_,op,value)=>({op,value}),orderBy:()=>null,documentId:()=> '__name__',limit:()=>null,
+    getDocs:async q=>{const cutoff=q.filters.find(f=>f?.op==='<').value;const ids=[...docs.keys()].filter(k=>/^schedules\/\d{4}-\d{2}$/.test(k)&&k.split('/')[1]<cutoff).sort().reverse();return {empty:!ids.length,docs:ids.slice(0,1).map(ref=>({ref}))};},console, crypto:require('node:crypto').webcrypto, firebaseConfig:{}, initializeApp:()=>({}),getFirestore:()=>({}),serverTimestamp:()=>1,
     doc:(_, ...args)=>args.join('/'), collection:(_, ...args)=>args.join('/'),getDoc:async ref=>snap(ref),setDoc:async(ref,data)=>docs.set(ref,data),
     onSnapshot:(ref, next, error)=>{ const listener={ref,next,error};listeners.push(listener);return()=>{listener.stopped=true}; },
     runTransaction:(_, fn)=> { const execute=async()=>{const writes=[];await fn({get:async ref=>snap(ref),set:(ref,data)=>writes.push(()=>docs.set(ref,structuredClone(data))),update:(ref,data)=>writes.push(()=>docs.set(ref,{...docs.get(ref),...structuredClone(data)})),delete:ref=>writes.push(()=>docs.delete(ref))});writes.forEach(f=>f());}; const result=queue.then(execute);queue=result.catch(()=>{});return result; }
   };
-  vm.createContext(ctx); vm.runInContext(source+'\nglobalThis.api={moveEmployee,normalizeSchedule,setAvailability,updateSchedule,subscribeSchedule,saveEmployeeProfile,addReceipt,removeBanquet};',ctx);
+  vm.createContext(ctx); vm.runInContext(source+'\nglobalThis.api={ensureMonthRoster,moveEmployee,normalizeSchedule,setAvailability,updateSchedule,subscribeSchedule,saveEmployeeProfile,addReceipt,removeBanquet};',ctx);
   return {api:ctx.api,docs,listeners};
 }
 test('parallel day edits retain both changes and do not overwrite shifts',async()=>{
@@ -60,4 +61,20 @@ test('reordering preserves shifts and concurrent changes, and rejects deleted ta
  assert.deepEqual(docs.get('schedules/2026-10').employees.map(e=>e.id),[1,'b','c']);
  await assert.rejects(api.moveEmployee('2026-10',1,'deleted'));
  assert.deepEqual(docs.get('schedules/2026-10').employees.map(e=>e.id),[1,'b','c']);
+});
+
+test('new month inherits latest roster order and IDs but no schedule or banquet data',async()=>{
+ const {api,docs}=setup();docs.get('schedules/2026-10').employees.push({...seed().employees[0],id:'b',name:'Олег',unavail:[12]});
+ docs.get('schedules/2026-10').banquets={20:{active:true}};
+ await api.ensureMonthRoster('2026-12');
+ const result=docs.get('schedules/2026-12');assert.deepEqual(result.employees.map(e=>e.id),[1,'b']);
+ assert(result.employees.every(e=>[e.shifts,e.shiftsFirst,e.shiftsSecond,e.unavail].every(a=>a.length===0)));
+ assert.deepEqual(result.banquets,{});assert.deepEqual(docs.get('schedules/2026-10').employees[0].shifts,[15]);
+});
+test('roster initialization never overwrites existing or concurrently edited months',async()=>{
+ const {api,docs}=setup();docs.set('schedules/2026-11',{employees:[],banquets:{}});
+ await api.ensureMonthRoster('2026-11');assert.deepEqual(docs.get('schedules/2026-11').employees,[]);
+ await Promise.all([api.ensureMonthRoster('2026-12'),api.updateSchedule('2026-12',d=>d.employees.push({...seed().employees[0],id:'new'}))]);
+ assert.equal(docs.get('schedules/2026-12').employees[0].id,'new');
+ await api.ensureMonthRoster('2026-09');assert(!docs.has('schedules/2026-09'));
 });
