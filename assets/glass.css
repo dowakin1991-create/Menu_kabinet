@@ -1,0 +1,82 @@
+/* Readable glass surfaces; the schedule keeps opaque cells and its semantic colors. */
+:root {
+  color-scheme: light dark;
+  --glass: rgba(255,255,255,.8);
+  --glass-solid: #f7fafb;
+  --glass-line: rgba(255,255,255,.9);
+  --glass-shadow: 0 12px 36px rgba(24,65,76,.09), inset 0 1px 0 rgba(255,255,255,.85);
+  --control: rgba(255,255,255,.88);
+  --muted: #506271;
+  --text-main: #172e3a;
+  --border: #b9cbd1;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(ellipse at 0 0, #c8e9e6 0, transparent 48%), radial-gradient(ellipse at 100% 35%, #dbe5f9 0, transparent 50%), #edf3f5;
+  background-attachment: fixed;
+  min-height:100dvh; box-sizing:border-box;
+  padding: max(14px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  -webkit-tap-highlight-color:transparent;
+}
+header, .admin-controls, .account-panel, .modal-content, .receipt-viewer {
+  background:var(--glass-solid);
+  border:1px solid var(--glass-line);
+  border-radius:24px;
+  box-shadow:var(--glass-shadow);
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  header, .admin-controls, .account-panel, .modal-content, .receipt-viewer {
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(22px) saturate(135%);
+    backdrop-filter:blur(22px) saturate(135%);
+  }
+}
+header { padding:16px; gap:12px; flex-wrap:nowrap; }
+.logo-block { flex:none; }
+.logo-block > div { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.logo { height:48px; width:48px; border:2px solid #fff; box-shadow:0 3px 12px #173b3b25; }
+.admin-badge { display:inline-block; padding:4px 9px; border-radius:20px; background:#176267; color:#fff; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.admin-badge[data-role="owner"] { background:#695023; color:#fff8e9; }
+.month-selector { min-width:0; gap:6px; }
+#month-label { font-size:clamp(.95rem,3.7vw,1.2rem) !important; min-width:0 !important; flex:1; }
+button, .account-control, .account-panel button, .receipt-viewer .button { border-radius:14px; min-height:44px; font-family:inherit; font-weight:650; }
+.nav-btn { padding:0; width:40px; min-width:40px; height:40px; min-height:40px; border-radius:50%; background:var(--control); border:1px solid var(--border); color:var(--text-main); font-size:1.1rem; }
+.account-control, .account-panel button, .receipt-viewer .button { background:var(--control); color:var(--text-main); border:1px solid var(--border); }
+.admin-controls { padding:14px; gap:10px; }
+.input-group { min-width:0; width:100%; gap:10px; }
+input, #login-form input, .account-panel input { min-width:0; min-height:46px; box-sizing:border-box; border-radius:14px; background:var(--control); border:1px solid var(--border); color:var(--text-main); font-size:16px; }
+input::placeholder { color:var(--muted); opacity:1; }
+.add-btn { background:#176c7b; }
+.export-btn { background:#705197; }
+.tg-btn { background:#12698d; }
+.add-btn, .export-btn, .tg-btn { color:#fff; box-shadow:inset 0 1px 0 #ffffff28,0 3px 8px #173b3b14; }
+.mode-btn.off { background:var(--glass); color:var(--text-main); border:1px solid var(--border); border-radius:18px; box-shadow:var(--glass-shadow); }
+.mode-btn.on { background:#b93232; animation:none; border-radius:18px; }
+#connection-status, .hint-text { color:var(--muted); }
+#connection-status { margin:8px 4px 12px; font-size:.78rem; }
+.account-panel { padding:16px; margin:12px 0; }
+.account-panel summary { min-height:28px; line-height:1.5; font-size:.95rem; }
+.account-panel p { line-height:1.55; }
+#owner-panel { margin:0 0 12px; }
+#owner-panel summary { font-weight:700; cursor:pointer; }
+#owner-panel > p { color:var(--muted); font-size:.85rem; }
+.table-wrapper { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; box-sizing:border-box; box-shadow:0 8px 24px #173b3b12; }
+table { font-variant-numeric:tabular-nums; }
+th { font-weight:700; }
+.modal-overlay { background:rgba(13,27,36,.5); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); }
+.modal-content { padding:22px; }
+button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible { outline:3px solid #218ba5; outline-offset:3px; }
+.row-order-controls button { border-radius:9px; background:var(--control); }
+@media (prefers-color-scheme:dark) {
+  :root { --glass:rgba(29,42,50,.87); --glass-solid:#1d2a32; --glass-line:rgba(205,234,245,.19); --glass-shadow:0 14px 36px #0004,inset 0 1px 0 #ffffff12; --control:rgba(39,55,65,.95); --muted:#b6c7cf; --text-main:#f0f6fa; --border:#516570; }
+  body { background:radial-gradient(ellipse at 0 0,#173e42 0,transparent 48%),radial-gradient(ellipse at 100% 35%,#24344d 0,transparent 50%),#10191f; background-attachment:fixed; }
+  .admin-badge[data-role="owner"] { background:#785d2d; }
+  .admin-badge { background:#206c72; }
+  .add-btn { background:#206779; } .export-btn { background:#68508e; } .tg-btn { background:#176783; }
+}
+@media (prefers-reduced-transparency:reduce) {
+  header, .admin-controls, .account-panel, .modal-content, .receipt-viewer, .mode-btn.off { background:var(--glass-solid); -webkit-backdrop-filter:none; backdrop-filter:none; }
+  .modal-overlay { -webkit-backdrop-filter:none; backdrop-filter:none; }
+}
+@media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+@media (max-width:380px) { header { padding:12px; gap:7px; } .nav-btn { min-width:34px; width:34px; } .admin-controls { padding:10px; } .add-btn { padding:10px; } }

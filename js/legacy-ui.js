@@ -1,12 +1,20 @@
 import { initOwnerPanel } from './owner.js?v=20261016.4';
 import { initAccount, openAccount } from './account.js?v=20261016.4';
-import { currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.4';
+import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.4';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.2';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
 import { exportHalfMonth as exportPNG } from './export.js?v=20261015.3';
 
+function renderRoleBadge(user) {
+  const badge = document.getElementById('role-badge');
+  const label = isOwner(user) ? 'Власник' : isAdmin(user) ? 'Шеф' : '';
+  badge.textContent = label;
+  badge.hidden = !label;
+  badge.dataset.role = isOwner(user) ? 'owner' : 'admin';
+  if (document.body.dataset.page === 'admin') document.title = label ? `KABINET — ${label}` : 'KABINET — Вхід';
+}
 const admin = document.body.dataset.page === 'admin';
 const $ = id => document.getElementById(id);
 const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
@@ -329,7 +337,7 @@ if (admin) {
     finally{$('login-submit').disabled=false;$('login-password').value='';}
   });
   $('logout').addEventListener('click',()=>logout().catch(()=>toast('Не вдалося вийти.','error')));
-  watchAuth(user=>{allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(allowed)loadData();});
+  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(allowed)loadData();});
 } else {
   initAccount();
   $('copy-access').addEventListener('click',async()=>{
@@ -339,6 +347,7 @@ if (admin) {
     catch { prompt('Скопіюйте код і передайте адміністратору:',user.uid); }
   });
   watchAuth(user=>{
+    renderRoleBadge(user);
     unsubscribe?.(); generation++; closeAll(); ready=false; allowed=!!user;
     isRedDotMode=false;
     $('redDotToggleBtn').className='mode-btn off';

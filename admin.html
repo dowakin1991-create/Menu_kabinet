@@ -2,8 +2,8 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KABINET - Панель ШЕФА</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KABINET — Керування графіком</title>
     
     <link rel="icon" type="image/png" href="IMG_9802.png">
     <link rel="apple-touch-icon" href="IMG_9802.png">
@@ -132,6 +132,7 @@
         #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
+<link rel="stylesheet" href="assets/glass.css?v=20261016.5">
 </head>
 <body data-page="admin"><section id="login-panel"><form id="login-form" class="modal-content">
 <h3>Вхід адміністратора</h3><label>Пошта<input id="login-email" type="email" autocomplete="username" required></label>
@@ -139,18 +140,12 @@
 <p id="login-error" role="alert"></p><button id="login-submit" class="modal-btn" type="submit">Увійти</button></form></section>
 
 <div class="container" id="admin-panel" hidden>
-    <section id="owner-panel" class="account-panel" hidden>
-      <h2>Кабінет власника</h2>
-      <p>Тільки ви схвалюєте адміністраторів та відкликаєте їхні права.</p>
-      <p id="owner-message" role="status"></p>
-      <button id="owner-retry" type="button" hidden>Оновити заявки</button>
-      <div id="owner-requests"></div>
-    </section>
+
 
     <header>
         <div class="logo-block">
             <div>
-                <span class="admin-badge">ШЕФ</span><br>
+                <span id="role-badge" class="admin-badge" hidden></span>
                 <img src="IMG_9802.png" alt="Logo" class="logo">
             </div>
         </div>
@@ -160,6 +155,13 @@
             <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
     </header>
+    <details id="owner-panel" class="account-panel" hidden>
+      <summary>Керування адміністраторами</summary>
+      <p>Тільки ви схвалюєте адміністраторів та відкликаєте їхні права.</p>
+      <p id="owner-message" role="status"></p>
+      <button id="owner-retry" type="button" hidden>Оновити заявки</button>
+      <div id="owner-requests"></div>
+    </details>
     <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
     <button id="logout" type="button" class="account-control">Вийти</button>
@@ -232,6 +234,6 @@
 
 <div id="export-wrapper"></div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.4"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.5"></script>
 </body>
 </html>

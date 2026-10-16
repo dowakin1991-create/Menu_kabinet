@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KABINET - Графік</title>
     
     <link rel="icon" type="image/png" href="IMG_9802.png">
@@ -133,11 +133,12 @@
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
+<link rel="stylesheet" href="assets/glass.css?v=20261016.5">
 </head>
 <body data-page="index">
 <div class="container">
     <header>
-        <img src="IMG_9802.png" alt="Kabinet Logo" class="logo">
+        <div class="logo-block"><div><span id="role-badge" class="admin-badge" hidden></span><img src="IMG_9802.png" alt="Kabinet Logo" class="logo"></div></div>
         <div class="month-selector">
             <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
             <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
@@ -238,6 +239,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.4"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.5"></script>
 </body>
 </html>
