@@ -1,4 +1,5 @@
-import { ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261015.2';
+import { initAccount, openAccount } from './account.js?v=20261016.3';
+import { currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.3';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.2';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
@@ -139,6 +140,7 @@ window.showEmployeeInfo = (event, id) => {
 window.editEmployee = (event, id) => window.showEmployeeInfo(event, id);
 
 window.toggleRedDotMode = () => {
+  if (!canEditWorker()) { openAccount(); return toast('Увійдіть і підтвердьте пошту, щоб редагувати вихідні.', 'error'); }
   isRedDotMode = !isRedDotMode;
   $('redDotToggleBtn').className = 'mode-btn ' + (isRedDotMode ? 'on' : 'off');
   $('redDotToggleBtn').textContent = isRedDotMode ? '❌ Вийти з режиму редагування' : '🔴 Поставити вихідний';
@@ -146,6 +148,7 @@ window.toggleRedDotMode = () => {
 window.cancelRedDot = () => { hide('confirmModal'); pendingAction = null; };
 window.executeRedDot = action(async () => {
   if (!pendingAction) return;
+  if (!canEditWorker()) throw new Error('Увійдіть і підтвердьте пошту.');
   const { month, id, day, unavailable } = pendingAction;
   await setAvailability(month,id,day,unavailable);
   window.cancelRedDot(); toast('Вихідний збережено.');
@@ -326,10 +329,23 @@ if (admin) {
   $('logout').addEventListener('click',()=>logout().catch(()=>toast('Не вдалося вийти.','error')));
   watchAuth(user=>{allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(allowed)loadData();});
 } else {
-  $('copy-access').addEventListener('click',async()=>{try{const user=await ensureWorkerSession();await navigator.clipboard.writeText(user.uid);toast('Код скопійовано. Передайте адміністратору.');}catch{toast('Не вдалося скопіювати код.','error');}});
-  startWorker();
+  initAccount();
+  $('copy-access').addEventListener('click',async()=>{
+    if (!canEditWorker()) return openAccount();
+    const user=currentUser();
+    try { await navigator.clipboard.writeText(user.uid); toast('Код скопійовано. Передайте адміністратору.'); }
+    catch { prompt('Скопіюйте код і передайте адміністратору:',user.uid); }
+  });
+  watchAuth(user=>{
+    unsubscribe?.(); generation++; closeAll(); ready=false; allowed=!!user;
+    isRedDotMode=false;
+    $('redDotToggleBtn').className='mode-btn off';
+    $('redDotToggleBtn').textContent='🔴 Поставити вихідний';
+    employees=[]; banquets={}; render();
+    if (user) loadData(); else startWorker();
+  });
 }
-async function startWorker(){render();try{await ensureWorkerSession();allowed=true;loadData();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}
+async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();});
     function renderIndex() {
         const year = currentDate.getFullYear();

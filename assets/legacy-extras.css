@@ -28,3 +28,13 @@ button:disabled { opacity:.55; cursor:wait; }
 #b-row td:first-child > div { flex-wrap:wrap; }
 #b-row td:first-child > div > span:first-child { max-width:calc(100% - 28px); overflow:hidden; text-overflow:ellipsis; }
 #b-row .row-order-controls { order:3; width:100%; margin:4px 0 0; }
+
+.account-panel { margin:12px 0; padding:12px; border:1px solid var(--border); border-radius:10px; background:var(--bg-card); }
+.account-panel summary { cursor:pointer; font-weight:700; overflow-wrap:anywhere; }
+.account-panel p { font-size:.85rem; line-height:1.5; }
+.account-forms { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; }
+.account-panel label { display:block; margin-bottom:10px; font-size:.85rem; }
+.account-panel input { display:block; box-sizing:border-box; width:100%; min-height:44px; margin-top:5px; padding:10px; border:1px solid var(--border); border-radius:7px; background:var(--bg-body); color:var(--text-main); font-size:16px; }
+.account-panel button { min-height:44px; margin:4px 5px 4px 0; padding:8px 12px; border:1px solid var(--border); border-radius:7px; background:var(--bg-body); color:var(--text-main); cursor:pointer; }
+#account-message { font-weight:600; overflow-wrap:anywhere; }
+@media(max-width:360px) { .account-forms { grid-template-columns:1fr; } }

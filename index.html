@@ -132,7 +132,7 @@
         .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; opacity: 1; }
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
-<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.1">
+<link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.3">
 </head>
 <body data-page="index">
 <div class="container">
@@ -145,6 +145,36 @@
         </div>
     </header>
     <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
+
+    <details id="account-panel" class="account-panel">
+      <summary id="account-summary">Вхід / Реєстрація</summary>
+      <p id="account-status"></p>
+      <div id="account-forms" class="account-forms">
+        <form id="worker-login">
+          <h3>Увійти</h3>
+          <label>Електронна пошта<input id="worker-email" type="email" autocomplete="email" required maxlength="254"></label>
+          <label>Пароль<input id="worker-password" type="password" autocomplete="current-password" required></label>
+          <button type="submit">Увійти</button>
+          <button id="worker-reset" type="button">Забули пароль?</button>
+        </form>
+        <form id="worker-register">
+          <h3>Зареєструватися</h3>
+          <label>Ім’я та прізвище<input id="register-name" autocomplete="name" required maxlength="80"></label>
+          <label>Електронна пошта<input id="register-email" type="email" autocomplete="email" required maxlength="254"></label>
+          <label>Пароль (від 8 символів)<input id="register-password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Повторіть пароль<input id="register-confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button type="submit">Створити обліковий запис</button>
+        </form>
+      </div>
+      <div id="account-signed" hidden>
+        <div id="verification-controls">
+          <button id="resend-verification" type="button">Надіслати лист повторно</button>
+          <button id="check-verification" type="button">Я підтвердив пошту</button>
+        </div>
+        <button id="worker-logout" type="button">Вийти</button>
+      </div>
+      <p id="account-message" role="status" aria-live="polite"></p>
+    </details>
 
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
@@ -205,6 +235,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.2"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.3"></script>
 </body>
 </html>
