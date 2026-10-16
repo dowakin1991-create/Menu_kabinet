@@ -10,6 +10,19 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/adminRequests/$(request.auth.uid))
         && get(/databases/$(database)/documents/adminRequests/$(request.auth.uid)).data.status == 'approved');
     }
+    function canReadSchedule() {
+      return isAdmin() || (request.auth != null && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/teamAccess/$(request.auth.uid))
+        && get(/databases/$(database)/documents/employeeAccess/$(get(/databases/$(database)/documents/teamAccess/$(request.auth.uid)).data.employeeId)).data.uid == request.auth.uid);
+    }
+    match /teamAccess/{uid} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['employeeId'])
+        && request.resource.data.employeeId is string
+        && request.resource.data.employeeId.size() > 0 && request.resource.data.employeeId.size() <= 128;
+      allow delete: if isAdmin();
+    }
     match /adminRequests/{uid} {
       allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
       allow create: if request.auth != null && request.auth.uid == uid
@@ -32,11 +45,11 @@ service cloud.firestore {
       allow delete: if false;
     }
     match /schedules/{month} {
-      allow read: if request.auth != null;
+      allow read: if canReadSchedule();
       allow write: if isAdmin();
     }
     match /schedules/{month}/receipts/{receiptId} {
-      allow read: if request.auth != null;
+      allow read: if canReadSchedule();
       allow create: if isAdmin()
         && request.resource.data.keys().hasOnly(['image', 'createdAt'])
         && request.resource.data.image is string
@@ -46,10 +59,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     match /employeeAccess/{employeeId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
     }
     match /availability/{month}/employees/{employeeId} {
-      allow read: if request.auth != null;
+      allow read: if canReadSchedule();
       allow create, update: if request.auth != null
         && (isAdmin() || (request.auth.token.email_verified == true
           && get(/databases/$(database)/documents/employeeAccess/$(employeeId)).data.uid == request.auth.uid))

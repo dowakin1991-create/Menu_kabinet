@@ -1,8 +1,8 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const path=require('node:path');
 function setup(user) {
- const calls=[],authListeners=[],roleListeners=[];const auth={currentUser:user,authStateReady:async()=>{}};
- const context={getAdminRole:async()=>false,watchAdminRole:(uid,next,fail)=>{const listener={uid,next,fail};roleListeners.push(listener);return()=>{listener.stopped=true}},getAuth:()=>auth,firebaseApp:{},ADMIN_UID:'admin',browserSessionPersistence:'session',
- onAuthStateChanged:(_,callback)=>{authListeners.push(callback);return()=>{}},signOut:async()=>{auth.currentUser=null},setPersistence:async()=>{},
+ const persisted=[],calls=[],authListeners=[],roleListeners=[];const auth={currentUser:user,authStateReady:async()=>{}};
+ const context={getAdminRole:async()=>false,watchAdminRole:(uid,next,fail)=>{const listener={uid,next,fail};roleListeners.push(listener);return()=>{listener.stopped=true}},getAuth:()=>auth,firebaseApp:{},ADMIN_UID:'admin',browserSessionPersistence:'session',browserLocalPersistence:'local',
+ onAuthStateChanged:(_,callback)=>{authListeners.push(callback);return()=>{}},signOut:async()=>{auth.currentUser=null},setPersistence:async(_,mode)=>persisted.push(mode),
  signInWithEmailAndPassword:async(_,email)=>{calls.push(['login',email]);return {user:auth.currentUser}},
  signInAnonymously:async()=>{},EmailAuthProvider:{credential:(email,password)=>({email,password})},
  linkWithCredential:async(u,c)=>{calls.push(['link',u.uid,c.email]);u.isAnonymous=false;u.email=c.email;return {user:u}},
@@ -10,8 +10,8 @@ function setup(user) {
  updateProfile:async(u,profile)=>Object.assign(u,profile),sendEmailVerification:async u=>calls.push(['verify',u.uid]),
  sendPasswordResetEmail:async(_,email)=>calls.push(['reset',email]),reload:async u=>{u.emailVerified=true},
  };
- vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/auth.js'),'utf8').replace(/import[\s\S]*?from\s+["'][^"']+["'];/g,'').replace(/export /g,'')+';globalThis.api={isAdmin,isOwner,watchAuth,registerWorker,sendVerification,refreshVerification,canEditWorker,login,resetPassword};',context);
- return {api:context.api,auth,calls,authListeners,roleListeners};
+ vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/auth.js'),'utf8').replace(/import[\s\S]*?from\s+["'][^"']+["'];/g,'').replace(/export /g,'')+';globalThis.api={isAdmin,isOwner,watchAuth,registerWorker,sendVerification,refreshVerification,canEditWorker,ensureWorkerSession,login,resetPassword};',context);
+ return {api:context.api,auth,persisted,calls,authListeners,roleListeners};
 }
 test('registration upgrades anonymous UID, preserving employee binding',async()=>{
  const {api,auth,calls}=setup({uid:'bound-worker',isAnonymous:true,emailVerified:false});
@@ -43,4 +43,12 @@ test('unverified users and failed role reads cannot become admins',()=>{
  const user={uid:'candidate',isAnonymous:false,emailVerified:false};const {api,authListeners,roleListeners}=setup(user);
  api.watchAuth(()=>{});authListeners[0](user);assert.equal(roleListeners.length,0);assert.equal(api.isAdmin(user),false);
  user.emailVerified=true;authListeners[0](user);roleListeners[0].next({status:'approved'});assert(api.isAdmin(user));roleListeners[0].fail(Error('denied'));assert.equal(api.isAdmin(user),false);
+});
+
+test('remember-me persists a session without storing passwords in app storage',async()=>{
+ const {api,persisted}=setup({uid:'worker',isAnonymous:false,emailVerified:false});
+ await api.login('a@example.com','secret',true);await api.login('a@example.com','secret',false);assert.deepEqual(persisted,['local','session']);
+});
+test('opening a public page never creates an anonymous account',async()=>{
+ const {api,auth}=setup(null);assert.equal(await api.ensureWorkerSession(),null);assert.equal(auth.currentUser,null);
 });

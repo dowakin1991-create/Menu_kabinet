@@ -1,7 +1,8 @@
-import { initOwnerPanel } from './owner.js?v=20261016.4';
-import { initAccount, openAccount } from './account.js?v=20261016.4';
-import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.4';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.2';
+import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261016.6';
+import { initOwnerPanel } from './owner.js?v=20261016.6';
+import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261016.6';
+import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261016.6';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.6';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -22,6 +23,7 @@ const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 let todayDate = new Date();
 let currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
+let stopTeamAccess = null, accessGeneration = 0;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
 let activeColDay = null, activeRowEmpId = null, isRedDotMode = false;
 let pendingAction = null, currentEditEmpId = null, currentEditDay = null, currentSettingsDay = null, currentReceiptDay = null;
@@ -44,6 +46,11 @@ function render() {
 function closeAll() {
   document.querySelectorAll('.modal-overlay').forEach(node => { node.style.display = 'none'; });
   pendingAction = null; currentEditEmpId = null; currentEditDay = null; currentSettingsDay = null; currentReceiptDay = null;
+}
+function clearPrivateContent() {
+  for (const id of ['header-row','body-row','h-row','b-row','infoModalName','receiptImagesContainer','legacy-receipts','resultImageContainer']) {
+    const node=$(id); if(node) {node.ticket=null;node.replaceChildren();}
+  }
 }
 async function loadData() {
   unsubscribe?.();
@@ -337,7 +344,7 @@ if (admin) {
     finally{$('login-submit').disabled=false;$('login-password').value='';}
   });
   $('logout').addEventListener('click',()=>logout().catch(()=>toast('Не вдалося вийти.','error')));
-  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(allowed)loadData();});
+  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
 } else {
   initAccount();
   $('copy-access').addEventListener('click',async()=>{
@@ -348,12 +355,21 @@ if (admin) {
   });
   watchAuth(user=>{
     renderRoleBadge(user);
-    unsubscribe?.(); generation++; closeAll(); ready=false; allowed=!!user;
-    isRedDotMode=false;
-    $('redDotToggleBtn').className='mode-btn off';
-    $('redDotToggleBtn').textContent='🔴 Поставити вихідний';
-    employees=[]; banquets={}; render();
-    if (user) loadData(); else startWorker();
+    stopTeamAccess?.();const ticket=++accessGeneration;
+    const applyAccess = access => {
+      if(ticket!==accessGeneration)return;
+      unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
+      employees=[];banquets={};isRedDotMode=false;
+      $('redDotToggleBtn').className='mode-btn off';
+      $('redDotToggleBtn').textContent='🔴 Поставити вихідний';
+      $('private-schedule').hidden=!access;
+      document.querySelectorAll('[data-schedule-only]').forEach(node=>node.hidden=!access);
+      setScheduleAccess(access);
+      if(access)loadData();else clearPrivateContent();
+    };
+    applyAccess(false);
+    if(isAdmin(user))applyAccess(true);
+    else stopTeamAccess=watchTeamAccess(user,applyAccess);
   });
 }
 async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}

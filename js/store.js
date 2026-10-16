@@ -139,11 +139,17 @@ export async function saveEmployeeProfile(month, id, name, uid) {
     employee.name = name;
     tx.update(reference, { employees: data.employees, updatedAt: serverTimestamp() });
     tx.set(doc(db, "employeeAccess", String(id)), { uid });
+    if (uid) tx.set(doc(db,"teamAccess",uid),{employeeId:String(id)});
   });
 }
 
 export async function bindEmployee(employeeId, uid) {
-  await setDoc(doc(db, "employeeAccess", String(employeeId)), { uid: uid.trim() });
+  uid=uid.trim();
+  if (uid.length>128 || uid.includes('/')) throw new Error('Неправильний код доступу.');
+  await runTransaction(db,async tx=>{
+    tx.set(doc(db,'employeeAccess',String(employeeId)),{uid});
+    if(uid) tx.set(doc(db,'teamAccess',uid),{employeeId:String(employeeId)});
+  });
 }
 export async function employeeAccess(employeeId) {
   const snap = await getDoc(doc(db, "employeeAccess", String(employeeId)));

@@ -1,5 +1,5 @@
-import { currentUser, isOwner, watchAuth } from './auth.js?v=20261016.4';
-import { watchAdminRequests, decideAdmin } from './roles.js?v=20261016.4';
+import { currentUser, isOwner, watchAuth } from './auth.js?v=20261016.6';
+import { watchAdminRequests, decideAdmin } from './roles.js?v=20261016.6';
 const $=id=>document.getElementById(id);
 let stop=null, generation=0, saving=false;
 function renderRequests(items) {

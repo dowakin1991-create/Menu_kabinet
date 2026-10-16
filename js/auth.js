@@ -1,11 +1,12 @@
-import { getAdminRole, watchAdminRole } from './roles.js?v=20261016.4';
+import { getAdminRole, watchAdminRole } from './roles.js?v=20261016.6';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-  signInAnonymously, signOut, setPersistence, browserSessionPersistence,
+  signOut, setPersistence, browserSessionPersistence, browserLocalPersistence,
+  GoogleAuthProvider, OAuthProvider, signInWithPopup,
   createUserWithEmailAndPassword, linkWithCredential, EmailAuthProvider,
   updateProfile, sendEmailVerification, sendPasswordResetEmail, reload
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { firebaseApp } from "./store.js?v=20261016.2";
+import { firebaseApp } from "./store.js?v=20261016.6";
 import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
@@ -31,11 +32,11 @@ export const currentUser = () => auth.currentUser;
 export const canEditWorker = () => isAdmin(auth.currentUser) || !!(auth.currentUser && !auth.currentUser.isAnonymous && auth.currentUser.emailVerified);
 export const ensureWorkerSession = async () => {
   await auth.authStateReady();
-  if (!auth.currentUser) await signInAnonymously(auth);
+
   return auth.currentUser;
 };
-export async function login(email, password) {
-  await setPersistence(auth, browserSessionPersistence);
+export async function login(email, password, remember = true) {
+  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
   const result = await signInWithEmailAndPassword(auth, email.trim(), password);
   approvedUid = null;
   if (!isOwner(result.user) && result.user.emailVerified) {
@@ -43,18 +44,25 @@ export async function login(email, password) {
   }
   return result.user;
 }
-export async function registerWorker(name, email, password) {
+export async function registerWorker(name, email, password, remember = true) {
   name = name.trim(); email = email.trim();
   if (!name || name.length > 80) throw new Error('Введіть ім’я до 80 символів.');
   if (password.length < 8) throw new Error('Пароль має містити щонайменше 8 символів.');
   await auth.authStateReady();
   if (auth.currentUser && !auth.currentUser.isAnonymous) throw new Error('Спочатку вийдіть із поточного облікового запису.');
+  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
   // Upgrade the guest instead of replacing its UID and existing employee binding.
   const result = auth.currentUser?.isAnonymous
     ? await linkWithCredential(auth.currentUser, EmailAuthProvider.credential(email, password))
     : await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(result.user, {displayName:name});
   return result.user;
+}
+export async function socialLogin(kind, remember = true) {
+  const provider = kind === 'google' ? new GoogleAuthProvider() : new OAuthProvider('apple.com');
+  if (kind === 'apple') { provider.addScope('email'); provider.addScope('name'); }
+  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+  return (await signInWithPopup(auth,provider)).user;
 }
 export async function sendVerification() {
   const user = auth.currentUser;
@@ -79,7 +87,11 @@ export function authMessage(error) {
     'auth/user-not-found':'Неправильна пошта або пароль.',
     'auth/too-many-requests':'Забагато спроб. Зачекайте й повторіть пізніше.',
     'auth/network-request-failed':'Немає з’єднання. Перевірте інтернет.',
-    'auth/operation-not-allowed':'Реєстрацію поштою потрібно ввімкнути в налаштуваннях Firebase.',
+    'auth/operation-not-allowed':'Цей спосіб входу ще не налаштований. Скористайтеся поштою та паролем.',
+    'auth/popup-closed-by-user':'Вхід скасовано. Спробуйте ще раз, якщо хочете увійти.',
+    'auth/popup-blocked':'Браузер заблокував вікно входу. Дозвольте спливні вікна або увійдіть поштою.',
+    'auth/unauthorized-domain':'Вхід через цей сервіс ще не налаштований для сайту. Скористайтеся поштою.',
+    'auth/account-exists-with-different-credential':'Ця пошта вже використовує інший спосіб входу. Увійдіть тим способом, яким реєструвалися.',
     'auth/user-disabled':'Обліковий запис вимкнений. Зверніться до адміністратора.'
   };
   return messages[error.code] || (error.code ? 'Не вдалося виконати дію. Спробуйте ще раз.' : error.message);

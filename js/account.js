@@ -1,14 +1,19 @@
-import { requestAdmin, watchAdminRole } from './roles.js?v=20261016.4';
-import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261016.4';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261016.6';
+import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261016.6';
 const $ = id => document.getElementById(id);
+let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
   const user = currentUser(), signed = user && !user.isAnonymous;
   $('account-forms').hidden = !!signed;
   $('account-signed').hidden = !signed;
-  $('account-summary').textContent = signed ? `${user.displayName || 'Працівник'} · ${user.email}` : 'Вхід / Реєстрація';
+  $('account-summary').textContent = signed ? `${user.displayName || 'Працівник'} · ${user.email}` : formMode === 'register' ? 'Створити обліковий запис' : 'Вхід у KABINET';
+  $('social-auth').hidden = !!signed;
+  $('worker-login').hidden = formMode !== 'login';
+  $('worker-register').hidden = formMode !== 'register';
+  $('account-panel').classList.toggle('auth-gate',!hasAccess);
   $('verification-controls').hidden = !signed || canEditWorker();
-  $('account-status').textContent = signed ? (canEditWorker() ? 'Пошту підтверджено. Передайте адміну код доступу для прив’язки до вашого рядка.' : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Графік можна переглядати без реєстрації. Для своїх вихідних увійдіть і підтвердьте пошту.';
+  $('account-status').textContent = signed ? (canEditWorker() ? (hasAccess ? 'Ви маєте доступ до графіка команди.' : 'Пошту підтверджено. Щоб отримати доступ до графіка, передайте адміну свій код доступу.') : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Закритий графік команди. Для перегляду потрібні вхід і дозвіл адміністратора.';
   $('copy-access').hidden = !canEditWorker();
   $('admin-link').hidden = !isAdmin(user);
   $('request-admin').hidden = !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
@@ -29,20 +34,26 @@ async function sendLetter() {
   await sendVerification(); lastSent=Date.now();
   $('account-message').textContent='Лист надіслано. Перевірте вхідні та папку «Спам».';
 }
+export function setScheduleAccess(value) { hasAccess = value; renderAccount(); }
 export function openAccount() { $('account-panel').open=true; $('account-panel').scrollIntoView({behavior:'smooth',block:'nearest'}); }
 export function initAccount() {
+  $('show-login').addEventListener('click',()=>{formMode='login';renderAccount();$('worker-email').focus();});
+  $('show-register').addEventListener('click',()=>{formMode='register';renderAccount();$('register-name').focus();});
+  $('google-login').addEventListener('click',()=>task(()=>socialLogin('google',$('remember-me').checked)));
+  $('apple-login').addEventListener('click',()=>task(()=>socialLogin('apple',$('remember-me').checked)));
+
   $('worker-register').addEventListener('submit',event=>{
     event.preventDefault();
     task(async()=>{
       if ($('register-password').value !== $('register-confirm').value) throw new Error('Паролі не збігаються.');
-      await registerWorker($('register-name').value,$('register-email').value,$('register-password').value);
+      await registerWorker($('register-name').value,$('register-email').value,$('register-password').value,$('remember-me').checked);
       $('register-password').value=''; $('register-confirm').value='';
       try { await sendLetter(); }
       catch(error) { throw new Error('Обліковий запис створено, але лист не надіслано. '+authMessage(error)+' Скористайтеся кнопкою повторного надсилання.'); }
     });
   });
   $('worker-login').addEventListener('submit',event=>{
-    event.preventDefault();task(async()=>{await login($('worker-email').value,$('worker-password').value);$('worker-password').value='';});
+    event.preventDefault();task(async()=>{await login($('worker-email').value,$('worker-password').value,$('remember-me').checked);$('worker-password').value='';});
   });
   $('worker-reset').addEventListener('click',()=>task(async()=>{
     const email=$('worker-email'); if (!email.value || !email.checkValidity()) throw new Error('Введіть коректну пошту в полі входу.');

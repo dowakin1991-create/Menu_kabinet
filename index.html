@@ -133,39 +133,48 @@
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
-<link rel="stylesheet" href="assets/glass.css?v=20261016.5">
+<link rel="stylesheet" href="assets/glass.css?v=20261016.6">
 </head>
 <body data-page="index">
 <div class="container">
     <header>
         <div class="logo-block"><div><span id="role-badge" class="admin-badge" hidden></span><img src="IMG_9802.png" alt="Kabinet Logo" class="logo"></div></div>
-        <div class="month-selector">
+        <div class="month-selector" data-schedule-only hidden>
             <button class="nav-btn" onclick="changeMonth(-1)">◀</button>
             <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
             <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
     </header>
-    <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
+    <div id="connection-status" role="status" data-schedule-only hidden><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
-    <details id="account-panel" class="account-panel">
-      <summary id="account-summary">Вхід / Реєстрація</summary>
+    <section id="account-panel" class="account-panel auth-gate">
+      <h1 id="account-summary">Створити обліковий запис</h1>
       <p id="account-status"></p>
       <div id="account-forms" class="account-forms">
-        <form id="worker-login">
-          <h3>Увійти</h3>
-          <label>Електронна пошта<input id="worker-email" type="email" autocomplete="email" required maxlength="254"></label>
-          <label>Пароль<input id="worker-password" type="password" autocomplete="current-password" required></label>
+        <form id="worker-login" hidden>
+          <p>Увійдіть, щоб переглянути графік своєї команди.</p>
+          <label>Електронна пошта<input id="worker-email" name="username" type="email" autocomplete="username" required maxlength="254"></label>
+          <label>Пароль<input id="worker-password" name="password" type="password" autocomplete="current-password" required></label>
           <button type="submit">Увійти</button>
           <button id="worker-reset" type="button">Забули пароль?</button>
+          <p>Ще немає облікового запису? <button id="show-register" class="text-button" type="button">Зареєструватися</button></p>
         </form>
         <form id="worker-register">
-          <h3>Зареєструватися</h3>
-          <label>Ім’я та прізвище<input id="register-name" autocomplete="name" required maxlength="80"></label>
-          <label>Електронна пошта<input id="register-email" type="email" autocomplete="email" required maxlength="254"></label>
-          <label>Пароль (від 8 символів)<input id="register-password" type="password" autocomplete="new-password" minlength="8" required></label>
-          <label>Повторіть пароль<input id="register-confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+          <p>Після підтвердження пошти адміністратор надасть доступ до графіка.</p>
+          <label>Ім’я та прізвище<input id="register-name" name="name" autocomplete="name" required maxlength="80"></label>
+          <label>Електронна пошта<input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254"></label>
+          <label>Пароль (від 8 символів)<input id="register-password" name="new-password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Повторіть пароль<input id="register-confirm" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required></label>
           <button type="submit">Створити обліковий запис</button>
+          <p>Вже зареєстровані? <button id="show-login" class="text-button" type="button">Увійти</button></p>
         </form>
+      </div>
+      <div id="social-auth">
+        <label class="remember-label"><input type="checkbox" id="remember-me" checked> Запам’ятати мене на цьому пристрої</label>
+        <div class="auth-divider">або</div>
+        <button id="google-login" type="button" class="social-button">Продовжити з Google</button>
+        <button id="apple-login" type="button" class="social-button">Продовжити з Apple</button>
+        <p class="auth-note">На спільному пристрої вимкніть «Запам’ятати мене». Пароль можна зберегти в менеджері паролів телефона.</p>
       </div>
       <div id="account-signed" hidden>
         <div id="verification-controls">
@@ -175,11 +184,13 @@
         <p id="admin-request-status" role="status"></p>
         <button id="request-admin" type="button" hidden>Подати заявку на адміністратора</button>
         <a id="admin-link" href="admin.html" hidden>Відкрити адмінку</a>
+    <button id="copy-access" type="button" class="account-control">Скопіювати мій код доступу</button>
         <button id="worker-logout" type="button">Вийти</button>
       </div>
       <p id="account-message" role="status" aria-live="polite"></p>
-    </details>
+    </section>
 
+    <div id="private-schedule" hidden>
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
     </button>
@@ -191,7 +202,7 @@
         </table>
     </div>
     
-    <button id="copy-access" type="button" class="account-control">Скопіювати мій код доступу</button>
+
     <div class="hint-text">
         <span>* Для редагування свого графіка натисніть кнопку "Поставити вихідний" вище</span>
         <div class="hint-legend">
@@ -199,6 +210,7 @@
             <div class="legend-item"><span class="shift-icon shift-first"></span> Перша половина</div>
             <div class="legend-item"><span class="shift-icon shift-second"></span> Друга половина</div>
         </div>
+    </div>
     </div>
 </div>
 
@@ -239,6 +251,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261016.5"></script>
+<script type="module" src="js/legacy-ui.js?v=20261016.6"></script>
 </body>
 </html>
