@@ -15,7 +15,7 @@ function setup() {
     onSnapshot:(ref, next, error)=>{ const listener={ref,next,error};listeners.push(listener);return()=>{listener.stopped=true}; },
     runTransaction:(_, fn)=> { const execute=async()=>{const writes=[];await fn({get:async ref=>snap(ref),set:(ref,data)=>writes.push(()=>docs.set(ref,structuredClone(data))),update:(ref,data)=>writes.push(()=>docs.set(ref,{...docs.get(ref),...structuredClone(data)})),delete:ref=>writes.push(()=>docs.delete(ref))});writes.forEach(f=>f());}; const result=queue.then(execute);queue=result.catch(()=>{});return result; }
   };
-  vm.createContext(ctx); vm.runInContext(source+'\nglobalThis.api={normalizeSchedule,setAvailability,updateSchedule,subscribeSchedule,saveEmployeeProfile,addReceipt,removeBanquet};',ctx);
+  vm.createContext(ctx); vm.runInContext(source+'\nglobalThis.api={moveEmployee,normalizeSchedule,setAvailability,updateSchedule,subscribeSchedule,saveEmployeeProfile,addReceipt,removeBanquet};',ctx);
   return {api:ctx.api,docs,listeners};
 }
 test('parallel day edits retain both changes and do not overwrite shifts',async()=>{
@@ -48,4 +48,16 @@ test('normalization resolves overlapping shifts and stable missing ids',()=>{
 });
 test('change journal is isolated by month and survives reload',()=>{
  const data=new Map();const ctx={localStorage:{getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}};vm.createContext(ctx);const code=fs.readFileSync(path.join(__dirname,'../js/session.js'),'utf8').replace(/export /g,'');vm.runInContext(code+';recordChange("2026-10","shifts",15);recordChange("2026-11","banquets",20)',ctx);assert.equal(vm.runInContext('changeJournal("2026-10").shifts.has(15)',ctx),true);assert.equal(vm.runInContext('changeJournal("2026-10").banquets.size',ctx),0);
+});
+
+test('reordering preserves shifts and concurrent changes, and rejects deleted targets', async()=>{
+ const {api,docs}=setup();
+ docs.get('schedules/2026-10').employees.push({...seed().employees[0],id:'b',name:'Богдан'},{...seed().employees[0],id:'c',name:'Олег'});
+ await Promise.all([api.updateSchedule('2026-10',d=>d.employees[0].shifts.push(22)),api.moveEmployee('2026-10',1,'c',true)]);
+ assert.deepEqual(docs.get('schedules/2026-10').employees.map(e=>e.id),['b','c',1]);
+ assert.deepEqual(docs.get('schedules/2026-10').employees[2].shifts,[15,22]);
+ await api.moveEmployee('2026-10',1,'b',false);
+ assert.deepEqual(docs.get('schedules/2026-10').employees.map(e=>e.id),[1,'b','c']);
+ await assert.rejects(api.moveEmployee('2026-10',1,'deleted'));
+ assert.deepEqual(docs.get('schedules/2026-10').employees.map(e=>e.id),[1,'b','c']);
 });

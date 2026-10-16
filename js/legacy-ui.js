@@ -1,5 +1,5 @@
 import { ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261015.2';
-import { subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261015.2';
+import { moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261016.1';
 import { dutyName as getDutyName, shiftCount, shareOrCopy, toast } from './ui.js?v=20261015.2';
 import { withBusy, changeJournal, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -64,6 +64,48 @@ function action(fn) {
     }
   });
 }
+let draggedEmployee = null;
+const saveEmployeeOrder = action(async (id, target, after, month) => {
+  if (!admin) return;
+  await moveEmployee(month, id, target, after);
+  toast('Порядок працівників збережено');
+});
+window.moveEmployeeRow = (event, id, direction) => {
+  event.stopPropagation();
+  const index = employees.findIndex(e => String(e.id) === String(id));
+  const target = employees[index + direction];
+  if (index < 0 || !target) return;
+  return saveEmployeeOrder(id, target.id, direction > 0, getDocId());
+};
+window.startEmployeeDrag = (event, id) => {
+  if (!admin || !ready || !allowed || document.documentElement.dataset.saving) { event.preventDefault(); return; }
+  draggedEmployee = {id, month: getDocId()};
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', String(id));
+};
+window.overEmployeeRow = event => {
+  if (!draggedEmployee) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  const row = event.currentTarget;
+  const after = event.clientY > row.getBoundingClientRect().top + row.getBoundingClientRect().height / 2;
+  row.classList.toggle('drop-after', after);
+  row.classList.toggle('drop-before', !after);
+};
+window.leaveEmployeeRow = event => event.currentTarget.classList.remove('drop-before', 'drop-after');
+window.endEmployeeDrag = () => {
+  draggedEmployee = null;
+  document.querySelectorAll('.drop-before,.drop-after').forEach(row => row.classList.remove('drop-before','drop-after'));
+};
+window.dropEmployeeRow = (event, target) => {
+  event.preventDefault(); event.stopPropagation();
+  const source = draggedEmployee;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const after = event.clientY > rect.top + rect.height / 2;
+  window.endEmployeeDrag();
+  if (!source || source.month !== getDocId() || String(source.id) === String(target)) return;
+  return saveEmployeeOrder(source.id, target, after, source.month);
+};
 window.changeMonth = dir => {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
   activeColDay = null; activeRowEmpId = null; initialScrollDone = false;
@@ -396,10 +438,15 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             const isRowHighlighted = (activeRowEmpId === emp.id);
             const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
             
-            return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
+            return `<tr ondragover="overEmployeeRow(event)" ondragleave="leaveEmployeeRow(event)" ondrop="dropEmployeeRow(event, ${safeId(emp.id)})" class="${isRowHighlighted ? 'highlight-row' : ''}">
                 <td onclick="showEmployeeInfo(event, ${safeId(emp.id)})" class="${worksOnActiveDay ? 'highlight-name' : ''}">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span>${escapeHTML(emp.name)}</span>
+                        <span class="row-order-controls" onclick="event.stopPropagation()">
+                            <button class="row-drag" draggable="true" ondragstart="startEmployeeDrag(event, ${safeId(emp.id)})" ondragend="endEmployeeDrag()" title="Перетягніть рядок або скористайтеся стрілками" aria-label="Перетягнути рядок ${escapeHTML(emp.name)}">⠿</button>
+                            <button onclick="moveEmployeeRow(event, ${safeId(emp.id)}, -1)" ${index === 0 ? 'disabled' : ''} aria-label="Перемістити ${escapeHTML(emp.name)} вгору">↑</button>
+                            <button onclick="moveEmployeeRow(event, ${safeId(emp.id)}, 1)" ${isLastRow ? 'disabled' : ''} aria-label="Перемістити ${escapeHTML(emp.name)} вниз">↓</button>
+                        </span>
                         <button class="edit-btn" onclick="editEmployee(event, ${safeId(emp.id)})">✏️</button>
                     </div>
                 </td>

@@ -200,3 +200,16 @@ export async function removeBanquet(month, day) {
   });
 }
 
+
+// Move only the selected employee in the latest transactional snapshot.
+export async function moveEmployee(month, employeeId, targetId, after = false) {
+  if (String(employeeId) === String(targetId)) return;
+  await updateSchedule(month, draft => {
+    const from = draft.employees.findIndex(e => String(e.id) === String(employeeId));
+    const target = draft.employees.findIndex(e => String(e.id) === String(targetId));
+    if (from < 0 || target < 0) throw new Error('Список працівників змінився. Повторіть переміщення.');
+    const [employee] = draft.employees.splice(from, 1);
+    const to = draft.employees.findIndex(e => String(e.id) === String(targetId));
+    draft.employees.splice(to + (after ? 1 : 0), 0, employee);
+  });
+}
