@@ -3,7 +3,7 @@ import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.6';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.7';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.7';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
 import { withBusy, recordChange, changeJournal, clearChangeJournal } from './session.js?v=20261017.4';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -90,9 +90,7 @@ function installOwnerSelfBinding() {
     if (!isOwner(currentUser())) return;
     const id=$('owner-self-select').value;
     if (!employees.some(e=>String(e.id)===id)) throw new Error('Оберіть ім’я.');
-    const existing=await employeeAccess(id);
-    if (existing && existing!==currentUser().uid) throw new Error('Ім’я вже прив’язане до іншого акаунта.');
-    await bindEmployee(id,currentUser().uid);
+    await bindOwnerEmployee(employees.map(e=>e.id),id,currentUser().uid);
     $('owner-self-status').textContent='Ваш акаунт прив’язано до обраного імені.';
   }));
 }
