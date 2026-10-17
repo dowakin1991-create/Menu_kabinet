@@ -1,5 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
-import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.12';
+import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.13';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
@@ -7,7 +7,7 @@ import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSche
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
 import { withBusy, recordChange, changeJournal, clearChangeJournal } from './session.js?v=20261017.4';
 import { compressReceipt } from './receipts.js?v=20261015.2';
-import { exportHalfMonth as exportPNG } from './export.js?v=20261015.3';
+import { exportHalfMonth as exportPNG } from './export.js?v=20261017.13';
 
 function renderRoleBadge(user) {
   const badge = document.getElementById('role-badge');
