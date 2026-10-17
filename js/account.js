@@ -1,6 +1,6 @@
-import {disconnectPush} from './push.js?v=20261017.4';
-import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.4';
-import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.4';
+import {disconnectPush} from './push.js?v=20261017.5';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
+import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
 const $ = id => document.getElementById(id);
 let lastCompact = null;
 let hasAccess = false, formMode = "register";
@@ -46,8 +46,6 @@ export function openAccount() { $('account-panel').open=true; $('account-panel')
 export function initAccount() {
   $('show-login').addEventListener('click',()=>{formMode='login';renderAccount();$('worker-email').focus();});
   $('show-register').addEventListener('click',()=>{formMode='register';renderAccount();$('register-name').focus();});
-  $('google-login').addEventListener('click',()=>task(()=>socialLogin('google',$('remember-me').checked)));
-  $('apple-login').addEventListener('click',()=>task(()=>socialLogin('apple',$('remember-me').checked)));
 
   $('worker-register').addEventListener('submit',event=>{
     event.preventDefault();
