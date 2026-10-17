@@ -3,7 +3,7 @@ import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.6';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.5';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.6';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
 import { withBusy, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -64,9 +64,7 @@ async function loadData() {
     catch (error) {
       if (ticket !== generation) return;
       console.error(error); loadError = true; render();
-      status('Не вдалося підготувати місяць', true);
-      toast('Не вдалося перенести список працівників. Натисніть «Повторити».', 'error');
-      return;
+      toast('Не вдалося перенести список із попереднього місяця. Можна додати працівників вручну.', 'error');
     }
     if (ticket !== generation || !allowed) return;
   }

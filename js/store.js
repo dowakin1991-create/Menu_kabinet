@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  collection, query, where, orderBy, documentId, limit, getDocs,
+  collection, getDocs,
   getDoc,
   doc,
   getFirestore,
@@ -225,9 +225,11 @@ export async function ensureMonthRoster(month) {
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new Error('Некоректний місяць.');
   const target = doc(db, 'schedules', month);
   if ((await getDoc(target)).exists()) return false;
-  const previous = await getDocs(query(collection(db, 'schedules'), where(documentId(), '<', month), orderBy(documentId(), 'desc'), limit(1)));
-  if (previous.empty) return false;
-  const source = previous.docs[0].ref;
+  const schedules = await getDocs(collection(db, 'schedules'));
+  const source = schedules.docs
+    .filter(item => /^\d{4}-(0[1-9]|1[0-2])$/.test(item.id) && item.id < month)
+    .sort((a, b) => b.id.localeCompare(a.id))[0]?.ref;
+  if (!source) return false;
   return runTransaction(db, async tx => {
     const current = await tx.get(target);
     if (current.exists()) return false;
