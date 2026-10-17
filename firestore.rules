@@ -22,7 +22,7 @@ service cloud.firestore {
     }
     match /viewerAccess/{uid} {
       allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
-      allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true
+      allow create: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['role']) && request.resource.data.role == 'viewer';
       allow update, delete: if isOwner();
     }
