@@ -133,7 +133,7 @@
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261016.4">
-<link rel="stylesheet" href="assets/glass.css?v=20261017.3">
+<link rel="stylesheet" href="assets/glass.css?v=20261017.4">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="IMG_9802.png">
 <meta name="theme-color" content="#173e3a">
@@ -150,8 +150,9 @@
     </header>
     <div id="connection-status" role="status" data-schedule-only hidden><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
-    <section id="account-panel" class="account-panel auth-gate">
-      <h1 id="account-summary">Створити обліковий запис</h1>
+    <details id="account-panel" class="account-panel auth-gate" open>
+      <summary class="profile-summary"><span class="profile-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span><span class="profile-heading"><span id="account-summary">Створити обліковий запис</span><span id="profile-hint">Обліковий запис</span></span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
+      <p id="account-email" class="account-email" hidden></p>
       <p id="account-status"></p>
       <div id="account-forms" class="account-forms">
         <form id="worker-login" hidden>
@@ -191,15 +192,15 @@
         <button id="worker-logout" type="button">Вийти</button>
       </div>
       <p id="account-message" role="status" aria-live="polite"></p>
-    </section>
+    </details>
 
-    <section id="push-panel" class="account-panel push-panel" hidden>
-      <strong>🔔 Сповіщення про графік</strong>
+    <details id="push-panel" class="account-panel push-panel" hidden>
+      <summary><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> Сповіщення <span id="push-summary-state" class="push-summary-state">Налаштувати</span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
       <p id="push-status" role="status" aria-live="polite"></p>
       <div class="push-actions"><button id="push-enable" type="button" disabled>Увімкнути сповіщення</button>
       <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
       <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
-    </section>
+    </details>
     <div id="private-schedule" hidden>
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
@@ -261,6 +262,6 @@
     </div>
 </div>
 
-<script type="module" src="js/legacy-ui.js?v=20261017.3"></script>
+<script type="module" src="js/legacy-ui.js?v=20261017.4"></script>
 </body>
 </html>

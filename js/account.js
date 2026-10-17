@@ -1,14 +1,20 @@
-import {disconnectPush} from './push.js?v=20261017.3';
-import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.3';
-import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.3';
+import {disconnectPush} from './push.js?v=20261017.4';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.4';
+import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.4';
 const $ = id => document.getElementById(id);
+let lastCompact = null;
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
   const user = currentUser(), signed = user && !user.isAnonymous;
   $('account-forms').hidden = !!signed;
   $('account-signed').hidden = !signed;
-  $('account-summary').textContent = signed ? `${user.displayName || 'Працівник'} · ${user.email}` : formMode === 'register' ? 'Створити обліковий запис' : 'Вхід у KABINET';
+  $('account-summary').textContent = signed ? `${user.displayName || (isOwner(user) ? 'Власник' : isAdmin(user) ? 'Шеф' : 'Мій профіль')}` : formMode === 'register' ? 'Створити обліковий запис' : 'Вхід у KABINET';
+  $('account-email').hidden = !signed;
+  $('account-email').textContent = signed ? user.email : '';
+  $('profile-hint').textContent = signed ? (isOwner(user) ? 'Власник · Керування профілем' : isAdmin(user) ? 'Шеф · Керування профілем' : 'Працівник · Керування профілем') : 'Приватний графік команди';
+  const compact = !!signed && hasAccess;
+  if (compact !== lastCompact) { $('account-panel').open = !compact; lastCompact = compact; }
   $('social-auth').hidden = !!signed;
   $('worker-login').hidden = formMode !== 'login';
   $('worker-register').hidden = formMode !== 'register';
@@ -27,7 +33,7 @@ async function task(fn) {
   const controls = [...$('account-panel').querySelectorAll('button,input')];
   controls.forEach(el=>el.disabled=true);
   $('account-message').textContent='';
-  try { await fn(); } catch(error) { $('account-message').textContent=authMessage(error); }
+  try { await fn(); } catch(error) { $('account-message').textContent=authMessage(error); $('account-panel').open=true; }
   finally { busy=false; controls.forEach(el=>el.disabled=false); renderAccount(); }
 }
 async function sendLetter() {

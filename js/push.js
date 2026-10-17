@@ -1,5 +1,5 @@
-import {PUSH_API_URL} from './push-config.js?v=20261017.3';
-import {currentUser} from './auth.js?v=20261017.3';
+import {PUSH_API_URL} from './push-config.js?v=20261017.4';
+import {currentUser} from './auth.js?v=20261017.4';
 async function call(name, data = {}) {
   if (!PUSH_API_URL) throw Object.assign(new Error('Безкоштовний сервіс сповіщень ще не підключено.'), {code:'not-configured'});
   const user = currentUser();
@@ -23,7 +23,11 @@ const installed = () => window.matchMedia('(display-mode: standalone)').matches 
 const supported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 const storedUid = () => { try { return localStorage.getItem(deviceKey); } catch { return null; } };
 function saveUid(uid) { try { uid ? localStorage.setItem(deviceKey, uid) : localStorage.removeItem(deviceKey); } catch { /* No password/token is stored here. */ } }
-function message(text) { if ($('push-status')) $('push-status').textContent = text; }
+function message(text) {
+  if ($('push-status')) $('push-status').textContent = text;
+  const state=$('push-summary-state');
+  if(state) state.textContent = text.startsWith('Сповіщення увімкнено') ? 'Увімкнено' : text.startsWith('Передано службі') ? 'Результат' : text.startsWith('Надсилаємо') ? 'Надсилання…' : 'Налаштувати';
+}
 function errorText(error) {
   if (error.code === 'not-configured') return error.message;
   if (error.code === 'functions/permission-denied') return 'Адміністратор має надати вам доступ до графіка.';
@@ -120,6 +124,7 @@ export async function notifySchedule(month) {
     const result = {accepted:0,failed:0,removed:0};
     const diagnostics = new Set();
     let index = 0;
+    $('push-panel').open=true;
     message('Надсилаємо сповіщення. Залиште кабінет відкритим до завершення.');
     // Each server call encrypts one message; no paid background queues or functions.
     await Promise.all(Array.from({length: Math.min(3, job.total)}, async () => {

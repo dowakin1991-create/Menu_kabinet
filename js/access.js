@@ -1,5 +1,5 @@
 import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { firebaseApp } from './store.js?v=20261017.3';
+import { firebaseApp } from './store.js?v=20261017.4';
 const db=getFirestore(firebaseApp);
 // Both sides of the binding are checked; a stale membership never grants access.
 export function watchTeamAccess(user, next) {
