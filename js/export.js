@@ -25,15 +25,17 @@ export async function exportHalfMonth(date, data, half, legacy = null) {
   for (let day = start; day <= end; day++) {
     const x = 20 + nameWidth + (day - start) * cell;
     const weekend = [0, 6].includes(new Date(date.getFullYear(), date.getMonth(), day).getDay());
-    const banquet = data.banquets[String(day)]?.active;
-    box(x, 55, cell, top - 55, banquet ? '#c46710' : weekend ? '#334155' : '#155e63');
+    const event = data.banquets[String(day)];
+    const banquet = event?.active;
+    const cleaning = banquet && event.type === 'cleaning';
+    box(x, 55, cell, top - 55, cleaning ? '#d40079' : banquet ? '#c46710' : weekend ? '#334155' : '#155e63');
     ctx.fillStyle = '#fff'; ctx.font = 'bold 17px sans-serif'; ctx.fillText(String(day), x + cell / 2, 77);
     ctx.font = '12px sans-serif'; ctx.fillText(['Нд','Пн','Вт','Ср','Чт','Пт','Сб'][new Date(date.getFullYear(),date.getMonth(),day).getDay()], x + cell / 2, 94);
     ctx.font = '10px sans-serif'; ctx.fillText(dutyName(date.getFullYear(),date.getMonth(),day).split(' ').slice(1).join(' '), x + cell / 2, 108);
-    if (banquet) ctx.fillText('БЕНКЕТ', x + cell / 2, 122);
+    if (banquet) ctx.fillText(cleaning ? 'ПРИБ.' : 'БЕНКЕТ', x + cell / 2, 122);
     data.employees.forEach((employee, index) => {
       const y = top + index * rowHeight;
-      box(x, y, cell, rowHeight, banquet ? '#fff3df' : weekend ? '#edf1f4' : '#fff');
+      box(x, y, cell, rowHeight, cleaning ? '#ffe1f2' : banquet ? '#fff3df' : weekend ? '#edf1f4' : '#fff');
       const type = shiftType(employee, day), cx = x + cell / 2, cy = y + 19;
       ctx.strokeStyle = '#155e63'; ctx.lineWidth = 3; ctx.lineCap = 'round';
       if (type !== 'none') {
