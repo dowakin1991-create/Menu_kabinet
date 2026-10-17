@@ -4,7 +4,11 @@ import { daysInMonth, dutyName, monthLabel, shiftType } from './ui.js?v=20261015
 export async function exportHalfMonth(date, data, half, legacy = null) {
   const start = half === 1 ? 1 : 16;
   const end = half === 1 ? 15 : daysInMonth(date);
-  const cell = 62, nameWidth = 210, rowHeight = 46, top = 130;
+  const measure = document.createElement('canvas').getContext('2d');
+  if (!measure) throw new Error('Canvas недоступний.');
+  measure.font = 'bold 15px sans-serif';
+  const nameWidth = Math.max(210, ...data.employees.map(employee => Math.ceil(measure.measureText(employee.name).width) + 28));
+  const cell = 62, rowHeight = 46, top = 130;
   const width = nameWidth + (end - start + 1) * cell + 40;
   const height = top + Math.max(1, data.employees.length) * rowHeight + 55;
   if (height > 8000) throw new Error('Забагато працівників для одного зображення.');
@@ -50,10 +54,7 @@ export async function exportHalfMonth(date, data, half, legacy = null) {
   data.employees.forEach((employee, index) => {
     box(20, top + index * rowHeight, nameWidth, rowHeight, '#f1f7f7');
     ctx.fillStyle = '#183438'; ctx.textAlign = 'left'; ctx.font = 'bold 15px sans-serif';
-    let name = employee.name;
-    while (ctx.measureText(name).width > nameWidth - 24 && name.length) name = name.slice(0, -1);
-    if (name !== employee.name) name = name.slice(0, -1) + '…';
-    ctx.fillText(name, 30, top + index * rowHeight + 28);
+    ctx.fillText(employee.name, 30, top + index * rowHeight + 28);
   });
   ctx.fillStyle = '#475569'; ctx.textAlign = 'left'; ctx.font = '12px sans-serif';
   ctx.fillText('Червона крапка — бажаний вихідний. Половина позначки — половина зміни.', 20, height - 20);
