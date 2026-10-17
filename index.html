@@ -131,6 +131,17 @@
         .emp-stats { background: var(--bg-body); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); text-align: left;}
         .emp-stats p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1rem; font-weight: 500; opacity: 1; }
         .emp-stats strong { color: #e74c3c; font-size: 1.2rem; }
+
+.profile-push-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.profile-push-row #account-panel{flex:1;min-width:0;margin:0}
+.profile-push-row #push-panel{flex:0 0 58px;min-width:58px;margin:0;padding:0;overflow:visible}
+.profile-push-row #push-panel[open]{flex:0 0 min(60vw,260px)}
+.profile-push-row #push-panel summary{display:flex;justify-content:center;align-items:center;min-height:72px;padding:8px!important;cursor:pointer;list-style:none}
+.profile-push-row #push-panel summary::-webkit-details-marker{display:none}
+.profile-push-row #push-panel[open]>:not(summary){padding:0 12px 12px}
+.profile-push-row #push-panel:not([open])>:not(summary){display:none}
+#push-bell-icon{font-size:27px;line-height:1}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261017.6">
@@ -150,6 +161,7 @@
     </header>
     <div id="connection-status" role="status" data-schedule-only hidden><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
+    <div class="profile-push-row">
     <details id="account-panel" class="account-panel auth-gate" open>
       <summary class="profile-summary"><span class="profile-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span><span class="profile-heading"><span id="account-summary">Створити обліковий запис</span><span id="profile-hint">Обліковий запис</span></span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
       <p id="account-email" class="account-email" hidden></p>
@@ -192,12 +204,13 @@
     </details>
 
     <details id="push-panel" class="account-panel push-panel" hidden>
-      <summary><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> Сповіщення <span id="push-summary-state" class="push-summary-state">Налаштувати</span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
+      <summary id="push-bell" aria-label="Налаштування сповіщень" title="Сповіщення"><span id="push-bell-icon" aria-hidden="true">🔕</span><span id="push-summary-state" class="visually-hidden">Налаштувати</span></summary>
       <p id="push-status" role="status" aria-live="polite"></p>
       <div class="push-actions"><button id="push-enable" type="button" disabled>Увімкнути сповіщення</button>
       <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
       <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
     </details>
+    </div>
     <div id="private-schedule" hidden>
     <nav class="worker-tabs" aria-label="Розділи кабінету">
       <button id="schedule-tab" type="button" aria-pressed="true" onclick="showScheduleView()">Графік</button>
