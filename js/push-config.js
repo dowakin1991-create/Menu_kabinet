@@ -1,3 +1,2 @@
-// Public Cloudflare Worker URL. No keys, passwords or billing configuration here.
-// Set after deploying push-worker on the Workers Free plan.
-export const PUSH_API_URL = '';
+// Public Cloudflare Worker URL; no secrets.
+export const PUSH_API_URL = 'https://kabinet-free-push.dowakin1991.workers.dev';

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="uk"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Налаштування сповіщень</title>
+<style>body{font:17px system-ui;background:#101c20;color:#f1f7f8;max-width:600px;margin:auto;padding:28px 20px;line-height:1.5}button,textarea{font:inherit;border-radius:14px;padding:14px;box-sizing:border-box;width:100%;margin:8px 0}button{background:#80e2ca;color:#10221c;border:0;min-height:52px}textarea{background:#203238;color:white;border:1px solid #64828a}button:disabled{opacity:.5}</style>
+<h1>Ключ сповіщень</h1>
+<p>Одноразове налаштування власником. Ключ створюється на цьому пристрої та нікуди не надсилається.</p>
+<p>Якщо VAPID_JSON уже налаштовано, не замінюй його: старі підписки можуть перестати працювати.</p>
+<button id="generate">Створити ключ</button>
+<section id="result" hidden>
+<p>Скопіюй весь текст у Cloudflare: <b>Runtime variables and secrets → Add variable</b>. Назва: <b>VAPID_JSON</b>, позначка <b>Secret</b>, середовище <b>Production</b>.</p>
+<textarea id="value" rows="7" readonly spellcheck="false" autocapitalize="off" aria-label="Приватний ключ VAPID_JSON"></textarea>
+<button id="copy">Скопіювати</button>
+<p>Натисни <b>Add variable and deploy</b> у Cloudflare. Не надсилай цей текст у чат. До збереження не оновлюй цю сторінку: ключ не зберігається в браузері.</p></section>
+<p id="status" role="status"></p>
+<script>
+const generate=document.getElementById('generate'),value=document.getElementById('value'),status=document.getElementById('status');
+generate.onclick=async()=>{
+generate.disabled=true;
+try{
+const pair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+const jwk=await crypto.subtle.exportKey('jwk',pair.privateKey);
+const raw=new Uint8Array(await crypto.subtle.exportKey('raw',pair.publicKey));
+const publicKey=btoa(String.fromCharCode(...raw)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+value.value=JSON.stringify({subject:'mailto:dowakin1991@gmail.com',publicKey,privateKey:jwk.d});
+document.getElementById('result').hidden=false;
+status.textContent='Ключ створено. Збережи його в Cloudflare.';
+}catch(e){status.textContent='Не вдалося створити ключ. Відкрий сторінку в Safari через HTTPS.';generate.disabled=false;}
+};
+document.getElementById('copy').onclick=async()=>{
+try{await navigator.clipboard.writeText(value.value);status.textContent='Скопійовано. Встав у поле Value в Cloudflare.';}
+catch(e){value.focus();value.select();value.setSelectionRange(0,value.value.length);status.textContent='Текст виділено. Натисни «Копіювати» у меню Safari.';}
+};
+</script></html>
