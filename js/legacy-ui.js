@@ -418,7 +418,7 @@ if (admin) {
     catch(error){$('login-error').textContent=error.code?'Не вдалося увійти. Перевірте пошту, пароль і з’єднання.':error.message;}
     finally{$('login-submit').disabled=false;$('login-password').value='';}
   });
-  $('logout').addEventListener('click',async()=>{try{await disconnectPush();await logout();}catch{toast('Не вдалося вийти. Перевірте з’єднання.','error');}});
+  $('logout').addEventListener('click',()=>{window.location.assign(new URL('index.html',location.href).href);});
   watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
 } else {
   initAccount();
