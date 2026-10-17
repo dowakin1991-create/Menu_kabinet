@@ -79,6 +79,32 @@ function renderPersonalDashboard(){
     column.append(bar,label);chart.append(column);
   }
 }
+
+function installOwnerSelfBinding() {
+  const panel=$('owner-panel');
+  if (!panel || $('owner-self-binding')) return;
+  const section=document.createElement('section');section.id='owner-self-binding';
+  section.innerHTML='<h3>Моє ім’я в графіку</h3><p>Оберіть своє ім’я серед уже доданих працівників.</p><select id="owner-self-select" aria-label="Моє ім’я в графіку"></select><button id="owner-self-save" type="button">Прив’язати моє ім’я</button><p id="owner-self-status" role="status"></p>';
+  panel.insertBefore(section,$('owner-requests'));
+  $('owner-self-save').addEventListener('click',action(async()=>{
+    if (!isOwner(currentUser())) return;
+    const id=$('owner-self-select').value;
+    if (!employees.some(e=>String(e.id)===id)) throw new Error('Оберіть ім’я.');
+    const existing=await employeeAccess(id);
+    if (existing && existing!==currentUser().uid) throw new Error('Ім’я вже прив’язане до іншого акаунта.');
+    await bindEmployee(id,currentUser().uid);
+    $('owner-self-status').textContent='Ваш акаунт прив’язано до обраного імені.';
+  }));
+}
+function renderOwnerSelfBinding() {
+  const section=$('owner-self-binding');if(!section)return;
+  section.hidden=!isOwner(currentUser());
+  const select=$('owner-self-select'),value=select.value;
+  select.replaceChildren(new Option('Оберіть ім’я',''));
+  for(const e of employees)select.add(new Option(e.name,String(e.id)));
+  if([...select.options].some(o=>o.value===value))select.value=value;
+}
+
 function closeAll() {
   document.querySelectorAll('.modal-overlay').forEach(node => { node.style.display = 'none'; });
   pendingAction = null; currentEditEmpId = null; currentEditDay = null; currentSettingsDay = null; currentReceiptDay = null;
@@ -106,7 +132,7 @@ async function loadData() {
   unsubscribe = subscribeSchedule(getDocId(), data => {
     if (ticket !== generation) return;
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
-    status('Дані актуальні'); render();
+    status('Дані актуальні'); render(); renderOwnerSelfBinding();
     if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
     if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
@@ -385,7 +411,7 @@ window.exportHalfMonth = action(async (event,half) => {
 $('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startWorker(); });
 initPush();
 if (admin) {
-  initOwnerPanel();
+  initOwnerPanel(); installOwnerSelfBinding();
   $('newEmpName').maxLength=80;
   $('newEmpName').addEventListener('keydown',event=>{if(event.key==='Enter')window.addEmployee();});
   $('login-form').addEventListener('submit',async event=>{
@@ -446,10 +472,10 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             
             let thClass = isWeekend ? 'weekend' : '';
             if (isToday) thClass += ' current-day-th';
-            if (isBanquet) thClass += ' banquet-th';
+            if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
 
             headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
                 ${i}<br>
@@ -481,7 +507,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     let tdClass = isWeekend ? 'weekend' : '';
                     if (isToday) tdClass += ' current-day-td';
                     if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
-                    if (isBanquet) tdClass += ' banquet-td';
+                    if (isBanquet) tdClass += banquets[day].type==='cleaning' ? ' cleaning-td' : ' banquet-td';
                     else if (activeColDay === day) tdClass += ' highlight-col';
 
                     let content = '';
@@ -523,10 +549,10 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             
             let thClass = isWeekend ? 'weekend' : '';
             if (isToday) thClass += ' current-day-th';
-            if (isBanquet) thClass += ' banquet-th';
+            if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
 
         headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
                 ${i}<br>
@@ -568,7 +594,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     let tdClass = isWeekend ? 'weekend' : '';
                     if (isToday) tdClass += ' current-day-td';
                     if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
-                    if (isBanquet) tdClass += ' banquet-td';
+                    if (isBanquet) tdClass += banquets[day].type==='cleaning' ? ' cleaning-td' : ' banquet-td';
                     else if (activeColDay === day) tdClass += ' highlight-col';
 
                     let content = '';
