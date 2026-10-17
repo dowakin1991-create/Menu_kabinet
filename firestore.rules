@@ -10,10 +10,21 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/adminRequests/$(request.auth.uid))
         && get(/databases/$(database)/documents/adminRequests/$(request.auth.uid)).data.status == 'approved');
     }
+    function isViewer() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/viewerAccess/$(request.auth.uid))
+        && get(/databases/$(database)/documents/viewerAccess/$(request.auth.uid)).data.role == 'viewer';
+    }
     function canReadSchedule() {
-      return isAdmin() || (request.auth != null && request.auth.token.email_verified == true
+      return isAdmin() || isViewer() || (request.auth != null && request.auth.token.email_verified == true
         && exists(/databases/$(database)/documents/teamAccess/$(request.auth.uid))
         && get(/databases/$(database)/documents/employeeAccess/$(get(/databases/$(database)/documents/teamAccess/$(request.auth.uid)).data.employeeId)).data.uid == request.auth.uid);
+    }
+    match /viewerAccess/{uid} {
+      allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
+      allow create: if request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['role']) && request.resource.data.role == 'viewer';
+      allow update, delete: if isOwner();
     }
     match /teamAccess/{uid} {
       allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
