@@ -91,13 +91,14 @@ function installOwnerSelfBinding() {
     const id=$('owner-self-select').value;
     if (!employees.some(e=>String(e.id)===id)) throw new Error('Оберіть ім’я.');
     await bindOwnerEmployee(employees.map(e=>e.id),id,currentUser().uid);
+    boundEmployeeId=id;
     $('owner-self-status').textContent='Ваш акаунт прив’язано до обраного імені.';
   }));
 }
 function renderOwnerSelfBinding() {
   const section=$('owner-self-binding');if(!section)return;
   section.hidden=!isOwner(currentUser());
-  const select=$('owner-self-select'),value=select.value;
+  const select=$('owner-self-select'),value=select.value || boundEmployeeId;
   select.replaceChildren(new Option('Оберіть ім’я',''));
   for(const e of employees)select.add(new Option(e.name,String(e.id)));
   if([...select.options].some(o=>o.value===value))select.value=value;
@@ -445,8 +446,14 @@ if (admin) {
       if(access)loadData();else clearPrivateContent();
     };
     applyAccess(false);
-    if(isAdmin(user))applyAccess(true);
-    else stopTeamAccess=watchTeamAccess(user,applyAccess);
+    if(isAdmin(user)) {
+      applyAccess(true);
+      stopTeamAccess=watchTeamAccess(user,(linked,id)=>{
+        if(ticket!==accessGeneration)return;
+        boundEmployeeId=linked?id:null;
+        if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
+      });
+    } else stopTeamAccess=watchTeamAccess(user,applyAccess);
   });
 }
 async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}
