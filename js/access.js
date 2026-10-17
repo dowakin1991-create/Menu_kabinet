@@ -1,10 +1,11 @@
 import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { firebaseApp } from './store.js?v=20261017.5';
+import { isOwner } from './auth.js?v=20261017.5';
 const db=getFirestore(firebaseApp);
 // Both sides of the binding are checked; a stale membership never grants access.
 export function watchTeamAccess(user, next) {
   let stopped=false, stopBinding=null, generation=0;
-  if (!user || user.isAnonymous || !user.emailVerified) { next(false,null);return()=>{}; }
+  if (!user || user.isAnonymous || (!user.emailVerified && !isOwner(user))) { next(false,null);return()=>{}; }
   const stop=onSnapshot(doc(db,'teamAccess',user.uid),snap=>{
     if(stopped)return;
     const ticket=++generation;stopBinding?.();stopBinding=null;next(false,null);
