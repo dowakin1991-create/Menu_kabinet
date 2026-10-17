@@ -1,7 +1,15 @@
-import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { firebaseApp } from './store.js?v=20261017.5';
 import { isOwner } from './auth.js?v=20261017.5';
 const db=getFirestore(firebaseApp);
+export async function registerViewer(uid) {
+  if (!uid) throw Error('Увійдіть до акаунта.');
+  await setDoc(doc(db,'viewerAccess',uid),{role:'viewer'});
+}
+export function watchViewerAccess(user,next) {
+  if (!user || user.isAnonymous || !user.emailVerified) {next(false);return()=>{};}
+  return onSnapshot(doc(db,'viewerAccess',user.uid),snap=>next(snap.exists()&&snap.data().role==='viewer'),()=>next(false));
+}
 // Both sides of the binding are checked; a stale membership never grants access.
 export function watchTeamAccess(user, next) {
   let stopped=false, stopBinding=null, generation=0;
