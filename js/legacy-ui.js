@@ -215,4 +215,378 @@ window.handleCellClick = (id, day) => {
     currentEditEmpId = emp.id; currentEditDay = day;
     if (hasShift) show('shiftModal'); else window.setShiftType('full');
   } else if (isRedDotMode && boundEmployeeId && String(emp.id) === String(boundEmployeeId)) {
-    const removing = emp.unavail.includï8¶‰ËkºwµçqÑ½±ÍÁ…¸ôˆ‘í‘…åÍ%¹5½¹Ñ €¬€ÅôˆÍÑå±”ô‰Á…‘‘¥¹œè€ÌÁÁàìÑ•áĞµ…±¥¸è•¹Ñ•Èì½±½Èè€Œàààì™½¹Ğµİ•¥¡Ğè‰½±ìˆø‘í•µÁÑå5•ÍÍ…” ¥ôğ½Ñøğ½ÑÈù€ì(€€€€€€€€€€€É•ÑÕÉ¸ì(€€€€€€€ô((€€€€€€€‰½‘ä¹¥¹¹•É!Q50€ô•µÁ±½å••Ì¹µ…À ¡•µÀ°¥¹‘•à¤€ôøì(€€€€€€€€€€€½¹ÍĞ¥Í1…ÍÑI½Ü€ô€¡¥¹‘•à€ôôô•µÁ±½å••Ì¹±•¹Ñ €´€Ä¤ì(€€€€€€€€€€€½¹ÍĞ¥ÍI½İ!¥¡±¥¡Ñ•€ô€¡…Ñ¥Ù•I½İµÁ%€ôôô•µÀ¹¥¤ì(€€€€€€€€€€€½¹ÍĞİ½É­Í=¹Ñ¥Ù•…ä€ô…Ñ¥Ù•½±…ä€˜˜€¡•µÀ¹Í¡¥™ÑÌ¹¥¹±Õ‘•Ì¡…Ñ¥Ù•½±…ä¤ñğ•µÀ¹Í¡¥™ÑÍ¥ÉÍĞ¹¥¹±Õ‘•Ì¡…Ñ¥Ù•½±…ä¤ñğ•µÀ¹Í¡¥™ÑÍM•½¹¹¥¹±Õ‘•Ì¡…Ñ¥Ù•½±…ä¤¤ì(€€€€€€€€€€€€(€€€€€€€€€€€É•ÑÕÉ¸€ñÑÈ½¹‘É…½Ù•Èô‰½Ù•ÉµÁ±½å••I½Ü¡•Ù•¹Ğ¤ˆ½¹‘É…±•…Ù”ô‰±•…Ù•µÁ±½å••I½Ü¡•Ù•¹Ğ¤ˆ½¹‘É½Àô‰‘É½ÁµÁ±½å••I½Ü¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô¤ˆ±…ÍÌôˆ‘í¥ÍI½İ!¥¡±¥¡Ñ•€ü€¡¥¡±¥¡ĞµÉ½Üœ€è€œôˆø(€€€€€€€€€€€€€€€€ñÑ½¹±¥¬ô‰Í¡½İµÁ±½å••%¹™¼¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô¤ˆ±…ÍÌôˆ‘íİ½É­Í=¹Ñ¥Ù•…ä€ü€¡¥¡±¥¡Ğµ¹…µ”œ€è€œôˆø(€€€€€€€€€€€€€€€€€€€€ñ‘¥ØÍÑå±”ô‰‘¥ÍÁ±…äè™±•àì©ÕÍÑ¥™äµ½¹Ñ•¹ĞèÍÁ…”µ‰•Ñİ••¸ì…±¥¸µ¥Ñ•µÌè•¹Ñ•Èìˆø(€€€€€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸ø‘í•Í…Á•!Q50¡•µÀ¹¹…µ”¥ôğ½ÍÁ…¸ø(€€€€€€€€€€€€€€€€€€€€€€€€ñÍÁ…¸±…ÍÌô‰É½Üµ½É‘•Èµ½¹ÑÉ½±Ìˆ½¹±¥¬ô‰•Ù•¹Ğ¹ÍÑ½ÁAÉ½Á……Ñ¥½¸ ¤ˆø(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸±…ÍÌô‰É½Üµ‘É…œˆ‘É……‰±”ô‰ÑÉÕ”ˆ½¹‘É…ÍÑ…ÉĞô‰ÍÑ…ÉÑµÁ±½å••É…œ¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô¤ˆ½¹‘É…•¹ô‰•¹‘µÁ±½å••É…œ ¤ˆÑ¥Ñ±”ô‹BB×FB×FF?BÏB÷F[FF0ƒFF?BÓBûBèƒBÃBÇBøƒFBëBûFBãFFBÃBçFB×FF<ƒFFFF[BïBëBÃBóBàˆ…É¥„µ±…‰•°ô‹BB×FB×FF?BÏB÷FFBàƒFF?BÓBûBè€‘í•Í…Á•!Q50¡•µÀ¹¹…µ”¥ôˆûŠ‚üğ½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸½¹±¥¬ô‰µ½Ù•µÁ±½å••I½Ü¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô°€´Ä¤ˆ€‘í¥¹‘•à€ôôô€À€ü€‘¥Í…‰±•œ€è€œô…É¥„µ±…‰•°ô‹BB×FB×BóF[FFBãFBà€‘í•Í…Á•!Q50¡•µÀ¹¹…µ”¥ôƒBËBÏBûFFˆûŠDğ½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸½¹±¥¬ô‰µ½Ù•µÁ±½å••I½Ü¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô°€Ä¤ˆ€‘í¥Í1…ÍÑI½Ü€ü€‘¥Í…‰±•œ€è€œô…É¥„µ±…‰•°ô‹BB×FB×BóF[FFBãFBà€‘í•Í…Á•!Q50¡•µÀ¹¹…µ”¥ôƒBËB÷BãBÜˆûŠLğ½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€€€€€€€€€ğ½ÍÁ…¸ø(€€€€€€€€€€€€€€€€€€€€€€€€ñ‰ÕÑÑ½¸±…ÍÌô‰•‘¥Ğµ‰Ñ¸ˆ½¹±¥¬ô‰•‘¥ÑµÁ±½å•”¡•Ù•¹Ğ°€‘íÍ…™•%¡•µÀ¹¥¥ô¤ˆûŠr?¾â<ğ½‰ÕÑÑ½¸ø(€€€€€€€€€€€€€€€€€€€€ğ½‘¥Øø(€€€€€€€€€€€€€€€€ğ½Ñø(€€€€€€€€€€€€€€€€‘íÉÉ…ä¹™É½´¡í±•¹Ñ é‘…åÍ%¹5½¹Ñ¡ô°€¡|°¤¤€ôøì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ‘…ä€ô¤€¬€Äì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ¥Í]••­•¹€ô€¡¹•Ü…Ñ”¡å•…È°µ½¹Ñ °‘…ä¤¹•Ñ…ä ¤€”€Ø€ôôô€À¤ì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ¥ÍQ½‘…ä€ô€¡å•…È€ôôôÑ½‘…å…Ñ”¹•ÑÕ±±e•…È ¤€˜˜µ½¹Ñ €ôôôÑ½‘…å…Ñ”¹•Ñ5½¹Ñ  ¤€˜˜‘…ä€ôôôÑ½‘…å…Ñ”¹•Ñ…Ñ” ¤¤ì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ¥Í	…¹ÅÕ•Ğ€ô€¡‰…¹ÅÕ•ÑÍm‘…åt€˜˜‰…¹ÅÕ•ÑÍm‘…åt¹…Ñ¥Ù”¤ì(€€€€€€€€€€€€€€€€€€€€(€€€€€€€€€€€€€€€€€€€±•ĞÑ‘±…ÍÌ€ô¥Í]••­•¹€ü€İ••­•¹œ€è€œœì(€€€€€€€€€€€€€€€€€€€¥˜€¡¥ÍQ½‘…ä¤Ñ‘±…ÍÌ€¬ô€œÕÉÉ•¹Ğµ‘…äµÑœì(€€€€€€€€€€€€€€€€€€€¥˜€¡¥ÍQ½‘…ä€˜˜¥Í1…ÍÑI½Ü¤Ñ‘±…ÍÌ€¬ô€œÕÉÉ•¹Ğµ‘…äµÑµ‰½ÑÑ½´œì(€€€€€€€€€€€€€€€€€€€¥˜€¡¥Í	…¹ÅÕ•Ğ¤Ñ‘±…ÍÌ€¬ô€œ‰…¹ÅÕ•ĞµÑœì(€€€€€€€€€€€€€€€€€€€•±Í”¥˜€¡…Ñ¥Ù•½±…ä€ôôô‘…ä¤Ñ‘±…ÍÌ€¬ô€œ¡¥¡±¥¡Ğµ½°œì((€€€€€€€€€€€€€€€€€€€±•Ğ½¹Ñ•¹Ğ€ô€œœì(€€€€€€€€€€€€€€€€€€€¥˜¡•µÀ¹Í¡¥™ÑÌ¹¥¹±Õ‘•Ì¡‘…ä¤¤½¹Ñ•¹Ğ€ô€œñÍÁ…¸±…ÍÌô‰Í¡¥™Ğµ¥½¸Í¡¥™Ğµ™Õ±°ˆøğ½ÍÁ…¸øœì(€€€€€€€€€€€€€€€€€€€•±Í”¥˜¡•µÀ¹Í¡¥™ÑÍ¥ÉÍĞ¹¥¹±Õ‘•Ì¡‘…ä¤¤½¹Ñ•¹Ğ€ô€œñÍÁ…¸±…ÍÌô‰Í¡¥™Ğµ¥½¸Í¡¥™Ğµ™¥ÉÍĞˆøğ½ÍÁ…¸øœì(€€€€€€€€€€€€€€€€€€€•±Í”¥˜¡•µÀ¹Í¡¥™ÑÍM•½¹¹¥¹±Õ‘•Ì¡‘…ä¤¤½¹Ñ•¹Ğ€ô€œñÍÁ…¸±…ÍÌô‰Í¡¥™Ğµ¥½¸Í¡¥™ĞµÍ•½¹ˆøğ½ÍÁ…¸øœì(€€€€€€€€€€€€€€€€€€€¥˜¡•µÀ¹Õ¹…Ù…¥°¹¥¹±Õ‘•Ì¡‘…ä¤¤½¹Ñ•¹Ğ€¬ô€œñÍÁ…¸±…ÍÌô‰Õ¹…Ù…¥°µµ…É­•ÈˆûŠˆğ½ÍÁ…¸øœì(€€€€€€€€€€€€€€€€€€€€(€€€€€€€€€€€€€€€€€€€É•ÑÕÉ¸€ñÑ‘…Ñ„µ‘…äôˆ‘í‘…åôˆ±…ÍÌôˆ‘íÑ‘±…ÍÍôˆ½¹±¥¬ô‰¡…¹‘±••±±±¥¬ ‘íÍ…™•%¡•µÀ¹¥¥ô°€‘í‘…åô¤ˆø‘í½¹Ñ•¹Ñôğ½Ñù€ì(€€€€€€€€€€€€€€€ô¤¹©½¥¸ œœ¥ô(€€€€€€€€€€€€ğ½ÑÈù€ì(€€€€€€€ô¤¹©½¥¸ œœ¤ì((€€€€€€€¥˜€ …¥¹¥Ñ¥…±MÉ½±±½¹”€˜˜å•…È€ôôôÑ½‘…å…Ñ”¹•ÑÕ±±e•…È ¤€˜˜µ½¹Ñ €ôôôÑ½‘…å…Ñ”¹•Ñ5½¹Ñ  ¤¤ì(€€€€€€€€€€€Í•ÑQ¥µ•½ÕĞ  ¤€ôøì(€€€€€€€€€€€€€€€½¹ÍĞÑ½‘…åQ €ô‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ¹ÕÉÉ•¹Ğµ‘…äµÑ œ¤ì(€€€€€€€€€€€€€€€¥˜€¡Ñ½‘…åQ ¤Ñ½‘…åQ ¹ÍÉ½±±%¹Ñ½Y¥•Ü¡ì‰•¡…Ù¥½Èè€Íµ½½Ñ œ°‰±½¬è€¹•…É•ÍĞœ°¥¹±¥¹”è€•¹Ñ•Èœô¤ì(€€€€€€€€€€€€€€€¥¹¥Ñ¥…±MÉ½±±½¹”€ôÑÉÕ”ì(€€€€€€€€€€€ô°€ÌÀÀ¤ì(€€€€€€€ô(€€€ô
+    const removing = emp.unavail.includes(day);
+    pendingAction = {month:getDocId(), id:emp.id, day, unavailable:!removing};
+    $('confirmTitle').textContent = removing ? 'Ğ¡ĞºĞ°ÑÑƒĞ²Ğ°Ñ‚Ğ¸ Ğ²Ğ¸Ñ…Ñ–Ğ´Ğ½Ğ¸Ğ¹?' : 'Ğ”Ğ¾Ğ´Ğ°Ñ‚Ğ¸ Ğ²Ğ¸Ñ…Ñ–Ğ´Ğ½Ğ¸Ğ¹?';
+    $('confirmText').textContent = `${removing ? 'ĞŸÑ€Ğ¸Ğ±Ñ€Ğ°Ñ‚Ğ¸' : 'ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ğ¸Ñ‚Ğ¸'} Ñ‡ĞµÑ€Ğ²Ğ¾Ğ½Ñƒ ĞºÑ€Ğ°Ğ¿ĞºÑƒ Ğ´Ğ»Ñ ${emp.name} Ğ½Ğ° ${day} ${monthNames[currentDate.getMonth()].toLowerCase()}?`;
+    $('confirmBtn').textContent = removing ? 'Ğ¢Ğ°Ğº, Ğ¿Ñ€Ğ¸Ğ±Ñ€Ğ°Ñ‚Ğ¸' : 'Ğ¢Ğ°Ğº, Ğ´Ğ¾Ğ´Ğ°Ñ‚Ğ¸';
+    $('confirmBtn').className = 'modal-btn ' + (removing ? 'btn-danger' : 'btn-confirm');
+    show('confirmModal');
+  } else if (isRedDotMode) {
+    toast(boundEmployeeId ? 'ĞœĞ¾Ğ¶Ğ½Ğ° Ğ¿Ğ¾Ğ·Ğ½Ğ°Ñ‡Ğ°Ñ‚Ğ¸ Ğ²Ğ¸Ñ…Ñ–Ğ´Ğ½Ñ– Ğ»Ğ¸ÑˆĞµ Ñƒ ÑĞ²Ğ¾Ñ”Ğ¼Ñƒ Ñ€ÑĞ´ĞºÑƒ.' : 'ĞĞ´Ğ¼Ñ–Ğ½Ñ–ÑÑ‚Ñ€Ğ°Ñ‚Ğ¾Ñ€ Ñ‰Ğµ Ğ½Ğµ Ğ¿Ñ€Ğ¸Ğ²â€™ÑĞ·Ğ°Ğ² Ğ²Ğ°Ñˆ Ğ¾Ğ±Ğ»Ñ–ĞºĞ¾Ğ²Ğ¸Ğ¹ Ğ·Ğ°Ğ¿Ğ¸Ñ Ğ´Ğ¾ Ğ¿Ñ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ°.', 'error');
+  }
+};
+window.setShiftType = action(async type => {
+  if (!admin || currentEditEmpId === null || !currentEditDay) return;
+  const id = currentEditEmpId, day = currentEditDay, month = getDocId();
+  await updateSchedule(month, draft => {
+    const emp = draft.employees.find(e => String(e.id) === String(id));
+    if (!emp) throw new Error('ĞŸÑ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ° Ğ²Ğ¶Ğµ Ğ²Ğ¸Ğ´Ğ°Ğ»ĞµĞ½Ğ¾.');
+    for (const key of ['shifts','shiftsFirst','shiftsSecond']) emp[key] = emp[key].filter(d => d !== day);
+    const field = {full:'shifts',first:'shiftsFirst',second:'shiftsSecond'}[type];
+    if (field) emp[field].push(day);
+  });
+  recordChange(month,'shifts',day); hide('shiftModal');
+});
+window.addEmployee = action(async () => {
+  if (!admin) return;
+  const name = $('newEmpName').value.trim();
+  if (!name || name.length > 80) throw new Error('Ğ’Ğ²ĞµĞ´Ñ–Ñ‚ÑŒ Ñ–Ğ¼â€™Ñ Ğ´Ğ¾ 80 ÑĞ¸Ğ¼Ğ²Ğ¾Ğ»Ñ–Ğ².');
+  const id = crypto.randomUUID();
+  await updateSchedule(getDocId(), draft => {
+    if (draft.employees.some(e => e.name.toLocaleLowerCase('uk') === name.toLocaleLowerCase('uk'))) throw new Error('Ğ¢Ğ°ĞºĞµ Ñ–Ğ¼â€™Ñ Ğ²Ğ¶Ğµ Ñ–ÑĞ½ÑƒÑ”.');
+    draft.employees.push({id,name,shifts:[],shiftsFirst:[],shiftsSecond:[],unavail:[]});
+  });
+  $('newEmpName').value = '';
+});
+window.triggerEditName = action(async () => {
+  const emp = findEmployee(currentEditEmpId); if (!admin || !emp) return;
+  const name = prompt(`Ğ ĞµĞ´Ğ°Ğ³ÑƒĞ²Ğ°Ğ½Ğ½Ñ: ${emp.name}\n\nĞ’Ğ²ĞµĞ´Ñ–Ñ‚ÑŒ Ğ½Ğ¾Ğ²Ğµ Ñ–Ğ¼â€™Ñ:`,emp.name)?.trim();
+  if (!name || name === emp.name) return;
+  if (name.length > 80) throw new Error('Ğ†Ğ¼â€™Ñ Ğ¼Ğ°Ñ” Ğ¼Ñ–ÑÑ‚Ğ¸Ñ‚Ğ¸ Ğ´Ğ¾ 80 ÑĞ¸Ğ¼Ğ²Ğ¾Ğ»Ñ–Ğ².');
+  const id = emp.id;
+  await updateSchedule(getDocId(),draft => {
+    const target = draft.employees.find(e => String(e.id) === String(id));
+    if (!target) throw new Error('ĞŸÑ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ° Ğ²Ğ¶Ğµ Ğ²Ğ¸Ğ´Ğ°Ğ»ĞµĞ½Ğ¾.');
+    if (draft.employees.some(e => String(e.id)!==String(id) && e.name.toLocaleLowerCase('uk')===name.toLocaleLowerCase('uk'))) throw new Error('Ğ¢Ğ°ĞºĞµ Ñ–Ğ¼â€™Ñ Ğ²Ğ¶Ğµ Ñ–ÑĞ½ÑƒÑ”.');
+    target.name = name;
+  });
+  hide('infoModal');
+});
+window.triggerDeleteEmp = action(async () => {
+  const emp = findEmployee(currentEditEmpId);
+  if (!admin || !emp || !confirm(`Ğ’Ğ¸Ğ´Ğ°Ğ»Ğ¸Ñ‚Ğ¸ Ğ¿Ñ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ° Â«${emp.name}Â» Ğ· Ñ†ÑŒĞ¾Ğ³Ğ¾ Ğ¼Ñ–ÑÑÑ†Ñ?`)) return;
+  const id = emp.id;
+  await updateSchedule(getDocId(),draft => {draft.employees = draft.employees.filter(e => String(e.id)!==String(id));});
+  hide('infoModal');
+});
+window.editEmployeeAccess = action(async () => {
+  const id = currentEditEmpId; if (!admin || id === null) return;
+  const old = await employeeAccess(id);
+  const uid = prompt('ĞšĞ¾Ğ´ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ñƒ Ğ¿Ñ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ° (Ğ¿Ğ¾Ñ€Ğ¾Ğ¶Ğ½Ñ” Ğ¿Ğ¾Ğ»Ğµ Ğ²Ğ¸Ğ¼Ğ¸ĞºĞ°Ñ” Ñ€ĞµĞ´Ğ°Ğ³ÑƒĞ²Ğ°Ğ½Ğ½Ñ):', old);
+  if (uid === null) return;
+  if (uid.trim().length > 128) throw new Error('ĞĞµĞ¿Ñ€Ğ°Ğ²Ğ¸Ğ»ÑŒĞ½Ğ¸Ğ¹ ĞºĞ¾Ğ´ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ñƒ.');
+  await bindEmployee(id,uid); toast('Ğ”Ğ¾ÑÑ‚ÑƒĞ¿ Ğ¾Ğ½Ğ¾Ğ²Ğ»ĞµĞ½Ğ¾.');
+});
+
+window.openDaySettings = day => {
+  if (!admin || !ready) return;
+  currentSettingsDay = day;
+  $('daySettingsTitle').textContent = `ĞĞ°Ğ»Ğ°ÑˆÑ‚ÑƒĞ²Ğ°Ğ½Ğ½Ñ: ${day} ${monthNames[currentDate.getMonth()].toLowerCase()}`;
+  renderDaySettings(); show('daySettingsModal');
+};
+window.toggleColFromSettings = () => { window.toggleColHighlight(currentSettingsDay); hide('daySettingsModal'); currentSettingsDay = null; };
+window.handleHeaderClick = day => {
+  if (!ready) return;
+  if (!banquets[day]?.active) return window.toggleColHighlight(day);
+  currentReceiptDay = day;
+  $('receiptDate').textContent = `${day} ${monthNames[currentDate.getMonth()].toLowerCase()} ${currentDate.getFullYear()}`;
+  $('receiptModal').querySelector('h3').textContent=banquets[day].type==='cleaning'?'ğŸ§¹ Ğ“Ğ•ĞĞ•Ğ ĞĞ›Ğ¬ĞĞ• ĞŸĞ Ğ˜Ğ‘Ğ˜Ğ ĞĞĞĞ¯':'ğŸ‰ Ğ‘Ğ•ĞĞšĞ•Ğ¢';
+  renderWorkerReceipts(); show('receiptModal');
+};
+window.toggleColFromReceipt = () => { window.toggleColHighlight(currentReceiptDay); hide('receiptModal'); currentReceiptDay = null; };
+function renderWorkerReceipts() {
+  const b = banquets[currentReceiptDay];
+  renderPhotos($('receiptImagesContainer'),getDocId(),currentReceiptDay,b,false);
+}
+function renderDaySettings() {
+  const day = currentSettingsDay, b = banquets[day];
+  const container = $('banquetContainer');
+  // Static markup only; all user content goes through textContent / DOM properties.
+  container.innerHTML = '<div id="legacy-receipts"></div><input type="file" id="banquetFile" accept="image/*" multiple style="display:none" onchange="handleBanquetUpload(event)">';
+  const type=b?.type==='cleaning'?'cleaning':'banquet';
+  if (b?.active) {
+    container.insertAdjacentHTML('beforeend',`<p>${type==='cleaning'?'Ğ“ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ Ğ·Ğ°Ğ¿Ğ»Ğ°Ğ½Ğ¾Ğ²Ğ°Ğ½Ğµ.':'Ğ‘ĞµĞ½ĞºĞµÑ‚ Ğ·Ğ°Ğ¿Ğ»Ğ°Ğ½Ğ¾Ğ²Ğ°Ğ½Ğ¾.'}</p>${type==='banquet'?'<button id="banquetUploadBtn" class="modal-btn" style="background:#2ecc71;color:white;border:none;margin-bottom:5px" onclick="document.getElementById(\'banquetFile\').click()">â• Ğ”Ğ¾Ğ´Ğ°Ñ‚Ğ¸ Ñ‰Ğµ Ñ„Ğ¾Ñ‚Ğ¾ Ñ‡ĞµĞºÑƒ</button>':''}<button class="modal-btn danger" onclick="deleteBanquet()">ğŸ—‘ Ğ¡ĞºĞ°ÑÑƒĞ²Ğ°Ñ‚Ğ¸ ${type==='cleaning'?'Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ':'Ğ±ĞµĞ½ĞºĞµÑ‚'}</button>`);
+  } else {
+    container.insertAdjacentHTML('beforeend','<p style="font-size:.85rem;opacity:.8">ĞĞ±ĞµÑ€Ñ–Ñ‚ÑŒ, Ñ‰Ğ¾ Ğ·Ğ°Ğ¿Ğ»Ğ°Ğ½ÑƒĞ²Ğ°Ñ‚Ğ¸ Ğ½Ğ° Ñ†ĞµĞ¹ Ğ´ĞµĞ½ÑŒ.</p><button id="banquetUploadBtn" class="modal-btn" style="background:#e67e22;color:white;border:none;margin-bottom:10px" onclick="document.getElementById(\'banquetFile\').click()">ğŸ“¸ Ğ—Ğ°Ğ²Ğ°Ğ½Ñ‚Ğ°Ğ¶Ğ¸Ñ‚Ğ¸ Ñ‡ĞµĞº(Ğ¸) Ğ±ĞµĞ½ĞºĞµÑ‚Ñƒ</button><button class="modal-btn" style="background:var(--primary);color:white;border:none;margin-bottom:8px" onclick="markBanquetNoPhoto()">ğŸ‰ Ğ”Ğ¾Ğ´Ğ°Ñ‚Ğ¸ Ğ±ĞµĞ½ĞºĞµÑ‚</button><button class="modal-btn" style="background:#176c7b;color:white;border:none" onclick="markCleaning()">ğŸ§¹ Ğ”Ğ¾Ğ´Ğ°Ñ‚Ğ¸ Ğ³ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ</button>');
+  }
+  renderPhotos($('legacy-receipts'),getDocId(),day,b?.type==='cleaning'?null:b,true);
+}
+function renderPhotos(container,month,day,banquet,editable) {
+  const ticket = {}; container.ticket = ticket; container.replaceChildren();
+  const ids = banquet?.receiptIds || [];
+  if (!ids.length && !(banquet?.links || []).length) {
+    container.textContent = banquet?.active ? 'Ğ‘ĞµĞ½ĞºĞµÑ‚ Ğ°ĞºÑ‚Ğ¸Ğ²Ğ½Ğ¸Ğ¹ (Ñ„Ğ¾Ñ‚Ğ¾ Ñ‡ĞµĞºÑ–Ğ² Ğ½ĞµĞ¼Ğ°Ñ”).' : '';
+    return;
+  }
+  ids.forEach((id,index) => {
+    const card = document.createElement('div'); card.style.cssText='position:relative;padding:10px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-body)';
+    card.textContent = 'Ğ—Ğ°Ğ²Ğ°Ğ½Ñ‚Ğ°Ğ¶ĞµĞ½Ğ½Ñ Ñ„Ğ¾Ñ‚Ğ¾â€¦'; container.append(card);
+    readReceipt(month,id).then(source => {
+      if (!container.isConnected || container.ticket !== ticket) return;
+      if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(source)) throw new Error('ĞĞµĞ¿Ñ€Ğ°Ğ²Ğ¸Ğ»ÑŒĞ½Ğ¸Ğ¹ Ñ„Ğ¾Ñ€Ğ¼Ğ°Ñ‚ Ñ„Ğ¾Ñ‚Ğ¾.');
+      const img = new Image(); img.src=source; img.alt=`Ğ§ĞµĞº ${index+1}`; img.className='receipt-photo'+(editable?'':' receipt-full');
+      img.onclick = () => img.classList.toggle('receipt-full'); card.replaceChildren(img);
+      if (editable) {
+        const button=document.createElement('button'); button.textContent='X';button.setAttribute('aria-label','Ğ’Ğ¸Ğ´Ğ°Ğ»Ğ¸Ñ‚Ğ¸ Ñ„Ğ¾Ñ‚Ğ¾');button.style.cssText='position:absolute;top:5px;right:5px;background:#e74c3c;color:white;border:none;border-radius:50%;width:30px;height:30px;font-weight:bold;cursor:pointer';
+        button.onclick=action(async()=>{if(confirm('Ğ’Ğ¸Ğ´Ğ°Ğ»Ğ¸Ñ‚Ğ¸ Ñ†Ğµ Ñ„Ğ¾Ñ‚Ğ¾?')){await deleteReceipt(month,day,id);recordChange(month,'banquets',day)}});card.append(button);
+      }
+    }).catch(()=>{ if(container.ticket===ticket && container.isConnected) {card.textContent='Ğ¤Ğ¾Ñ‚Ğ¾ Ğ½ĞµĞ´Ğ¾ÑÑ‚ÑƒĞ¿Ğ½Ğµ. ';const retry=document.createElement('button');retry.textContent='ĞŸĞ¾Ğ²Ñ‚Ğ¾Ñ€Ğ¸Ñ‚Ğ¸';retry.onclick=()=>renderPhotos(container,month,day,banquet,editable);card.append(retry);} });
+  });
+  for (const url of banquet?.links || []) {
+    if (!/^https:\/\//.test(url)) continue;
+    const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Ğ’Ñ–Ğ´ĞºÑ€Ğ¸Ñ‚Ğ¸ Ñ‡ĞµĞº â†—';link.className='modal-btn';container.append(link);
+  }
+}
+window.markBanquetNoPhoto = action(async () => {
+  const month=getDocId(),day=currentSettingsDay;if(!admin || !day)return;
+  await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true,type:'banquet'};});
+  recordChange(month,'banquets',day,'banquet');
+});
+window.markCleaning = action(async () => {
+  const month=getDocId(),day=currentSettingsDay;if(!admin||!day)return;
+  await updateSchedule(month,draft=>{draft.banquets[day]={active:true,type:'cleaning',note:'',links:[],receiptIds:[],time:'',guests:null};});
+  recordChange(month,'banquets',day,'cleaning');toast('Ğ“ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ Ğ´Ğ¾Ğ´Ğ°Ğ½Ğ¾.');
+});
+window.deleteBanquet = action(async () => {
+  const month=getDocId(),day=currentSettingsDay;
+  if (!admin || !day || !confirm(`Ğ¡ĞºĞ°ÑÑƒĞ²Ğ°Ñ‚Ğ¸ ${banquets[day]?.type==='cleaning'?'Ğ³ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ':'Ğ±ĞµĞ½ĞºĞµÑ‚'} Ğ¿Ğ¾Ğ²Ğ½Ñ–ÑÑ‚Ñ?`)) return;
+  const oldType=banquets[day]?.type==='cleaning'?'cleaning':'banquet';await removeBanquet(month,day);recordChange(month,'banquets',day,oldType);
+});
+window.handleBanquetUpload = action(async event => {
+  const files=[...event.target.files],month=getDocId(),day=currentSettingsDay;
+  if (!admin || !day || !files.length)return;
+  if (files.length+(banquets[day]?.receiptIds?.length||0)>8) throw new Error('Ğ”Ğ¾ Ğ¾Ğ´Ğ½Ğ¾Ğ³Ğ¾ Ğ±ĞµĞ½ĞºĞµÑ‚Ñƒ Ğ¼Ğ¾Ğ¶Ğ½Ğ° Ğ´Ğ¾Ğ´Ğ°Ñ‚Ğ¸ Ğ½Ğµ Ğ±Ñ–Ğ»ÑŒÑˆĞµ 8 Ñ„Ğ¾Ñ‚Ğ¾.');
+  let saved=0;
+  try {
+    // Compress before creating a banquet: an invalid first file must not create an empty event.
+    for (const file of files) {
+      const image=await compressReceipt(file);
+      if (!saved && !banquets[day]?.active) await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true};});
+      await addReceipt(month,day,image);saved++;recordChange(month,'banquets',day);
+    }
+    toast(`Ğ—Ğ±ĞµÑ€ĞµĞ¶ĞµĞ½Ğ¾ Ñ„Ğ¾Ñ‚Ğ¾: ${saved}.`);
+  } catch(error) {throw new Error(`Ğ—Ğ±ĞµÑ€ĞµĞ¶ĞµĞ½Ğ¾ Ñ„Ğ¾Ñ‚Ğ¾: ${saved}. ${error.message || 'ĞŸĞ¾Ğ¼Ğ¸Ğ»ĞºĞ° Ğ·Ğ°Ğ²Ğ°Ğ½Ñ‚Ğ°Ğ¶ĞµĞ½Ğ½Ñ.'}`);}
+  finally {event.target.value='';}
+});
+window.notifyTeam = action(async () => {
+  if (!allowed || !isAdmin(currentUser())) return;
+  const journal=changeJournal(getDocId()),notices=[];
+  for(const day of journal.shifts)notices.push({kind:'schedule',day:Number(day)});
+  for(const [day,oldType] of journal.banquets){const event=banquets[day];notices.push({kind:event?.active?(event.type==='cleaning'?'cleaning':'banquet'):(oldType==='cleaning'?'cancel-cleaning':'cancel-banquet'),day:Number(day)});}
+  const unique=[...new Map(notices.map(item=>[`${item.kind}:${item.day}`,item])).values()].sort((a,b)=>a.day-b.day);
+  if(!unique.length)return toast('ĞĞµĞ¼Ğ°Ñ” Ğ½Ğ¾Ğ²Ğ¸Ñ… Ğ·Ğ¼Ñ–Ğ½ Ğ´Ğ»Ñ ÑĞ¿Ğ¾Ğ²Ñ–Ñ‰ĞµĞ½Ğ½Ñ. Ğ¡Ğ¿Ğ¾Ñ‡Ğ°Ñ‚ĞºÑƒ Ğ¾Ğ½Ğ¾Ğ²Ñ–Ñ‚ÑŒ Ğ³Ñ€Ğ°Ñ„Ñ–Ğº Ğ°Ğ±Ğ¾ Ğ´Ğ¾Ğ´Ğ°Ğ¹Ñ‚Ğµ Ğ¿Ğ¾Ğ´Ñ–Ñ.','error');
+  const preview=unique.map(item=>`${{schedule:'Ğ“Ñ€Ğ°Ñ„Ñ–Ğº Ğ·Ğ¼Ñ–Ğ½ĞµĞ½Ğ¾',banquet:'Ğ”Ğ¾Ğ´Ğ°Ğ½Ğ¾ Ğ‘ĞµĞ½ĞºĞµÑ‚',cleaning:'Ğ”Ğ¾Ğ´Ğ°Ğ½Ğ¾ Ğ³ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ','cancel-banquet':'Ğ‘ĞµĞ½ĞºĞµÑ‚ ÑĞºĞ°ÑĞ¾Ğ²Ğ°Ğ½Ğ¾','cancel-cleaning':'Ğ“ĞµĞ½ĞµÑ€Ğ°Ğ»ÑŒĞ½Ğµ Ğ¿Ñ€Ğ¸Ğ±Ğ¸Ñ€Ğ°Ğ½Ğ½Ñ ÑĞºĞ°ÑĞ¾Ğ²Ğ°Ğ½Ğ¾'}[item.kind]} ${String(item.day).padStart(2,'0')}.${String(currentDate.getMonth()+1).padStart(2,'0')}`).join('\n');
+  if(confirm(`ĞĞ°Ğ´Ñ–ÑĞ»Ğ°Ñ‚Ğ¸ ĞºĞ¾Ğ¼Ğ°Ğ½Ğ´Ñ– Ñ†Ñ– Ğ·Ğ¼Ñ–Ğ½Ğ¸?\n\n${preview}\n\nĞÑ‚Ñ€Ğ¸Ğ¼Ğ°ÑÑ‚ÑŒ Ğ¿Ñ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºĞ¸, ÑĞºÑ– Ğ²Ğ²Ñ–Ğ¼ĞºĞ½ÑƒĞ»Ğ¸ ÑĞ¿Ğ¾Ğ²Ñ–Ñ‰ĞµĞ½Ğ½Ñ.`)){const month=getDocId(),summary=await notifySchedule(month,unique);if(/^ĞŸĞµÑ€ĞµĞ´Ğ°Ğ½Ğ¾ ÑĞ»ÑƒĞ¶Ğ±Ñ– ÑĞ¿Ğ¾Ğ²Ñ–Ñ‰ĞµĞ½ÑŒ: [1-9]\d*\. ĞŸĞ¾Ğ¼Ğ¸Ğ»Ğ¾Ğº: 0\./.test(summary))clearChangeJournal(month);toast(summary);}
+});
+window.exportHalfMonth = action(async (event,half) => {
+  await exportPNG(currentDate,{employees,banquets},half,{container:$('resultImageContainer'),modal:$('resultModal')});
+});
+$('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startWorker(); });
+initPush();
+if (admin) {
+  initOwnerPanel();
+  $('newEmpName').maxLength=80;
+  $('newEmpName').addEventListener('keydown',event=>{if(event.key==='Enter')window.addEmployee();});
+  $('login-form').addEventListener('submit',async event=>{
+    event.preventDefault();$('login-submit').disabled=true;$('login-error').textContent='';
+    try{const user=await login($('login-email').value,$('login-password').value);if(!isAdmin(user)){await logout();throw new Error('Ğ¦ĞµĞ¹ Ğ¾Ğ±Ğ»Ñ–ĞºĞ¾Ğ²Ğ¸Ğ¹ Ğ·Ğ°Ğ¿Ğ¸Ñ Ğ½Ğµ Ğ¼Ğ°Ñ” Ğ¿Ñ€Ğ°Ğ² Ğ°Ğ´Ğ¼Ñ–Ğ½Ñ–ÑÑ‚Ñ€Ğ°Ñ‚Ğ¾Ñ€Ğ°.');}}
+    catch(error){$('login-error').textContent=error.code?'ĞĞµ Ğ²Ğ´Ğ°Ğ»Ğ¾ÑÑ ÑƒĞ²Ñ–Ğ¹Ñ‚Ğ¸. ĞŸĞµÑ€ĞµĞ²Ñ–Ñ€Ñ‚Ğµ Ğ¿Ğ¾ÑˆÑ‚Ñƒ, Ğ¿Ğ°Ñ€Ğ¾Ğ»ÑŒ Ñ– Ğ·â€™Ñ”Ğ´Ğ½Ğ°Ğ½Ğ½Ñ.':error.message;}
+    finally{$('login-submit').disabled=false;$('login-password').value='';}
+  });
+  $('logout').addEventListener('click',async()=>{try{await disconnectPush();await logout();}catch{toast('ĞĞµ Ğ²Ğ´Ğ°Ğ»Ğ¾ÑÑ Ğ²Ğ¸Ğ¹Ñ‚Ğ¸. ĞŸĞµÑ€ĞµĞ²Ñ–Ñ€Ñ‚Ğµ Ğ·â€™Ñ”Ğ´Ğ½Ğ°Ğ½Ğ½Ñ.','error');}});
+  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Ğ”Ğ»Ñ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ñƒ Ğ¿Ñ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸ĞºÑ–Ğ² Ğ¾Ğ¿ÑƒĞ±Ğ»Ñ–ĞºÑƒĞ¹Ñ‚Ğµ Ğ½Ğ¾Ğ²Ñ– Rules Ñ‚Ğ° Ğ¿ĞµÑ€ĞµĞ·Ğ°Ğ²Ğ°Ğ½Ñ‚Ğ°Ğ¶Ñ‚Ğµ Ğ°Ğ´Ğ¼Ñ–Ğ½ĞºÑƒ.','error'));}});
+} else {
+  initAccount();
+  $('copy-access').addEventListener('click',async()=>{
+    if (!canEditWorker()) return openAccount();
+    const user=currentUser();
+    try { await navigator.clipboard.writeText(user.uid); toast('ĞšĞ¾Ğ´ ÑĞºĞ¾Ğ¿Ñ–Ğ¹Ğ¾Ğ²Ğ°Ğ½Ğ¾. ĞŸĞµÑ€ĞµĞ´Ğ°Ğ¹Ñ‚Ğµ Ğ°Ğ´Ğ¼Ñ–Ğ½Ñ–ÑÑ‚Ñ€Ğ°Ñ‚Ğ¾Ñ€Ñƒ.'); }
+    catch { prompt('Ğ¡ĞºĞ¾Ğ¿Ñ–ÑĞ¹Ñ‚Ğµ ĞºĞ¾Ğ´ Ñ– Ğ¿ĞµÑ€ĞµĞ´Ğ°Ğ¹Ñ‚Ğµ Ğ°Ğ´Ğ¼Ñ–Ğ½Ñ–ÑÑ‚Ñ€Ğ°Ñ‚Ğ¾Ñ€Ñƒ:',user.uid); }
+  });
+  watchAuth(user=>{
+    renderRoleBadge(user);
+    stopTeamAccess?.();const ticket=++accessGeneration;
+    const applyAccess = (access, employeeId = null) => {
+      if(ticket!==accessGeneration)return;
+      unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
+      boundEmployeeId=access?employeeId:null;
+      employees=[];banquets={};isRedDotMode=false;
+      $('redDotToggleBtn').className='mode-btn off';
+      $('redDotToggleBtn').textContent='ğŸ”´ ĞŸĞ¾ÑÑ‚Ğ°Ğ²Ğ¸Ñ‚Ğ¸ Ğ²Ğ¸Ñ…Ñ–Ğ´Ğ½Ğ¸Ğ¹';
+      $('private-schedule').hidden=!access;
+      document.querySelectorAll('[data-schedule-only]').forEach(node=>node.hidden=!access);
+      setScheduleAccess(access);
+      setPushAccess(access);
+      if(access)loadData();else clearPrivateContent();
+    };
+    applyAccess(false);
+    if(isAdmin(user))applyAccess(true);
+    else stopTeamAccess=watchTeamAccess(user,applyAccess);
+  });
+}
+async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('ĞĞµ Ğ²Ğ´Ğ°Ğ»Ğ¾ÑÑ Ğ¿Ñ–Ğ´ĞºĞ»ÑÑ‡Ğ¸Ñ‚Ğ¸ÑÑ. ĞŸĞµÑ€ĞµĞ²Ñ–Ñ€Ñ‚Ğµ Ñ–Ğ½Ñ‚ĞµÑ€Ğ½ĞµÑ‚.',true);}}
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();});
+    function renderIndex() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const head = document.getElementById('header-row');
+        const body = document.getElementById('body-row');
+        
+        let headHtml = '<th>Ğ†Ğ¼\'Ñ</th>';
+        for(let i=1; i<=daysInMonth; i++) {
+            const dayIndex = new Date(year, month, i).getDay();
+            const isWeekend = (dayIndex === 0 || dayIndex === 6);
+            const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
+            const dayEvent = banquets[i]?.active ? banquets[i] : null;
+            const isBanquet = !!dayEvent;
+            const duty = getDutyName(year, month, i);
+            
+            let thClass = isWeekend ? 'weekend' : '';
+            if (isToday) thClass += ' current-day-th';
+            if (isBanquet) thClass += ' banquet-th';
+            else if (activeColDay === i) thClass += ' highlight-col';
+            
+            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'ğŸ§¹ ĞŸĞ Ğ˜Ğ‘Ğ˜Ğ ĞĞĞĞ¯':'ğŸ‰ Ğ‘Ğ•ĞĞšĞ•Ğ¢'}</span>` : '';
+
+            headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
+                ${i}<br>
+                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
+                <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
+                ${banquetLabel}
+            </th>`;
+        }
+        head.innerHTML = headHtml;
+
+        if (employees.length === 0) {
+            body.innerHTML = `<tr><td colspan="${daysInMonth + 1}" style="padding: 30px; text-align: center; color: #888; font-weight: bold;">${emptyMessage()}</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = employees.map((emp, index) => {
+            const isLastRow = (index === employees.length - 1);
+            const isRowHighlighted = (activeRowEmpId === emp.id);
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            
+            return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
+                <td onclick="showEmployeeInfo(event, ${safeId(emp.id)})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${escapeHTML(emp.name)}</td>
+                ${Array.from({length:daysInMonth}, (_, i) => {
+                    const day = i + 1;
+                    const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
+                    const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && day === todayDate.getDate());
+                    const isBanquet = (banquets[day] && banquets[day].active);
+                    
+                    let tdClass = isWeekend ? 'weekend' : '';
+                    if (isToday) tdClass += ' current-day-td';
+                    if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
+                    if (isBanquet) tdClass += ' banquet-td';
+                    else if (activeColDay === day) tdClass += ' highlight-col';
+
+                    let content = '';
+                    if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    if(emp.unavail.includes(day)) content += '<span class="unavailable">â€¢</span>';
+                    
+                    return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
+                }).join('')}
+            </tr>`;
+        }).join('');
+
+        if (!initialScrollDone && year === todayDate.getFullYear() && month === todayDate.getMonth()) {
+            setTimeout(() => {
+                const todayTh = document.querySelector('.current-day-th');
+                if (todayTh) todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                initialScrollDone = true;
+            }, 300);
+        }
+    }
+
+    function renderAdmin() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const head = document.getElementById('h-row');
+        const body = document.getElementById('b-row');
+        
+        let headHtml = '<th>ĞŸÑ€Ğ°Ñ†Ñ–Ğ²Ğ½Ğ¸Ğº</th>';
+        for(let i=1; i<=daysInMonth; i++) {
+            const dayIndex = new Date(year, month, i).getDay();
+            const isWeekend = (dayIndex === 0 || dayIndex === 6);
+            const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
+            const dayEvent = banquets[i]?.active ? banquets[i] : null;
+            const isBanquet = !!dayEvent;
+            const duty = getDutyName(year, month, i);
+            
+            let thClass = isWeekend ? 'weekend' : '';
+            if (isToday) thClass += ' current-day-th';
+            if (isBanquet) thClass += ' banquet-th';
+            else if (activeColDay === i) thClass += ' highlight-col';
+            
+            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'ğŸ§¹ ĞŸĞ Ğ˜Ğ‘Ğ˜Ğ ĞĞĞĞ¯':'ğŸ‰ Ğ‘Ğ•ĞĞšĞ•Ğ¢'}</span>` : '';
+
+        headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
+                ${i}<br>
+                <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
+                <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
+                ${banquetLabel}
+            </th>`;
+        }
+        head.innerHTML = headHtml;
+
+        if (employees.length === 0) {
+            body.innerHTML = `<tr><td colspan="${daysInMonth + 1}" style="padding: 30px; text-align: center; color: #888; font-weight: bold;">${emptyMessage()}</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = employees.map((emp, index) => {
+            const isLastRow = (index === employees.length - 1);
+            const isRowHighlighted = (activeRowEmpId === emp.id);
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            
+            return `<tr ondragover="overEmployeeRow(event)" ondragleave="leaveEmployeeRow(event)" ondrop="dropEmployeeRow(event, ${safeId(emp.id)})" class="${isRowHighlighted ? 'highlight-row' : ''}">
+                <td onclick="showEmployeeInfo(event, ${safeId(emp.id)})" class="${worksOnActiveDay ? 'highlight-name' : ''}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${escapeHTML(emp.name)}</span>
+                        <span class="row-order-controls" onclick="event.stopPropagation()">
+                            <button class="row-drag" draggable="true" ondragstart="startEmployeeDrag(event, ${safeId(emp.id)})" ondragend="endEmployeeDrag()" title="ĞŸĞµÑ€ĞµÑ‚ÑĞ³Ğ½Ñ–Ñ‚ÑŒ Ñ€ÑĞ´Ğ¾Ğº Ğ°Ğ±Ğ¾ ÑĞºĞ¾Ñ€Ğ¸ÑÑ‚Ğ°Ğ¹Ñ‚ĞµÑÑ ÑÑ‚Ñ€Ñ–Ğ»ĞºĞ°Ğ¼Ğ¸" aria-label="ĞŸĞµÑ€ĞµÑ‚ÑĞ³Ğ½ÑƒÑ‚Ğ¸ Ñ€ÑĞ´Ğ¾Ğº ${escapeHTML(emp.name)}">â ¿</button>
+                            <button onclick="moveEmployeeRow(event, ${safeId(emp.id)}, -1)" ${index === 0 ? 'disabled' : ''} aria-label="ĞŸĞµÑ€ĞµĞ¼Ñ–ÑÑ‚Ğ¸Ñ‚Ğ¸ ${escapeHTML(emp.name)} Ğ²Ğ³Ğ¾Ñ€Ñƒ">â†‘</button>
+                            <button onclick="moveEmployeeRow(event, ${safeId(emp.id)}, 1)" ${isLastRow ? 'disabled' : ''} aria-label="ĞŸĞµÑ€ĞµĞ¼Ñ–ÑÑ‚Ğ¸Ñ‚Ğ¸ ${escapeHTML(emp.name)} Ğ²Ğ½Ğ¸Ğ·">â†“</button>
+                        </span>
+                        <button class="edit-btn" onclick="editEmployee(event, ${safeId(emp.id)})">âœï¸</button>
+                    </div>
+                </td>
+                ${Array.from({length:daysInMonth}, (_, i) => {
+                    const day = i + 1;
+                    const isWeekend = (new Date(year, month, day).getDay() % 6 === 0);
+                    const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && day === todayDate.getDate());
+                    const isBanquet = (banquets[day] && banquets[day].active);
+                    
+                    let tdClass = isWeekend ? 'weekend' : '';
+                    if (isToday) tdClass += ' current-day-td';
+                    if (isToday && isLastRow) tdClass += ' current-day-td-bottom';
+                    if (isBanquet) tdClass += ' banquet-td';
+                    else if (activeColDay === day) tdClass += ' highlight-col';
+
+                    let content = '';
+                    if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
+                    else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
+                    else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    if(emp.unavail.includes(day)) content += '<span class="unavail-marker">â€¢</span>';
+                    
+                    return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
+                }).join('')}
+            </tr>`;
+        }).join('');
+
+        if (!initialScrollDone && year === todayDate.getFullYear() && month === todayDate.getMonth()) {
+            setTimeout(() => {
+                const todayTh = document.querySelector('.current-day-th');
+                if (todayTh) todayTh.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                initialScrollDone = true;
+            }, 300);
+        }
+    }
