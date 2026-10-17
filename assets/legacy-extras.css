@@ -41,3 +41,15 @@ button:disabled { opacity:.55; cursor:wait; }
 
 .owner-request { border-top:1px solid var(--border); padding:10px 0; overflow-wrap:anywhere; }
 #admin-link { display:inline-block; padding:12px; color:var(--primary); }
+
+
+/* Separate saturated pink design for general cleaning. */
+:root{--cleaning-solid:#e6007e;--cleaning-bg:rgba(230,0,126,.25);--cleaning-head:linear-gradient(135deg,#c90070,#ff1493)}
+@media(prefers-color-scheme:dark){:root{--cleaning-bg:rgba(255,20,147,.35);--cleaning-head:linear-gradient(135deg,#a90064,#e6007e)}}
+th.cleaning-th{background:var(--cleaning-head)!important;color:white!important;border:2px solid var(--cleaning-solid)!important}
+td.cleaning-td{background-color:var(--cleaning-bg)!important;border-left:2px solid var(--cleaning-solid)!important;border-right:2px solid var(--cleaning-solid)!important}
+.cleaning-label{display:block;font-size:.55rem;background:#fff;color:#a90064;border-radius:4px;padding:2px;margin-top:4px;font-weight:900;box-shadow:0 1px 3px #0003}
+tr:nth-child(5n+1) td.cleaning-td,tr:nth-child(5n+2) td.cleaning-td,tr:nth-child(5n+3) td.cleaning-td,tr:nth-child(5n+4) td.cleaning-td,tr:nth-child(5n+5) td.cleaning-td{background-color:var(--cleaning-bg)!important}
+#owner-self-binding{display:grid;gap:8px;padding:14px 0;border-bottom:1px solid var(--border)}
+#owner-self-binding[hidden]{display:none}
+#owner-self-binding select,#owner-self-binding button{width:100%;padding:10px;border-radius:8px}
