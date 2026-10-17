@@ -1,8 +1,10 @@
+import {registerViewer,watchViewerAccess} from './access.js?v=20261017.13';
 import {disconnectPush} from './push.js?v=20261017.5';
 import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
 const $ = id => document.getElementById(id);
 let lastCompact = null;
+let viewerMode=false,stopViewer=null;
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
@@ -12,7 +14,7 @@ function renderAccount() {
   $('account-summary').textContent = signed ? `${user.displayName || (isOwner(user) ? 'Власник' : isAdmin(user) ? 'Шеф' : 'Мій профіль')}` : formMode === 'register' ? 'Створити обліковий запис' : 'Вхід у KABINET';
   $('account-email').hidden = !signed;
   $('account-email').textContent = signed ? user.email : '';
-  $('profile-hint').textContent = signed ? (isOwner(user) ? 'Власник · Керування профілем' : isAdmin(user) ? 'Шеф · Керування профілем' : 'Працівник · Керування профілем') : 'Приватний графік команди';
+  $('profile-hint').textContent = signed && viewerMode ? 'Глядач · Лише перегляд графіка' : signed ? (isOwner(user) ? 'Власник · Керування профілем' : isAdmin(user) ? 'Шеф · Керування профілем' : 'Працівник · Керування профілем') : 'Приватний графік команди';
   const compact = !!signed && hasAccess;
   if (compact !== lastCompact) { $('account-panel').open = !compact; lastCompact = compact; }
   $('social-auth').hidden = !!signed;
@@ -21,9 +23,9 @@ function renderAccount() {
   $('account-panel').classList.toggle('auth-gate',!hasAccess);
   $('verification-controls').hidden = !signed || canEditWorker();
   $('account-status').textContent = signed ? (canEditWorker() ? (hasAccess ? 'Ви маєте доступ до графіка команди.' : 'Пошту підтверджено. Щоб отримати доступ до графіка, передайте адміну свій код доступу.') : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Закритий графік команди. Для перегляду потрібні вхід і дозвіл адміністратора.';
-  $('copy-access').hidden = !canEditWorker();
+  $('copy-access').hidden = viewerMode || !canEditWorker();
   $('admin-link').hidden = !isAdmin(user);
-  $('request-admin').hidden = !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
+  $('request-admin').hidden = viewerMode || !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
   $('admin-request-status').textContent = isOwner(user) ? 'Ви — власник. Тільки ви призначаєте адміністраторів.' : isAdmin(user) ? 'Ви — адміністратор.' : ({pending:'Заявка очікує рішення власника.',rejected:'Власник відхилив заявку.',revoked:'Права адміністратора відкликано.',error:'Заявки недоступні. Потрібно перевірити правила Firebase.'}[roleStatus] || '');
 
 }
@@ -51,7 +53,8 @@ export function initAccount() {
     event.preventDefault();
     task(async()=>{
       if ($('register-password').value !== $('register-confirm').value) throw new Error('Паролі не збігаються.');
-      await registerWorker($('register-name').value,$('register-email').value,$('register-password').value,$('remember-me').checked);
+      const registered=await registerWorker($('register-name').value,$('register-email').value,$('register-password').value,$('remember-me').checked);
+      if($('register-role').value==='viewer') await registerViewer(registered.uid);
       $('register-password').value=''; $('register-confirm').value='';
       try { await sendLetter(); }
       catch(error) { throw new Error('Обліковий запис створено, але лист не надіслано. '+authMessage(error)+' Скористайтеся кнопкою повторного надсилання.'); }
@@ -76,6 +79,8 @@ export function initAccount() {
   }));
   watchAuth(()=>{
     const user=currentUser();
+    stopViewer?.(); stopViewer=null; viewerMode=false;
+    if(user && !user.isAnonymous && user.emailVerified) stopViewer=watchViewerAccess(user,enabled=>{viewerMode=enabled;renderAccount();});
     const key=user && !user.isAnonymous && user.emailVerified && !isOwner(user) ? user.uid : null;
     if (key !== roleUser) {
       stopRole?.(); roleUser=key; roleStatus=null;
