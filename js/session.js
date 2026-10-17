@@ -20,6 +20,9 @@ export function recordChange(month, kind, day, eventType) {
   else changes[kind].add(Number(day));
   writeLocal(`kabinet.changes.${month}`, JSON.stringify({ shifts: [...changes.shifts], banquets: [...changes.banquets] }));
 }
+export function clearChangeJournal(month) {
+  writeLocal(`kabinet.changes.${month}`, null);
+}
 
 // Prevent another editor or month from replacing the context of an in-flight write.
 let busy = false;
