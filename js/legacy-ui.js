@@ -1,9 +1,9 @@
-import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.2';
-import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.2';
-import { initOwnerPanel } from './owner.js?v=20261017.2';
-import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.2';
-import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.2';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.2';
+import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.3';
+import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.3';
+import { initOwnerPanel } from './owner.js?v=20261017.3';
+import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.3';
+import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.3';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.3';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
 import { withBusy, recordChange } from './session.js?v=20261015.2';
 import { compressReceipt } from './receipts.js?v=20261015.2';

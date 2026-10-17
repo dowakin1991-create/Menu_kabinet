@@ -71,20 +71,36 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
       const claimed=await db.prepare("UPDATE deliveries SET status='sending' WHERE job=? AND idx=? AND status='pending' RETURNING device").bind(data.jobId,data.index).first();
       if(!claimed)return reply({accepted:0,failed:0,removed:0,skipped:1});
       let result={accepted:0,failed:0,removed:0};
+      let stage='recipient';
       try {
         const device=await db.prepare('SELECT * FROM devices WHERE id=?').bind(claimed.device).first();
         if(!device||!await deps.access(env,device.uid)) {
           if(device)await db.prepare('DELETE FROM devices WHERE id=? AND uid=?').bind(device.id,device.uid).run();
           result.removed=1;
         } else {
+          stage='subscription';
           const subscription=validateSubscription(JSON.parse(device.subscription));
+          stage='encryption';
           const payload=await deps.buildPushPayload({data:JSON.stringify({title:'KABINET',body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.'}),options:{ttl:3600}},subscription,vapid);
+          stage='provider';
           const response=await deps.send(subscription.endpoint,{...payload,redirect:'error',signal:AbortSignal.timeout(8000)});
           if(response.ok)result.accepted=1;
           else if(response.status===404||response.status===410){await db.prepare('DELETE FROM devices WHERE id=? AND uid=?').bind(device.id,device.uid).run();result.removed=1;}
-          else result.failed=1;
+          else {
+            result.failed=1;
+            result.diagnostic='provider-http-'+response.status;
+            // Only known machine codes, never raw responses, endpoints or credentials.
+            try {
+              const reason=(await response.json()).reason;
+              if(['BadJwtToken','BadVapidPublicKey','VapidPkHashMismatch','BadTtl','BadUrgency','BadWebPushRequest','PayloadTooLarge','TooManyRequests'].includes(reason))result.diagnostic+='-'+reason;
+            } catch {}
+          }
         }
-      } catch { result.failed=1; }
+      } catch(error) {
+        result.failed=1;
+        const kind=['TypeError','DataError','InvalidAccessError','OperationError','TimeoutError','AbortError'].includes(error.name)?error.name:'Error';
+        result.diagnostic=stage+'-'+kind;
+      }
       await db.prepare('UPDATE deliveries SET status=? WHERE job=? AND idx=?').bind(result.accepted?'accepted':result.removed?'removed':'failed',data.jobId,data.index).run();
       return reply(result);
     } catch(error) {

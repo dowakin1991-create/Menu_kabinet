@@ -1,6 +1,6 @@
-import {disconnectPush} from './push.js?v=20261017.2';
-import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.2';
-import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.2';
+import {disconnectPush} from './push.js?v=20261017.3';
+import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.3';
+import { isAdmin, isOwner, currentUser, canEditWorker, socialLogin, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.3';
 const $ = id => document.getElementById(id);
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;

@@ -1,5 +1,5 @@
-import {PUSH_API_URL} from './push-config.js?v=20261017.2';
-import {currentUser} from './auth.js?v=20261017.2';
+import {PUSH_API_URL} from './push-config.js?v=20261017.3';
+import {currentUser} from './auth.js?v=20261017.3';
 async function call(name, data = {}) {
   if (!PUSH_API_URL) throw Object.assign(new Error('Безкоштовний сервіс сповіщень ще не підключено.'), {code:'not-configured'});
   const user = currentUser();
@@ -8,8 +8,10 @@ async function call(name, data = {}) {
     method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${await user.getIdToken()}`},
     body:JSON.stringify(data), signal:AbortSignal.timeout(30000)
   });
-  const result = await response.json();
-  if (!response.ok) throw Object.assign(new Error(result.error?.message || 'Сервіс недоступний.'), {code:result.error?.code==='not-configured'?'not-configured':`functions/${result.error?.code || 'unavailable'}`});
+  let result;
+  try { result = await response.json(); }
+  catch { throw Object.assign(new Error('Некоректна відповідь сервера.'), {diagnostic:'worker-http-'+response.status}); }
+  if (!response.ok) throw Object.assign(new Error(result.error?.message || 'Сервіс недоступний.'), {diagnostic:'worker-http-'+response.status,code:result.error?.code==='not-configured'?'not-configured':`functions/${result.error?.code || 'unavailable'}`});
   return result;
 }
 const $ = id => document.getElementById(id);
@@ -116,6 +118,7 @@ export async function notifySchedule(month) {
   try {
     const job = await call('pushSchedule', {month});
     const result = {accepted:0,failed:0,removed:0};
+    const diagnostics = new Set();
     let index = 0;
     message('Надсилаємо сповіщення. Залиште кабінет відкритим до завершення.');
     // Each server call encrypts one message; no paid background queues or functions.
@@ -127,12 +130,20 @@ export async function notifySchedule(month) {
           result.accepted += delivered.accepted || 0;
           result.failed += (delivered.failed || 0) + (delivered.skipped || 0);
           result.removed += delivered.removed || 0;
-        } catch { result.failed++; }
+          if (/^[a-zA-Z0-9-]{1,100}$/.test(delivered.diagnostic || '')) diagnostics.add(delivered.diagnostic);
+          if (delivered.skipped) diagnostics.add('delivery-already-claimed');
+        } catch(error) {
+          result.failed++;
+          diagnostics.add(error.diagnostic || (error.name==='TimeoutError'?'request-timeout':'request-failed'));
+        }
       }
     }));
-    message('Розсилку завершено.');
-    if (!result.accepted && !result.failed) return 'Немає активних підписок. Працівники мають увімкнути сповіщення на своїх пристроях.';
-    return `Передано службі сповіщень: ${result.accepted}. Помилок: ${result.failed}. Доставка залежить від пристрою та його налаштувань.`;
+    let summary;
+    if (!result.accepted && !result.failed) summary='Немає активних підписок. Працівники мають увімкнути сповіщення на своїх пристроях.';
+    else summary=`Передано службі сповіщень: ${result.accepted}. Помилок: ${result.failed}.`;
+    if (diagnostics.size) summary+=' Код: '+[...diagnostics].join(', ')+'.';
+    message(summary);
+    return summary;
   } catch (error) { throw Error(errorText(error)); }
 }
 export function initPush() {

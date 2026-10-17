@@ -19,11 +19,11 @@ await db.exec(await readFile(new URL('../schema.sql',import.meta.url),'utf8'));
 after(()=>sqlite.close());
 const origin='https://dowakin1991-create.github.io';
 const env={DB:db,ALLOWED_ORIGIN:origin,FIREBASE_SERVICE_ACCOUNT:'mock',VAPID_JSON:JSON.stringify({publicKey:'public',privateKey:'secret'})};
-let revoked=false,sendCount=0;
+let revoked=false,sendCount=0,providerStatus=201,encryptionFails=false;
 const handler=createHandler({
  authenticate:async(req,env,admin)=>{const uid=req.headers.get('Authorization');if(!uid)throw new ApiError('unauthenticated','Login',401);if(uid==='outsider'||(admin&&uid!=='owner'))throw new ApiError('permission-denied','Denied',403);return uid;},
  access:async(_,uid)=>uid==='owner'||(uid==='worker'&&!revoked),document:async()=>({}),
- buildPushPayload:async()=>({method:'POST',body:'encrypted'}),send:async()=>{sendCount++;return new Response(null,{status:201})}
+ buildPushPayload:async()=>{if(encryptionFails)throw new TypeError('sensitive data');return {method:'POST',body:'encrypted'}},send:async()=>{sendCount++;return new Response(providerStatus===403?JSON.stringify({reason:'BadJwtToken',private:'sensitive data'}):null,{status:providerStatus})}
 });
 const call=async(route,uid,data={},customOrigin=origin)=>{
  const response=await handler(new Request('https://push.example/'+route,{method:'POST',headers:{Origin:customOrigin,...(uid?{Authorization:uid}:{}),'Content-Type':'application/json'},body:JSON.stringify(data)}),env);
@@ -61,4 +61,18 @@ test('jobs are owner-scoped, deduplicate sends and recheck revoked recipients',a
  revoked=true;
  const two=await call('pushDeliver','owner',{jobId,index:1});assert.equal(two.body.removed,1);assert.equal(sendCount,1);
  assert.equal((await call('pushDeliver','owner',{jobId:'wrong',index:0})).status,403);
+});
+
+test('delivery diagnostics expose only safe codes, including encryption and provider rejection',async()=>{
+ revoked=false;
+ const job=await db.prepare('SELECT id FROM jobs LIMIT 1').first();
+ providerStatus=403;
+ const rejected=await call('pushDeliver','owner',{jobId:job.id,index:2});
+ assert.equal(rejected.body.failed,1);
+ assert.equal(rejected.body.diagnostic,'provider-http-403-BadJwtToken');
+ assert.ok(!JSON.stringify(rejected.body).includes('sensitive'));
+ encryptionFails=true;
+ const failed=await call('pushDeliver','owner',{jobId:job.id,index:3});
+ assert.equal(failed.body.diagnostic,'encryption-TypeError');
+ assert.ok(!JSON.stringify(failed.body).includes('sensitive'));
 });

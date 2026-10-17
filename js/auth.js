@@ -1,4 +1,4 @@
-import { getAdminRole, watchAdminRole } from './roles.js?v=20261017.2';
+import { getAdminRole, watchAdminRole } from './roles.js?v=20261017.3';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword,
   signOut, setPersistence, browserSessionPersistence, browserLocalPersistence,
@@ -6,7 +6,7 @@ import {
   createUserWithEmailAndPassword, linkWithCredential, EmailAuthProvider,
   updateProfile, sendEmailVerification, sendPasswordResetEmail, reload
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { firebaseApp } from "./store.js?v=20261017.2";
+import { firebaseApp } from "./store.js?v=20261017.3";
 import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
