@@ -2,3 +2,8 @@
 node_modules/
 *-debug.log
 .firebase/
+
+.wrangler/
+.dev.vars*
+*service-account*.json
+*vapid-secret*.json

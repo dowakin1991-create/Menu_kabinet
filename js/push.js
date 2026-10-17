@@ -1,8 +1,17 @@
-import {getFunctions, httpsCallable} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js';
-import {firebaseApp} from './store.js?v=20261017.1';
-import {currentUser} from './auth.js?v=20261017.1';
-const functions = getFunctions(firebaseApp, 'europe-west1');
-const call = async (name, data = {}) => (await httpsCallable(functions, name, {timeout: name === 'pushSchedule' ? 120000 : 15000})(data)).data;
+import {PUSH_API_URL} from './push-config.js?v=20261017.2';
+import {currentUser} from './auth.js?v=20261017.2';
+async function call(name, data = {}) {
+  if (!PUSH_API_URL) throw Object.assign(new Error('Безкоштовний сервіс сповіщень ще не підключено.'), {code:'not-configured'});
+  const user = currentUser();
+  if (!user) throw Object.assign(new Error('Увійдіть повторно.'), {code:'functions/unauthenticated'});
+  const response = await fetch(`${PUSH_API_URL.replace(/\/$/,'')}/${name}`, {
+    method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${await user.getIdToken()}`},
+    body:JSON.stringify(data), signal:AbortSignal.timeout(30000)
+  });
+  const result = await response.json();
+  if (!response.ok) throw Object.assign(new Error(result.error?.message || 'Сервіс недоступний.'), {code:result.error?.code==='not-configured'?'not-configured':`functions/${result.error?.code || 'unavailable'}`});
+  return result;
+}
 const $ = id => document.getElementById(id);
 const scope = new URL('../', import.meta.url).href;
 const deviceKey = 'kabinet-push-user';
@@ -14,6 +23,7 @@ const storedUid = () => { try { return localStorage.getItem(deviceKey); } catch 
 function saveUid(uid) { try { uid ? localStorage.setItem(deviceKey, uid) : localStorage.removeItem(deviceKey); } catch { /* No password/token is stored here. */ } }
 function message(text) { if ($('push-status')) $('push-status').textContent = text; }
 function errorText(error) {
+  if (error.code === 'not-configured') return error.message;
   if (error.code === 'functions/permission-denied') return 'Адміністратор має надати вам доступ до графіка.';
   if (error.code === 'functions/resource-exhausted' || error.code === 'functions/failed-precondition') return error.message;
   if (error.code === 'functions/unauthenticated') return 'Увійдіть у кабінет повторно.';
@@ -104,7 +114,23 @@ export async function disconnectPush() {
 }
 export async function notifySchedule(month) {
   try {
-    const result = await call('pushSchedule', {month});
+    const job = await call('pushSchedule', {month});
+    const result = {accepted:0,failed:0,removed:0};
+    let index = 0;
+    message('Надсилаємо сповіщення. Залиште кабінет відкритим до завершення.');
+    // Each server call encrypts one message; no paid background queues or functions.
+    await Promise.all(Array.from({length: Math.min(3, job.total)}, async () => {
+      while (index < job.total) {
+        const next = index++;
+        try {
+          const delivered = await call('pushDeliver', {jobId:job.jobId,index:next});
+          result.accepted += delivered.accepted || 0;
+          result.failed += (delivered.failed || 0) + (delivered.skipped || 0);
+          result.removed += delivered.removed || 0;
+        } catch { result.failed++; }
+      }
+    }));
+    message('Розсилку завершено.');
     if (!result.accepted && !result.failed) return 'Немає активних підписок. Працівники мають увімкнути сповіщення на своїх пристроях.';
     return `Передано службі сповіщень: ${result.accepted}. Помилок: ${result.failed}. Доставка залежить від пристрою та його налаштувань.`;
   } catch (error) { throw Error(errorText(error)); }

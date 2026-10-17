@@ -1,5 +1,5 @@
 import { getFirestore, doc, collection, getDoc, onSnapshot, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { firebaseApp } from './store.js?v=20261017.1';
+import { firebaseApp } from './store.js?v=20261017.2';
 const db = getFirestore(firebaseApp);
 export async function getAdminRole(uid) {
   const snap = await getDoc(doc(db, 'adminRequests', uid));

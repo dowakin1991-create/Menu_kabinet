@@ -1,0 +1,17 @@
+{
+  "name": "kabinet-free-push",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy && wrangler d1 execute kabinet-push --remote --file=schema.sql",
+    "check": "wrangler deploy --dry-run",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@block65/webcrypto-web-push": "2.0.0",
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
