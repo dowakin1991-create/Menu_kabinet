@@ -11,7 +11,7 @@ function setup() {
   let queue = Promise.resolve();
   const snap = ref => ({exists:()=>docs.has(ref),data:()=>structuredClone(docs.get(ref))});
   const ctx = {query:(ref,...filters)=>({ref,filters}),where:(_,op,value)=>({op,value}),orderBy:()=>null,documentId:()=> '__name__',limit:()=>null,
-    getDocs:async q=>{const cutoff=q.filters.find(f=>f?.op==='<').value;const ids=[...docs.keys()].filter(k=>/^schedules\/\d{4}-\d{2}$/.test(k)&&k.split('/')[1]<cutoff).sort().reverse();return {empty:!ids.length,docs:ids.slice(0,1).map(ref=>({ref}))};},console, crypto:require('node:crypto').webcrypto, firebaseConfig:{}, initializeApp:()=>({}),getFirestore:()=>({}),serverTimestamp:()=>1,
+    getDocs:async path=>{const ids=[...docs.keys()].filter(k=>/^schedules\/\d{4}-\d{2}$/.test(k)).sort().reverse();return {empty:!ids.length,docs:ids.map(ref=>({ref,id:ref.split('/')[1]}))};},console, crypto:require('node:crypto').webcrypto, firebaseConfig:{}, initializeApp:()=>({}),getFirestore:()=>({}),serverTimestamp:()=>1,
     doc:(_, ...args)=>args.join('/'), collection:(_, ...args)=>args.join('/'),getDoc:async ref=>snap(ref),setDoc:async(ref,data)=>docs.set(ref,data),
     onSnapshot:(ref, next, error)=>{ const listener={ref,next,error};listeners.push(listener);return()=>{listener.stopped=true}; },
     runTransaction:(_, fn)=> { const execute=async()=>{const writes=[];await fn({get:async ref=>snap(ref),set:(ref,data)=>writes.push(()=>docs.set(ref,structuredClone(data))),update:(ref,data)=>writes.push(()=>docs.set(ref,{...docs.get(ref),...structuredClone(data)})),delete:ref=>writes.push(()=>docs.delete(ref))});writes.forEach(f=>f());}; const result=queue.then(execute);queue=result.catch(()=>{});return result; }
@@ -47,8 +47,8 @@ test('receipt stays in captured month; removing banquet removes its receipts',as
 test('normalization resolves overlapping shifts and stable missing ids',()=>{
  const {api}=setup();const raw={employees:[{name:'X',shifts:[1],shiftsFirst:[1,2],shiftsSecond:[1,2,3]}]};const a=api.normalizeSchedule(raw),b=api.normalizeSchedule(raw);assert.equal(a.employees[0].id,b.employees[0].id);assert.equal(JSON.stringify(a.employees[0].shiftsFirst),'[2]');assert.equal(JSON.stringify(a.employees[0].shiftsSecond),'[3]');
 });
-test('change journal is isolated by month and survives reload',()=>{
- const data=new Map();const ctx={localStorage:{getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}};vm.createContext(ctx);const code=fs.readFileSync(path.join(__dirname,'../js/session.js'),'utf8').replace(/export /g,'');vm.runInContext(code+';recordChange("2026-10","shifts",15);recordChange("2026-11","banquets",20)',ctx);assert.equal(vm.runInContext('changeJournal("2026-10").shifts.has(15)',ctx),true);assert.equal(vm.runInContext('changeJournal("2026-10").banquets.size',ctx),0);
+test('change journal is isolated by month and tracks event type across reload',()=>{
+ const data=new Map();const ctx={localStorage:{getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)}};vm.createContext(ctx);const code=fs.readFileSync(path.join(__dirname,'../js/session.js'),'utf8').replace(/export /g,'');vm.runInContext(code+';recordChange("2026-10","shifts",15);recordChange("2026-11","banquets",20,"cleaning")',ctx);assert.equal(vm.runInContext('changeJournal("2026-10").shifts.has(15)',ctx),true);assert.equal(vm.runInContext('changeJournal("2026-10").banquets.size',ctx),0);assert.equal(vm.runInContext('changeJournal("2026-11").banquets.get(20)',ctx),'cleaning');
 });
 
 test('reordering preserves shifts and concurrent changes, and rejects deleted targets', async()=>{

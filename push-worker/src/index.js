@@ -49,6 +49,12 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
       }
       if(route==='pushSchedule') {
         if(typeof data.month!=='string'||!/^20\d\d-(0[1-9]|1[0-2])$/.test(data.month))throw new ApiError('invalid-argument','Некоректний місяць.');
+        if(!Array.isArray(data.notices)||data.notices.length<1||data.notices.length>31)throw new ApiError('invalid-argument','Додайте від 1 до 31 опису змін.');
+        const daysInMonth=new Date(Number(data.month.slice(0,4)),Number(data.month.slice(5,7)),0).getDate();
+        const notices=data.notices.map(item=>{
+          if(!item||!['schedule','banquet','cleaning','cancel-banquet','cancel-cleaning'].includes(item.kind)||!Number.isInteger(item.day)||item.day<1||item.day>daysInMonth)throw new ApiError('invalid-argument','Некоректна зміна графіка.');
+          return {kind:item.kind,day:item.day};
+        });
         if(!await deps.document(env,`schedules/${data.month}`))throw new ApiError('failed-precondition','Спочатку збережіть графік.');
         const now=Date.now();
         const rate=await db.prepare("INSERT INTO rate(id,at) VALUES('team',?) ON CONFLICT(id) DO UPDATE SET at=excluded.at WHERE rate.at < ? RETURNING at").bind(now,now-60000).first();
@@ -58,8 +64,10 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
         const jobId=crypto.randomUUID();
         await db.batch([
           db.prepare('DELETE FROM deliveries WHERE job IN (SELECT id FROM jobs WHERE expires < ?)').bind(now),
+          db.prepare('DELETE FROM job_payload WHERE job IN (SELECT id FROM jobs WHERE expires < ?)').bind(now),
           db.prepare('DELETE FROM jobs WHERE expires < ?').bind(now),
           db.prepare('INSERT INTO jobs(id,owner,expires) VALUES(?,?,?)').bind(jobId,uid,now+600000),
+          db.prepare('INSERT INTO job_payload(job,month,notices) VALUES(?,?,?)').bind(jobId,data.month,JSON.stringify(notices)),
           db.prepare('INSERT INTO deliveries(job,idx,device) SELECT ?,ROW_NUMBER() OVER (ORDER BY id)-1,id FROM devices').bind(jobId)
         ]);
         const total=await db.prepare('SELECT COUNT(*) AS n FROM deliveries WHERE job=?').bind(jobId).first();
@@ -82,7 +90,9 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
           stage='subscription';
           const subscription=validateSubscription(JSON.parse(device.subscription));
           stage='encryption';
-          const payload=await deps.buildPushPayload({data:JSON.stringify({title:'KABINET',body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.'}),options:{ttl:3600}},subscription,vapid);
+          const details=await db.prepare('SELECT notices FROM job_payload WHERE job=?').bind(data.jobId).first();
+          const payloadData=details?{title:'KABINET',month:details.month,notices:JSON.parse(details.notices)}:{title:'KABINET',body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.'};
+          const payload=await deps.buildPushPayload({data:JSON.stringify(payloadData),options:{ttl:3600}},subscription,vapid);
           stage='provider';
           const response=await deps.send(subscription.endpoint,payload);
           if(response.ok)result.accepted=1;

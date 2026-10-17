@@ -118,9 +118,9 @@ export async function disconnectPush() {
   await Promise.all((await reg.getNotifications()).map(n => n.close()));
   if (currentUser()) await call('pushUnsubscribe', {endpoint}).catch(() => {});
 }
-export async function notifySchedule(month) {
+export async function notifySchedule(month, notices) {
   try {
-    const job = await call('pushSchedule', {month});
+    const job = await call('pushSchedule', {month, notices});
     const result = {accepted:0,failed:0,removed:0};
     const diagnostics = new Set();
     let index = 0;

@@ -43,6 +43,7 @@ function normalizeBanquet(value) {
   const guests = Number(value?.guests);
   return {
     active: value?.active !== false,
+    type: value?.type === "cleaning" ? "cleaning" : "banquet",
     links,
     receiptIds: Array.isArray(value?.receiptIds) ? value.receiptIds.filter(id => /^[a-f0-9-]{36}$/.test(id)).slice(0, 8) : [],
     note: safeText(value?.note).trim(),

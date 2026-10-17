@@ -199,6 +199,11 @@
       <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
     </details>
     <div id="private-schedule" hidden>
+    <nav class="worker-tabs" aria-label="Розділи кабінету">
+      <button id="schedule-tab" type="button" aria-pressed="true" onclick="showScheduleView()">Графік</button>
+      <button id="personal-tab" type="button" aria-pressed="false" onclick="showPersonalView()">Мій кабінет</button>
+    </nav>
+    <section id="schedule-view">
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
     </button>
@@ -219,6 +224,21 @@
             <div class="legend-item"><span class="shift-icon shift-second"></span> Друга половина</div>
         </div>
     </div>
+    </section>
+    <section id="personal-view" class="personal-view" hidden aria-labelledby="personal-heading">
+      <article class="personal-card">
+        <p class="personal-eyebrow">МІЙ КАБІНЕТ · <span id="month-label-profile"></span></p>
+        <h2 id="personal-heading">Особиста статистика</h2>
+        <h3 id="personal-title">Працівник</h3>
+        <div class="personal-total"><strong id="personal-days">0</strong><span>днів роботи</span></div>
+        <p id="personal-breakdown" class="personal-breakdown"></p>
+      </article>
+      <article class="personal-card">
+        <h3>Зміни за днями</h3>
+        <div id="personal-chart" class="personal-chart" role="img"></div>
+        <div class="personal-legend"><span>— немає зміни</span><span>½ половина дня</span><span>● повний день</span></div>
+      </article>
+    </section>
     </div>
 </div>
 

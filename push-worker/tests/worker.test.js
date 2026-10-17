@@ -53,9 +53,10 @@ test('subscription limit is enforced in database, rebinding and owner-only delet
  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM devices').first()).n,9);
 });
 test('jobs are owner-scoped, deduplicate sends and recheck revoked recipients',async()=>{
- const first=await call('pushSchedule','owner',{month:'2026-10'});assert.equal(first.status,200);assert.equal(first.body.total,9);
+ const first=await call('pushSchedule','owner',{month:'2026-10',notices:[{kind:'schedule',day:15}]});assert.equal(first.status,200);assert.equal(first.body.total,9);
+ const stored=await db.prepare('SELECT month,notices FROM job_payload WHERE job=?').bind(first.body.jobId).first();assert.equal(stored.month,'2026-10');assert.equal(stored.notices,'[{"kind":"schedule","day":15}]');
  const {jobId}=first.body;
- assert.equal((await call('pushSchedule','owner',{month:'2026-10'})).status,429);
+ assert.equal((await call('pushSchedule','owner',{month:'2026-10',notices:[{kind:'schedule',day:15}]})).status,429);
  const one=await call('pushDeliver','owner',{jobId,index:0});assert.equal(one.body.accepted,1);
  const again=await call('pushDeliver','owner',{jobId,index:0});assert.equal(again.body.skipped,1);assert.equal(sendCount,1);
  revoked=true;

@@ -11,12 +11,13 @@ export function changeJournal(month) {
   try { stored = JSON.parse(readLocal(`kabinet.changes.${month}`, '{}')); } catch { stored = {}; }
   return {
     shifts: new Set(Array.isArray(stored?.shifts) ? stored.shifts : []),
-    banquets: new Set(Array.isArray(stored?.banquets) ? stored.banquets : [])
+    banquets: new Map(Array.isArray(stored?.banquets) ? stored.banquets.map(item=>Array.isArray(item)?[Number(item[0]),item[1]]:[Number(item),"banquet"]) : [])
   };
 }
-export function recordChange(month, kind, day) {
+export function recordChange(month, kind, day, eventType) {
   const changes = changeJournal(month);
-  changes[kind].add(day);
+  if(kind==='banquets')changes[kind].set(Number(day),eventType==='cleaning'?'cleaning':'banquet');
+  else changes[kind].add(Number(day));
   writeLocal(`kabinet.changes.${month}`, JSON.stringify({ shifts: [...changes.shifts], banquets: [...changes.banquets] }));
 }
 

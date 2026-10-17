@@ -22,7 +22,8 @@ const $ = id => document.getElementById(id);
 const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 let todayDate = new Date();
-let currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day'));if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day};}catch{}return null;})();
+let currentDate = notificationTarget ? new Date(Number(notificationTarget.month.slice(0,4)),Number(notificationTarget.month.slice(5,7))-1,1) : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
 let stopTeamAccess = null, accessGeneration = 0, boundEmployeeId = null;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
@@ -43,6 +44,40 @@ function status(text, error = false) {
 function render() {
   $('month-label').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
   if (admin) renderAdmin(); else renderIndex();
+}
+let notificationFocusTimer;
+function focusNotificationDay(day) {
+  const wrapper=$('schedule-view');
+  if(wrapper?.hidden) return;
+  document.querySelectorAll('.notification-focus').forEach(node=>node.classList.remove('notification-focus'));
+  const nodes=document.querySelectorAll(`[data-day="${day}"]`);
+  nodes.forEach(node=>node.classList.add('notification-focus'));
+  const th=document.querySelector(`#header-row [data-day="${day}"]`);
+  if(th) th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  clearTimeout(notificationFocusTimer);
+  notificationFocusTimer=setTimeout(()=>nodes.forEach(node=>node.classList.remove('notification-focus')),4200);
+}
+window.showScheduleView=()=>{if($('schedule-view'))$('schedule-view').hidden=false;if($('personal-view'))$('personal-view').hidden=true;$('schedule-tab')?.setAttribute('aria-pressed','true');$('personal-tab')?.setAttribute('aria-pressed','false');};
+window.showPersonalView=()=>{if($('schedule-view'))$('schedule-view').hidden=true;if($('personal-view'))$('personal-view').hidden=false;$('schedule-tab')?.setAttribute('aria-pressed','false');$('personal-tab')?.setAttribute('aria-pressed','true');renderPersonalDashboard();};
+function renderPersonalDashboard(){
+  $('month-label-profile').textContent=`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  const employee=employees.find(item=>String(item.id)===String(boundEmployeeId));
+  if(!employee){$('personal-title').textContent='Персональний кабінет';$('personal-days').textContent='0';$('personal-breakdown').textContent='Працівника ще не прив’язано до облікового запису.';$('personal-chart').replaceChildren();return;}
+  const year=currentDate.getFullYear(),month=currentDate.getMonth(),totalDays=new Date(year,month+1,0).getDate();
+  const full=new Set(employee.shifts),first=new Set(employee.shiftsFirst),second=new Set(employee.shiftsSecond);
+  const count=full.size+(first.size+second.size)/2;
+  $('personal-title').textContent=employee.name;
+  $('personal-heading').textContent=`Особиста статистика · ${employee.name}`;
+  $('personal-days').textContent=Number.isInteger(count)?String(count):count.toFixed(1).replace('.',',');
+  $('personal-breakdown').textContent=`${full.size} повних · ${first.size} перших половин · ${second.size} других половин`;
+  const chart=$('personal-chart');chart.replaceChildren();chart.setAttribute('aria-label',`Діаграма змін за ${monthNames[month]} ${year}`);
+  for(let day=1;day<=totalDays;day++){
+    const value=full.has(day)?1:(first.has(day)||second.has(day))?.5:0;
+    const column=document.createElement('div');column.className='personal-bar-column';
+    const bar=document.createElement('span');bar.className='personal-bar'+(value?' is-work':'');bar.style.setProperty('--bar-height',`${Math.max(value*100,4)}%`);bar.title=`${day}: ${value===1?'1 день':value===.5?'½ дня':'без зміни'}`;
+    const label=document.createElement('small');label.textContent=String(day);
+    column.append(bar,label);chart.append(column);
+  }
 }
 function closeAll() {
   document.querySelectorAll('.modal-overlay').forEach(node => { node.style.display = 'none'; });
@@ -72,6 +107,8 @@ async function loadData() {
     if (ticket !== generation) return;
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
     status('Дані актуальні'); render();
+    if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
+    if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
     if (!admin && currentReceiptDay !== null && $('receiptModal').style.display === 'flex') renderWorkerReceipts();
   }, error => {
@@ -254,6 +291,7 @@ window.handleHeaderClick = day => {
   if (!banquets[day]?.active) return window.toggleColHighlight(day);
   currentReceiptDay = day;
   $('receiptDate').textContent = `${day} ${monthNames[currentDate.getMonth()].toLowerCase()} ${currentDate.getFullYear()}`;
+  $('receiptModal').querySelector('h3').textContent=banquets[day].type==='cleaning'?'🧹 ГЕНЕРАЛЬНЕ ПРИБИРАННЯ':'🎉 БЕНКЕТ';
   renderWorkerReceipts(); show('receiptModal');
 };
 window.toggleColFromReceipt = () => { window.toggleColHighlight(currentReceiptDay); hide('receiptModal'); currentReceiptDay = null; };
@@ -266,12 +304,13 @@ function renderDaySettings() {
   const container = $('banquetContainer');
   // Static markup only; all user content goes through textContent / DOM properties.
   container.innerHTML = '<div id="legacy-receipts"></div><input type="file" id="banquetFile" accept="image/*" multiple style="display:none" onchange="handleBanquetUpload(event)">';
+  const type=b?.type==='cleaning'?'cleaning':'banquet';
   if (b?.active) {
-    container.insertAdjacentHTML('beforeend','<button id="banquetUploadBtn" class="modal-btn" style="background:#2ecc71;color:white;border:none;margin-bottom:5px" onclick="document.getElementById(\'banquetFile\').click()">➕ Додати ще фото чеку</button><button class="modal-btn danger" onclick="deleteBanquet()">🗑 Скасувати бенкет повністю</button>');
+    container.insertAdjacentHTML('beforeend',`<p>${type==='cleaning'?'Генеральне прибирання заплановане.':'Бенкет заплановано.'}</p>${type==='banquet'?'<button id="banquetUploadBtn" class="modal-btn" style="background:#2ecc71;color:white;border:none;margin-bottom:5px" onclick="document.getElementById(\'banquetFile\').click()">➕ Додати ще фото чеку</button>':''}<button class="modal-btn danger" onclick="deleteBanquet()">🗑 Скасувати ${type==='cleaning'?'прибирання':'бенкет'}</button>`);
   } else {
-    container.insertAdjacentHTML('beforeend','<p style="font-size:.85rem;opacity:.8">Ви можете позначити цей день як бенкет (із фотографіями замовлень або просто відміткою).</p><button id="banquetUploadBtn" class="modal-btn" style="background:#e67e22;color:white;border:none;margin-bottom:10px" onclick="document.getElementById(\'banquetFile\').click()">📸 Завантажити чек(и)</button><button class="modal-btn" style="background:var(--primary);color:white;border:none" onclick="markBanquetNoPhoto()">🎉 Позначити як бенкет (без фото)</button>');
+    container.insertAdjacentHTML('beforeend','<p style="font-size:.85rem;opacity:.8">Оберіть, що запланувати на цей день.</p><button id="banquetUploadBtn" class="modal-btn" style="background:#e67e22;color:white;border:none;margin-bottom:10px" onclick="document.getElementById(\'banquetFile\').click()">📸 Завантажити чек(и) бенкету</button><button class="modal-btn" style="background:var(--primary);color:white;border:none;margin-bottom:8px" onclick="markBanquetNoPhoto()">🎉 Додати бенкет</button><button class="modal-btn" style="background:#176c7b;color:white;border:none" onclick="markCleaning()">🧹 Додати генеральне прибирання</button>');
   }
-  renderPhotos($('legacy-receipts'),getDocId(),day,b,true);
+  renderPhotos($('legacy-receipts'),getDocId(),day,b?.type==='cleaning'?null:b,true);
 }
 function renderPhotos(container,month,day,banquet,editable) {
   const ticket = {}; container.ticket = ticket; container.replaceChildren();
@@ -301,13 +340,18 @@ function renderPhotos(container,month,day,banquet,editable) {
 }
 window.markBanquetNoPhoto = action(async () => {
   const month=getDocId(),day=currentSettingsDay;if(!admin || !day)return;
-  await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true};});
-  recordChange(month,'banquets',day);
+  await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true,type:'banquet'};});
+  recordChange(month,'banquets',day,'banquet');
+});
+window.markCleaning = action(async () => {
+  const month=getDocId(),day=currentSettingsDay;if(!admin||!day)return;
+  await updateSchedule(month,draft=>{draft.banquets[day]={active:true,type:'cleaning',note:'',links:[],receiptIds:[],time:'',guests:null};});
+  recordChange(month,'banquets',day,'cleaning');toast('Генеральне прибирання додано.');
 });
 window.deleteBanquet = action(async () => {
   const month=getDocId(),day=currentSettingsDay;
-  if (!admin || !day || !confirm('Скасувати бенкет повністю (видалити всі фото та відмітку)?')) return;
-  await removeBanquet(month,day);recordChange(month,'banquets',day);
+  if (!admin || !day || !confirm(`Скасувати ${banquets[day]?.type==='cleaning'?'генеральне прибирання':'бенкет'} повністю?`)) return;
+  const oldType=banquets[day]?.type==='cleaning'?'cleaning':'banquet';await removeBanquet(month,day);recordChange(month,'banquets',day,oldType);
 });
 window.handleBanquetUpload = action(async event => {
   const files=[...event.target.files],month=getDocId(),day=currentSettingsDay;
@@ -327,7 +371,13 @@ window.handleBanquetUpload = action(async event => {
 });
 window.notifyTeam = action(async () => {
   if (!allowed || !isAdmin(currentUser())) return;
-  if (confirm('Сповістити команду про оновлення графіка? Повідомлення отримають працівники, які увімкнули сповіщення.')) toast(await notifySchedule(getDocId()));
+  const journal=changeJournal(getDocId()),notices=[];
+  for(const day of journal.shifts)notices.push({kind:'schedule',day:Number(day)});
+  for(const [day,oldType] of journal.banquets){const event=banquets[day];notices.push({kind:event?.active?(event.type==='cleaning'?'cleaning':'banquet'):(oldType==='cleaning'?'cancel-cleaning':'cancel-banquet'),day:Number(day)});}
+  const unique=[...new Map(notices.map(item=>[`${item.kind}:${item.day}`,item])).values()].sort((a,b)=>a.day-b.day);
+  if(!unique.length)return toast('Немає нових змін для сповіщення. Спочатку оновіть графік або додайте подію.','error');
+  const preview=unique.map(item=>`${{schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'}[item.kind]} ${String(item.day).padStart(2,'0')}.${String(currentDate.getMonth()+1).padStart(2,'0')}`).join('\n');
+  if(confirm(`Надіслати команді ці зміни?\n\n${preview}\n\nОтримають працівники, які ввімкнули сповіщення.`))toast(await notifySchedule(getDocId(),unique));
 });
 window.exportHalfMonth = action(async (event,half) => {
   await exportPNG(currentDate,{employees,banquets},half,{container:$('resultImageContainer'),modal:$('resultModal')});
@@ -390,7 +440,8 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
             const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
-            const isBanquet = (banquets[i] && banquets[i].active);
+            const dayEvent = banquets[i]?.active ? banquets[i] : null;
+            const isBanquet = !!dayEvent;
             const duty = getDutyName(year, month, i);
             
             let thClass = isWeekend ? 'weekend' : '';
@@ -398,9 +449,9 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             if (isBanquet) thClass += ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="banquet-label">🎉 БЕНКЕТ</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
 
-            headHtml += `<th class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
+            headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
                 ${i}<br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
@@ -439,7 +490,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
                     if(emp.unavail.includes(day)) content += '<span class="unavailable">•</span>';
                     
-                    return `<td class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
+                    return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
                 }).join('')}
             </tr>`;
         }).join('');
@@ -466,7 +517,8 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             const dayIndex = new Date(year, month, i).getDay();
             const isWeekend = (dayIndex === 0 || dayIndex === 6);
             const isToday = (year === todayDate.getFullYear() && month === todayDate.getMonth() && i === todayDate.getDate());
-            const isBanquet = (banquets[i] && banquets[i].active);
+            const dayEvent = banquets[i]?.active ? banquets[i] : null;
+            const isBanquet = !!dayEvent;
             const duty = getDutyName(year, month, i);
             
             let thClass = isWeekend ? 'weekend' : '';
@@ -474,9 +526,9 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             if (isBanquet) thClass += ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="banquet-label">🎉 БЕНКЕТ</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="banquet-label">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
 
-            headHtml += `<th class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
+        headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
                 ${i}<br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
@@ -525,7 +577,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     
-                    return `<td class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
+                    return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
                 }).join('')}
             </tr>`;
         }).join('');
