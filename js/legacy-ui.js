@@ -1,5 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
-import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.12';
+import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.12';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
@@ -25,6 +25,7 @@ let todayDate = new Date();
 const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day'));if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day};}catch{}return null;})();
 let currentDate = notificationTarget ? new Date(Number(notificationTarget.month.slice(0,4)),Number(notificationTarget.month.slice(5,7))-1,1) : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
+let stopViewerAccess=null,viewerMode=false;
 let stopTeamAccess = null, accessGeneration = 0, boundEmployeeId = null;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
 let activeColDay = null, activeRowEmpId = null, isRedDotMode = false;
@@ -404,6 +405,10 @@ window.notifyTeam = action(async () => {
   const preview=unique.map(item=>`${{schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'}[item.kind]} ${String(item.day).padStart(2,'0')}.${String(currentDate.getMonth()+1).padStart(2,'0')}`).join('\n');
   if(confirm(`Надіслати команді ці зміни?\n\n${preview}\n\nОтримають працівники, які ввімкнули сповіщення.`)){const month=getDocId(),summary=await notifySchedule(month,unique);if(/^Передано службі сповіщень: [1-9]\d*\. Помилок: 0\./.test(summary))clearChangeJournal(month);toast(summary);}
 });
+window.exportViewerSchedule = action(async half => {
+  if(!viewerMode)return;
+  await exportPNG(currentDate,{employees,banquets},half);
+});
 window.exportHalfMonth = action(async (event,half) => {
   await exportPNG(currentDate,{employees,banquets},half,{container:$('resultImageContainer'),modal:$('resultModal')});
 });
@@ -439,7 +444,7 @@ if (admin) {
   });
   watchAuth(user=>{
     renderRoleBadge(user);
-    stopTeamAccess?.();const ticket=++accessGeneration;
+    stopTeamAccess?.();stopViewerAccess?.();viewerMode=false;const ticket=++accessGeneration;
     const applyAccess = (access, employeeId = null) => {
       if(ticket!==accessGeneration)return;
       unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
@@ -448,6 +453,10 @@ if (admin) {
       $('redDotToggleBtn').className='mode-btn off';
       $('redDotToggleBtn').textContent='🔴 Поставити вихідний';
       $('private-schedule').hidden=!access;
+      $('viewer-export').hidden=!access || !viewerMode;
+      $('redDotToggleBtn').hidden=viewerMode;
+      $('personal-tab').hidden=viewerMode;
+      if(viewerMode)window.showScheduleView();
       document.querySelectorAll('[data-schedule-only]').forEach(node=>node.hidden=!access);
       setScheduleAccess(access);
       setPushAccess(access);
@@ -461,7 +470,10 @@ if (admin) {
         boundEmployeeId=linked?id:null;
         if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
       });
-    } else stopTeamAccess=watchTeamAccess(user,applyAccess);
+    } else {
+      stopTeamAccess=watchTeamAccess(user,(linked,id)=>{if(ticket!==accessGeneration)return;if(linked){viewerMode=false;applyAccess(true,id);}else if(!viewerMode)applyAccess(false);});
+      stopViewerAccess=watchViewerAccess(user,enabled=>{if(ticket!==accessGeneration)return;viewerMode=enabled;if(enabled)applyAccess(true,null);else if(!boundEmployeeId)applyAccess(false);});
+    }
   });
 }
 async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}
