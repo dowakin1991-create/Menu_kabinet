@@ -130,6 +130,9 @@
 
         #export-wrapper { position: absolute; top: -9999px; left: -9999px; z-index: -100; }
         #resultImageContainer img { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 6px; }
+        .admin-logout { flex:0 0 auto; border:1px solid #c83b52; background:#b52843; color:white; border-radius:12px; padding:10px 14px; min-height:44px; font:700 .85rem Montserrat,sans-serif; cursor:pointer; white-space:nowrap; }
+        .admin-logout:hover { background:#951d36; }
+        @media(max-width:520px){ .admin-logout { padding:10px; font-size:.78rem; } }
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261017.6">
@@ -157,6 +160,7 @@
             <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
             <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
+        <button id="logout" type="button" class="admin-logout" aria-label="Вийти з адмінки">↪ Вийти</button>
     </header>
     <details id="owner-panel" class="account-panel" hidden>
       <summary>Керування адміністраторами</summary>
@@ -174,7 +178,6 @@
       <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
       <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
     </details>
-    <button id="logout" type="button" class="account-control">Вийти</button>
     <div class="admin-controls">
         <div class="input-group">
             <input type="text" id="newEmpName" placeholder="Введіть ім'я">
