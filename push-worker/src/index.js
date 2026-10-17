@@ -1,6 +1,7 @@
 import {buildPushPayload} from '@block65/webcrypto-web-push';
 import {ApiError, authenticate, access, document} from './firebase.js';
 import {validateSubscription, deviceId} from './policy.js';
+import {sendPush} from './transport.js';
 const routes = new Set(['pushConfig','pushSubscribe','pushUnsubscribe','pushSchedule','pushDeliver']);
 async function readBody(request) {
   const reader = request.body?.getReader();
@@ -16,7 +17,7 @@ async function readBody(request) {
   for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
   try{return JSON.parse(new TextDecoder().decode(bytes));}catch{throw new ApiError('invalid-argument','Некоректний запит.');}
 }
-export function createHandler(deps={authenticate,access,document,buildPushPayload,send:fetch}) {
+export function createHandler(deps={authenticate,access,document,buildPushPayload,send:sendPush}) {
   return async function handle(request,env) {
     const origin=request.headers.get('Origin');
     const headers={'Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'};
@@ -83,7 +84,7 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
           stage='encryption';
           const payload=await deps.buildPushPayload({data:JSON.stringify({title:'KABINET',body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.'}),options:{ttl:3600}},subscription,vapid);
           stage='provider';
-          const response=await deps.send(subscription.endpoint,{...payload,redirect:'error',signal:AbortSignal.timeout(8000)});
+          const response=await deps.send(subscription.endpoint,payload);
           if(response.ok)result.accepted=1;
           else if(response.status===404||response.status===410){await db.prepare('DELETE FROM devices WHERE id=? AND uid=?').bind(device.id,device.uid).run();result.removed=1;}
           else {
