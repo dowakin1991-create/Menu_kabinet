@@ -53,6 +53,8 @@ function bytes(key) {
   return Uint8Array.from(value, char => char.charCodeAt(0));
 }
 function draw(enabled = false) {
+  const bell=$('push-bell-icon');
+  if(bell){bell.textContent=enabled?'🔔':'🔕';$('push-bell')?.setAttribute('aria-label',enabled?'Сповіщення увімкнено. Відкрити налаштування':'Сповіщення вимкнено. Відкрити налаштування');}
   $('push-enable').hidden = enabled;
   $('push-disable').hidden = !enabled;
   $('push-enable').disabled = busy || !publicKey;
@@ -62,7 +64,7 @@ export async function setPushAccess(access) {
   permitted = access;
   const ticket = ++generation;
   $('push-panel').hidden = !access;
-  publicKey = null; draw();
+  publicKey = null; draw(false);
   if (!access || !currentUser()) return;
   const uid = currentUser().uid;
   if (ios && !installed()) { message('На iPhone: Safari → Поділитися → На початковий екран. Відкрийте KABINET через нову іконку й увімкніть сповіщення.'); return; }
