@@ -133,6 +133,19 @@
         .admin-logout { flex:0 0 auto; border:1px solid #c83b52; background:#b52843; color:white; border-radius:12px; padding:10px 14px; min-height:44px; font:700 .85rem Montserrat,sans-serif; cursor:pointer; white-space:nowrap; }
         .admin-logout:hover { background:#951d36; }
         @media(max-width:520px){ .admin-logout { padding:10px; font-size:.78rem; } }
+
+.admin-utility-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.admin-utility-row #owner-panel{flex:1;min-width:0;margin:0}
+.admin-utility-row #push-panel{flex:0 0 54px;min-width:54px;margin:0;padding:0;position:relative;overflow:visible}
+.admin-utility-row #push-panel[open]{flex-basis:260px;max-width:min(65vw,320px)}
+.admin-utility-row #push-panel summary{display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:54px;padding:6px!important;list-style:none}
+.admin-utility-row #push-panel summary::-webkit-details-marker{display:none}
+#push-bell-icon{font-size:26px;line-height:1}
+.admin-utility-row #push-panel:not([open]) > :not(summary){display:none}
+.admin-utility-row #push-panel[open] > :not(summary){padding:0 12px 12px}
+.notify-compact{flex:0 0 54px;width:54px;height:54px;border-radius:18px;border:1px solid var(--border);background:var(--bg-card);color:var(--primary);font-size:27px;font-weight:900;cursor:pointer}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:390px){.admin-utility-row{gap:6px}.admin-utility-row #push-panel{flex-basis:48px;min-width:48px}.notify-compact{flex-basis:48px;width:48px;height:48px}.admin-utility-row #push-panel summary{min-height:48px}}
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261017.6">
@@ -162,22 +175,23 @@
         </div>
         <button id="logout" type="button" class="admin-logout" aria-label="Вийти з адмінки">↪ Вийти</button>
     </header>
-    <details id="owner-panel" class="account-panel" hidden>
+    <div class="admin-utility-row"><details id="owner-panel" class="account-panel" hidden>
       <summary>Керування адміністраторами</summary>
       <p>Тільки ви схвалюєте адміністраторів та відкликаєте їхні права.</p>
       <p id="owner-message" role="status"></p>
       <button id="owner-retry" type="button" hidden>Оновити заявки</button>
       <div id="owner-requests"></div>
     </details>
-    <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
-
     <details id="push-panel" class="account-panel push-panel" hidden>
-      <summary><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> Сповіщення <span id="push-summary-state" class="push-summary-state">Налаштувати</span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
+      <summary id="push-bell" aria-label="Налаштування сповіщень" title="Сповіщення"><span id="push-bell-icon" aria-hidden="true">🔕</span><span id="push-summary-state" class="visually-hidden">Налаштувати</span></summary>
       <p id="push-status" role="status" aria-live="polite"></p>
       <div class="push-actions"><button id="push-enable" type="button" disabled>Увімкнути сповіщення</button>
       <button id="push-disable" type="button" hidden>Вимкнути на цьому пристрої</button>
       <button id="push-retry" type="button" class="text-button">Перевірити знову</button></div>
     </details>
+<button id="pushNotifyBtn" type="button" class="notify-compact" onclick="notifyTeam()" title="Надіслати зміни команді" aria-label="Надіслати зміни команді">↗</button></div>
+    <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
+
     <div class="admin-controls">
         <div class="input-group">
             <input type="text" id="newEmpName" placeholder="Введіть ім'я">
@@ -186,7 +200,6 @@
         <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
             <button class="export-btn" onclick="exportHalfMonth(event, 1)">📸 (1-15)</button>
             <button class="export-btn" onclick="exportHalfMonth(event, 2)">📸 (16-31)</button>
-            <button id="pushNotifyBtn" class="tg-btn" onclick="notifyTeam()">🔔 Сповістити команду</button>
         </div>
     </div>
 
