@@ -142,6 +142,7 @@
 .profile-push-row #push-panel:not([open])>:not(summary){display:none}
 #push-bell-icon{font-size:27px;line-height:1}
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+     .viewer-export{display:flex;gap:8px;margin-bottom:12px}.viewer-export button{flex:1;border:1px solid var(--border);background:var(--primary);color:white;border-radius:12px;padding:12px;font-weight:700}.viewer-export[hidden]{display:none}
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261017.6">
@@ -177,6 +178,7 @@
         </form>
         <form id="worker-register">
           <p>Після підтвердження пошти адміністратор надасть доступ до графіка.</p>
+          <label>Тип акаунта<select id="register-role"><option value="worker">Працівник</option><option value="viewer">Глядач — лише перегляд графіка</option></select></label>
           <label>Ім’я та прізвище<input id="register-name" name="name" autocomplete="name" required maxlength="80"></label>
           <label>Електронна пошта<input id="register-email" name="email" type="email" autocomplete="email" required maxlength="254"></label>
           <label>Пароль (від 8 символів)<input id="register-password" name="new-password" type="password" autocomplete="new-password" minlength="8" required></label>
@@ -217,6 +219,7 @@
       <button id="personal-tab" type="button" aria-pressed="false" onclick="showPersonalView()">Мій кабінет</button>
     </nav>
     <section id="schedule-view">
+    <div id="viewer-export" hidden class="viewer-export"><button type="button" onclick="exportViewerSchedule(1)">📸 PNG (1–15)</button><button type="button" onclick="exportViewerSchedule(2)">📸 PNG (16–кінець)</button></div>
     <button id="redDotToggleBtn" class="mode-btn off" onclick="toggleRedDotMode()">
         🔴 Поставити вихідний
     </button>
