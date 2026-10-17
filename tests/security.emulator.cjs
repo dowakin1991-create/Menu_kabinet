@@ -24,8 +24,11 @@ const {doc,setDoc,updateDoc,getDoc,getDocs,collection,serverTimestamp}=require('
   await assertSucceeds(updateDoc(doc(owner,'adminRequests','worker'),{status:'revoked',updatedAt:serverTimestamp()}));
   await assertFails(setDoc(doc(worker,'schedules','2026-10'),{employees:[],banquets:{}}));
   await assertSucceeds(setDoc(doc(owner,'employeeAccess','e1'),{uid:'other'}));
+  await assertSucceeds(setDoc(doc(owner,'employeeAccess','e2'),{uid:'worker'}));
   await assertSucceeds(setDoc(doc(other,'availability','2026-10','employees','e1'),{days:[1],updatedAt:serverTimestamp()}));
   await assertFails(setDoc(doc(worker,'availability','2026-10','employees','e1'),{days:[2],updatedAt:serverTimestamp()}));
+  await assertSucceeds(setDoc(doc(worker,'availability','2026-10','employees','e2'),{days:[3],updatedAt:serverTimestamp()}));
+  await assertFails(setDoc(doc(worker,'availability','2026-10','employees','e2'),{days:[4,32],updatedAt:serverTimestamp()}));
   await assertSucceeds(setDoc(doc(worker,'adminRequests','worker'),request));
   await assertFails(setDoc(doc(worker,'schedules','2026-10'),{employees:[],banquets:{}}));
 

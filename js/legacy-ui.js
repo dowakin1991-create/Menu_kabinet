@@ -24,7 +24,7 @@ const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 let todayDate = new Date();
 let currentDate = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
-let stopTeamAccess = null, accessGeneration = 0;
+let stopTeamAccess = null, accessGeneration = 0, boundEmployeeId = null;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
 let activeColDay = null, activeRowEmpId = null, isRedDotMode = false;
 let pendingAction = null, currentEditEmpId = null, currentEditDay = null, currentSettingsDay = null, currentReceiptDay = null;
@@ -158,6 +158,7 @@ window.editEmployee = (event, id) => window.showEmployeeInfo(event, id);
 
 window.toggleRedDotMode = () => {
   if (!canEditWorker()) { openAccount(); return toast('Увійдіть і підтвердьте пошту, щоб редагувати вихідні.', 'error'); }
+  if (!boundEmployeeId || !employees.some(employee => String(employee.id) === String(boundEmployeeId))) return toast('Адміністратор має прив’язати ваш обліковий запис до рядка працівника.', 'error');
   isRedDotMode = !isRedDotMode;
   $('redDotToggleBtn').className = 'mode-btn ' + (isRedDotMode ? 'on' : 'off');
   $('redDotToggleBtn').textContent = isRedDotMode ? '❌ Вийти з режиму редагування' : '🔴 Поставити вихідний';
@@ -167,6 +168,7 @@ window.executeRedDot = action(async () => {
   if (!pendingAction) return;
   if (!canEditWorker()) throw new Error('Увійдіть і підтвердьте пошту.');
   const { month, id, day, unavailable } = pendingAction;
+  if (!isAdmin(currentUser()) && (!boundEmployeeId || String(id) !== String(boundEmployeeId))) throw new Error('Можна позначати вихідні лише у своєму рядку.');
   await setAvailability(month,id,day,unavailable);
   window.cancelRedDot(); toast('Вихідний збережено.');
 });
@@ -177,7 +179,7 @@ window.handleCellClick = (id, day) => {
     const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day);
     currentEditEmpId = emp.id; currentEditDay = day;
     if (hasShift) show('shiftModal'); else window.setShiftType('full');
-  } else if (isRedDotMode) {
+  } else if (isRedDotMode && boundEmployeeId && String(emp.id) === String(boundEmployeeId)) {
     const removing = emp.unavail.includes(day);
     pendingAction = {month:getDocId(), id:emp.id, day, unavailable:!removing};
     $('confirmTitle').textContent = removing ? 'Скасувати вихідний?' : 'Додати вихідний?';
@@ -185,6 +187,8 @@ window.handleCellClick = (id, day) => {
     $('confirmBtn').textContent = removing ? 'Так, прибрати' : 'Так, додати';
     $('confirmBtn').className = 'modal-btn ' + (removing ? 'btn-danger' : 'btn-confirm');
     show('confirmModal');
+  } else if (isRedDotMode) {
+    toast(boundEmployeeId ? 'Можна позначати вихідні лише у своєму рядку.' : 'Адміністратор ще не прив’язав ваш обліковий запис до працівника.', 'error');
   }
 };
 window.setShiftType = action(async type => {
@@ -355,9 +359,10 @@ if (admin) {
   watchAuth(user=>{
     renderRoleBadge(user);
     stopTeamAccess?.();const ticket=++accessGeneration;
-    const applyAccess = access => {
+    const applyAccess = (access, employeeId = null) => {
       if(ticket!==accessGeneration)return;
       unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
+      boundEmployeeId=access?employeeId:null;
       employees=[];banquets={};isRedDotMode=false;
       $('redDotToggleBtn').className='mode-btn off';
       $('redDotToggleBtn').textContent='🔴 Поставити вихідний';
