@@ -152,6 +152,33 @@ export async function bindEmployee(employeeId, uid) {
     if(uid) tx.set(doc(db,'teamAccess',uid),{employeeId:String(employeeId)});
   });
 }
+
+export async function bindOwnerEmployee(employeeIds, targetId, ownerUid) {
+  const ids=[...new Set(employeeIds.map(String))], chosen=String(targetId);
+  if(!ids.includes(chosen)||!ownerUid)throw new Error('Оберіть ім’я з графіка.');
+  await runTransaction(db,async tx=>{
+    const refs=ids.map(id=>doc(db,'employeeAccess',id));
+    const snaps=[];
+    for(const ref of refs)snaps.push(await tx.get(ref));
+    const targetIndex=ids.indexOf(chosen);
+    const occupied=snaps[targetIndex].exists()?snaps[targetIndex].data().uid:'';
+    if(occupied&&occupied!==ownerUid)throw new Error('Це ім’я вже прив’язане до іншого акаунта.');
+    const teamRef=doc(db,'teamAccess',ownerUid);
+    const teamSnap=await tx.get(teamRef);
+    const oldId=teamSnap.exists()?String(teamSnap.data().employeeId||''):'';
+    if(oldId&&!ids.includes(oldId)&&oldId!==chosen){
+      const oldRef=doc(db,'employeeAccess',oldId);
+      const oldSnap=await tx.get(oldRef);
+      if(oldSnap.exists()&&oldSnap.data().uid===ownerUid)tx.set(oldRef,{uid:''});
+    }
+    for(let i=0;i<ids.length;i++){
+      if(ids[i]!==chosen&&snaps[i].exists()&&snaps[i].data().uid===ownerUid)tx.set(refs[i],{uid:''});
+    }
+    tx.set(refs[targetIndex],{uid:ownerUid});
+    tx.set(teamRef,{employeeId:chosen});
+  });
+}
+
 export async function employeeAccess(employeeId) {
   const snap = await getDoc(doc(db, "employeeAccess", String(employeeId)));
   return snap.exists() ? snap.data().uid : "";
