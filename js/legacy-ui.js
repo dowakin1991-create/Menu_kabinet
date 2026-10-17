@@ -1,5 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
-import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.6';
+import { watchTeamAccess, syncTeamAccess } from './access.js?v=20261017.12';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
@@ -98,7 +98,7 @@ function installOwnerSelfBinding() {
 function renderOwnerSelfBinding() {
   const section=$('owner-self-binding');if(!section)return;
   section.hidden=!isOwner(currentUser());
-  const select=$('owner-self-select'),value=select.value || boundEmployeeId;
+  const select=$('owner-self-select'),value=boundEmployeeId || select.value;
   select.replaceChildren(new Option('Оберіть ім’я',''));
   for(const e of employees)select.add(new Option(e.name,String(e.id)));
   if([...select.options].some(o=>o.value===value))select.value=value;
@@ -411,6 +411,14 @@ $('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startW
 initPush();
 if (admin) {
   initOwnerPanel(); installOwnerSelfBinding();
+  let stopOwnerBinding=null;
+  watchAuth(user=>{
+    stopOwnerBinding?.();stopOwnerBinding=null;
+    if(isOwner(user))stopOwnerBinding=watchTeamAccess(user,(linked,id)=>{
+      boundEmployeeId=linked?id:null;
+      if(linked && $('owner-self-select') && [...$('owner-self-select').options].some(option=>option.value===String(id))) $('owner-self-select').value=String(id);
+    });
+  });
   $('newEmpName').maxLength=80;
   $('newEmpName').addEventListener('keydown',event=>{if(event.key==='Enter')window.addEmployee();});
   $('login-form').addEventListener('submit',async event=>{
