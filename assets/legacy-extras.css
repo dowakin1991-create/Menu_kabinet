@@ -53,3 +53,8 @@ tr:nth-child(5n+1) td.cleaning-td,tr:nth-child(5n+2) td.cleaning-td,tr:nth-child
 #owner-self-binding{display:grid;gap:8px;padding:14px 0;border-bottom:1px solid var(--border)}
 #owner-self-binding[hidden]{display:none}
 #owner-self-binding select,#owner-self-binding button{width:100%;padding:10px;border-radius:8px}
+
+/* Compact employee ordering controls in admin schedule only. */
+#b-row .row-order-controls{gap:14px!important;margin-top:8px!important;justify-content:flex-start}
+#b-row .row-order-controls button{width:31px!important;min-width:31px!important;height:32px!important;min-height:32px!important;padding:0!important;font-size:17px!important;line-height:1!important;border-radius:9px!important}
+@media(pointer:coarse){#b-row .row-order-controls button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}
