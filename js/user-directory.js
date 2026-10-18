@@ -6,7 +6,7 @@ const db=getFirestore(firebaseApp),$=id=>document.getElementById(id);
 let refreshDirectory=()=>{};
 export function refreshOwnerUserDirectory(){refreshDirectory();}
 export async function saveDirectoryProfile(user,role='worker'){
- if(!user||user.isAnonymous||!user.email)return;
+ if(!user||user.isAnonymous||!user.email||isOwner(user))return;
  const ref=doc(db,'userDirectory',user.uid);
  const previous=await getDoc(ref);
  const savedRole=previous.exists()&&previous.data().role==='viewer'?'viewer':role==='viewer'?'viewer':'worker';
@@ -47,7 +47,9 @@ export function initUserDirectory(getEmployees) {
  function draw(users){
    root.replaceChildren();
    if(!users.length){root.textContent='Зареєстровані користувачі ще не з’явилися у списку.';return;}
-   for(const u of users.sort((a,b)=>a.name.localeCompare(b.name,'uk'))){
+   const listed=users.filter(u=>u.uid!==currentUser()?.uid);
+   if(!listed.length){root.textContent='Інших зареєстрованих користувачів поки немає.';return;}
+   for(const u of listed.sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1)||a.name.localeCompare(b.name,'uk'))){
      const card=document.createElement('div');card.className='directory-card';
      const label=document.createElement('strong');label.textContent=u.name||'Без імені';
      const meta=document.createElement('p');meta.textContent=(u.email||'')+' · '+(u.role==='viewer'?'Глядач':'Працівник');
