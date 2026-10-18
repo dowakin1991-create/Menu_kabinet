@@ -71,29 +71,55 @@ export function monthId(date) {
 
 export function subscribeSchedule(id, onData, onError) {
   let schedule = normalizeSchedule();
-  let scheduleReady = false, availabilityReady = false, stopped = false, failed = false, availabilityError = null;
-  const fail = (error, source) => { failed = true; onError(Object.assign(error, {scheduleSource:source})); };
+  let stopped = false, failed = false, availabilityError = null;
   const availability = new Map();
-  const emit = () => { if (stopped || failed || !scheduleReady || !availabilityReady) return; onData({
-    ...schedule,
-    availabilityError,
-    employees: schedule.employees.map(employee => ({
-      ...employee,
-      unavail: availability.has(String(employee.id)) ? availability.get(String(employee.id)) : employee.unavail
-    }))
-  }); };
+  const subscriptions = new Map();
+  const pending = new Set();
+  const fail = (error, source) => { if (stopped) return; failed = true; onError(Object.assign(error, {scheduleSource: source})); };
+  const emit = () => {
+    if (stopped || failed || pending.size) return;
+    onData({
+      ...schedule,
+      availabilityError,
+      employees: schedule.employees.map(employee => ({
+        ...employee,
+        unavail: availability.has(String(employee.id)) ? availability.get(String(employee.id)) : employee.unavail
+      }))
+    });
+  };
   const stopSchedule = onSnapshot(doc(db, "schedules", id), snapshot => {
+    if (stopped) return;
     schedule = normalizeSchedule(snapshot.exists() ? snapshot.data() : {});
-    scheduleReady = true;
+    const ids = new Set(schedule.employees.map(employee => String(employee.id)));
+    for (const [employeeId, stop] of subscriptions) {
+      if (ids.has(employeeId)) continue;
+      stop(); subscriptions.delete(employeeId); pending.delete(employeeId); availability.delete(employeeId);
+    }
+    for (const employeeId of ids) {
+      if (subscriptions.has(employeeId)) continue;
+      pending.add(employeeId);
+      const stop = onSnapshot(doc(db, "availability", id, "employees", employeeId), item => {
+        if (stopped || !subscriptions.has(employeeId)) return;
+        if (item.exists()) availability.set(employeeId, days(item.data()?.days));
+        else availability.delete(employeeId);
+        pending.delete(employeeId);
+        emit();
+      }, error => {
+        if (stopped || !subscriptions.has(employeeId)) return;
+        availabilityError = error;
+        pending.delete(employeeId);
+        emit();
+      });
+      subscriptions.set(employeeId, stop);
+    }
     emit();
-  }, error=>fail(error,'schedules'));
-  const stopAvailability = onSnapshot(collection(db, "availability", id, "employees"), snapshot => {
-    availabilityReady = true;
-    availability.clear();
-    snapshot.forEach(item => availability.set(item.id, days(item.data()?.days)));
-    emit();
-  }, error=>{ availabilityError=error; availabilityReady=true; emit(); });
-  return () => { stopped = true; stopSchedule(); stopAvailability(); };
+  }, error => fail(error, "schedules"));
+  return () => {
+    stopped = true;
+    stopSchedule();
+    for (const stop of subscriptions.values()) stop();
+    subscriptions.clear();
+  };
 }
 
 export async function updateSchedule(id, mutate) {
