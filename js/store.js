@@ -100,6 +100,7 @@ export function subscribeSchedule(id, onData, onError) {
       pending.add(employeeId);
       const stop = onSnapshot(doc(db, "availability", id, "employees", employeeId), item => {
         if (stopped || !subscriptions.has(employeeId)) return;
+        if (availabilityError) availabilityError = null;
         if (item.exists()) availability.set(employeeId, days(item.data()?.days));
         else availability.delete(employeeId);
         pending.delete(employeeId);
