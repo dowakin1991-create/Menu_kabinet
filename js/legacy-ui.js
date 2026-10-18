@@ -1,8 +1,8 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
-import { initUserDirectory, refreshOwnerUserDirectory } from './user-directory.js?v=20261018.12';
+import { initUserDirectory, refreshOwnerUserDirectory, watchMyApproval } from './user-directory.js?v=20261018.14';
 import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.13';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
-import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261018.12';
+import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261018.14';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261018.11';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
@@ -26,7 +26,7 @@ let todayDate = new Date();
 const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day')),endDay=Number(url.searchParams.get('endDay')),rawDays=url.searchParams.get('days');if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day,endDay:Number.isInteger(endDay)&&endDay>=day&&endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()?endDay:day,days:rawDays&&/^\d{1,2}(,\d{1,2})*$/.test(rawDays)?rawDays.split(',').map(Number).filter(d=>d>=1&&d<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()):null};}catch{}return null;})();
 let currentDate = notificationTarget ? new Date(Number(notificationTarget.month.slice(0,4)),Number(notificationTarget.month.slice(5,7))-1,1) : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
-let stopViewerAccess=null,viewerMode=false;
+let stopViewerAccess=null,stopApprovalAccess=null,viewerMode=false;
 let stopTeamAccess = null, accessGeneration = 0, boundEmployeeId = null;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
 let activeColDay = null, activeRowEmpId = null, isRedDotMode = false;
@@ -486,7 +486,15 @@ if (admin) {
   });
   watchAuth(user=>{
     renderRoleBadge(user);
-    stopTeamAccess?.();stopViewerAccess?.();viewerMode=false;const ticket=++accessGeneration;
+    stopTeamAccess?.();stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
+    let accountApproved=false,teamLinked=false,linkedEmployee=null,viewerLinked=false;
+    const refreshAccess=()=>{
+      if(ticket!==accessGeneration||isAdmin(user))return;
+      const viewerAllowed=accountApproved&&viewerLinked&&!teamLinked;
+      const workerAllowed=accountApproved&&teamLinked;
+      viewerMode=viewerAllowed;
+      applyAccess(workerAllowed||viewerAllowed,workerAllowed?linkedEmployee:null);
+    };
     const applyAccess = (access, employeeId = null) => {
       if(ticket!==accessGeneration)return;
       unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
@@ -513,8 +521,9 @@ if (admin) {
         if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
       });
     } else {
-      stopTeamAccess=watchTeamAccess(user,(linked,id)=>{if(ticket!==accessGeneration)return;if(linked){viewerMode=false;applyAccess(true,id);}else if(!viewerMode)applyAccess(false);});
-      stopViewerAccess=watchViewerAccess(user,enabled=>{if(ticket!==accessGeneration)return;viewerMode=enabled;if(enabled)applyAccess(true,null);else if(!boundEmployeeId)applyAccess(false);});
+      stopTeamAccess=watchTeamAccess(user,(linked,id)=>{teamLinked=linked;linkedEmployee=id;refreshAccess();});
+      stopViewerAccess=watchViewerAccess(user,enabled=>{viewerLinked=enabled;refreshAccess();});
+      stopApprovalAccess=watchMyApproval(user,approved=>{accountApproved=approved;refreshAccess();});
     }
   });
 }
