@@ -3,7 +3,7 @@ import {ApiError, authenticate, access, document} from './firebase.js';
 import {validateSubscription, deviceId} from './policy.js';
 import {sendPush} from './transport.js';
 import {cleanupExpiredReceipts} from './receipt-cleanup.js';
-const routes = new Set(['pushConfig','pushSubscribe','pushUnsubscribe','pushSchedule','pushDeliver']);
+const routes = new Set(['pushConfig','pushSubscribe','pushUnsubscribe','pushSchedule','pushDeliver','accountAlert']);
 async function readBody(request) {
   const reader = request.body?.getReader();
   if (!reader) return {};
@@ -30,7 +30,7 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
       const route=new URL(request.url).pathname.slice(1);
       if(request.method!=='POST'||!routes.has(route))throw new ApiError('not-found','Сторінку не знайдено.',404);
       if(!env.VAPID_JSON||!env.FIREBASE_SERVICE_ACCOUNT)throw new ApiError('not-configured','Сервіс сповіщень ще не підключено.',503);
-      const uid=await deps.authenticate(request,env,route==='pushSchedule'||route==='pushDeliver');
+      const uid=await deps.authenticate(request,env,route==='pushSchedule'||route==='pushDeliver', ['pushConfig','pushSubscribe','pushUnsubscribe','accountAlert'].includes(route));
       const data=await readBody(request),db=env.DB;
       const vapid=JSON.parse(env.VAPID_JSON);
       if(route==='pushConfig')return reply({publicKey:vapid.publicKey});
@@ -47,6 +47,28 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
         if(typeof data.endpoint!=='string'||data.endpoint.length>2048)throw new ApiError('invalid-argument','Некоректний пристрій.');
         await db.prepare('DELETE FROM devices WHERE id=? AND uid=?').bind(await deviceId(data.endpoint),uid).run();
         return reply({ok:true});
+      }
+      if(route==='accountAlert') {
+        if(!['registered','approved'].includes(data.event))throw new ApiError('invalid-argument','Неправильна подія.');
+        if(typeof data.uid!=='string'||data.uid.length>128||data.uid.includes('/'))throw new ApiError('invalid-argument','Неправильний акаунт.');
+        const owner='yBHHkxuh4OSboz1gGOtZFqmfVHE3';
+        if(data.event==='registered'&&data.uid!==uid)throw new ApiError('permission-denied','Доступ заборонено.',403);
+        if(data.event==='approved'&&uid!==owner)throw new ApiError('permission-denied','Тільки власник може підтвердити акаунт.',403);
+        const profile=await deps.document(env,'userDirectory/'+data.uid);
+        if(!profile||profile.status!==(data.event==='registered'?'pending':'approved'))throw new ApiError('failed-precondition','Статус акаунта не збігається.');
+        const target=data.event==='registered'?owner:data.uid;
+        const devices=await db.prepare('SELECT subscription FROM devices WHERE uid=? LIMIT 10').bind(target).all();
+        let accepted=0,failed=0;
+        for(const device of devices.results||[]){
+          try{
+            const subscription=validateSubscription(JSON.parse(device.subscription));
+            const details={accountEvent:data.event,name:String(profile.name||'Користувач').slice(0,80)};
+            const payload=await deps.buildPushPayload({data:JSON.stringify(details),options:{ttl:3600}},subscription,vapid);
+            const response=await deps.send(subscription.endpoint,payload);
+            if(response.ok)accepted++;else failed++;
+          }catch{failed++;}
+        }
+        return reply({accepted,failed});
       }
       if(route==='pushSchedule') {
         if(typeof data.month!=='string'||!/^20\d\d-(0[1-9]|1[0-2])$/.test(data.month))throw new ApiError('invalid-argument','Некоректний місяць.');
