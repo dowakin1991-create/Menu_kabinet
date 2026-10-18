@@ -56,6 +56,11 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
         if(data.event==='approved'&&uid!==owner)throw new ApiError('permission-denied','Тільки власник може підтвердити акаунт.',403);
         const profile=await deps.document(env,'userDirectory/'+data.uid);
         if(!profile||profile.status!==(data.event==='registered'?'pending':'approved'))throw new ApiError('failed-precondition','Статус акаунта не збігається.');
+        if(data.event==='registered'){
+          const now=Date.now();
+          const permitted=await db.prepare("INSERT INTO rate(id,at) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET at=excluded.at WHERE rate.at < ? RETURNING at").bind('signup-'+uid,now,now-86400000).first();
+          if(!permitted)return reply({accepted:0,failed:0,duplicate:true});
+        }
         const target=data.event==='registered'?owner:data.uid;
         const devices=await db.prepare('SELECT subscription FROM devices WHERE uid=? LIMIT 10').bind(target).all();
         let accepted=0,failed=0;
