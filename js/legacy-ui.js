@@ -140,8 +140,12 @@ async function loadData() {
   }, error => {
     if (ticket !== generation) return;
     console.error(error); ready = false; loadError = true; employees = []; banquets = {};
-    closeAll(); render(); status('Помилка доступу або з’єднання', true);
-    toast('Не вдалося завантажити графік. Перевірте з’єднання та доступ.', 'error');
+    closeAll(); render();
+    const denied=error?.code==='permission-denied';
+    const offline=error?.code==='unavailable' || (typeof navigator!=='undefined' && !navigator.onLine);
+    const message=denied?'Firestore відхилив читання графіка. Перевірте опубліковані Rules і прив’язку працівника.':offline?'Немає з’єднання з Firebase. Перевірте інтернет і повторіть.':`Не вдалося завантажити графік (${error?.code || 'невідома помилка'}).`;
+    status(message,true);
+    toast(message,'error');
   });
 }
 function action(fn) {
