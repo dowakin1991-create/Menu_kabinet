@@ -1,5 +1,6 @@
 import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {firebaseApp} from './store.js?v=20261017.5';
+import {sendAccountEvent} from './push.js?v=20261018.15';
 import {currentUser,isOwner,watchAuth} from './auth.js?v=20261017.5';
 const db=getFirestore(firebaseApp),$=id=>document.getElementById(id);
 let refreshDirectory=()=>{};
@@ -11,6 +12,7 @@ export async function saveDirectoryProfile(user,role='worker'){
  const savedRole=previous.exists()&&previous.data().role==='viewer'?'viewer':role==='viewer'?'viewer':'worker';
  const status=previous.exists()?(previous.data().status||'approved'):'pending';
  await setDoc(ref,{name:(user.displayName||'Працівник').slice(0,80),email:user.email.slice(0,254),role:savedRole,status});
+ if(!previous.exists())sendAccountEvent('registered',user.uid).catch(e=>console.warn('Registration push:',e.code||e.message));
 }
 export function watchMyApproval(user,callback){
  if(!user||user.isAnonymous){callback(false);return()=>{};}
@@ -54,10 +56,10 @@ export function initUserDirectory(getEmployees) {
      select.add(new Option('Вибрати ім’я з графіка',''));
      for(const employee of getEmployees())select.add(new Option(employee.name,String(employee.id)));
      const button=document.createElement('button');button.type='button';button.textContent=u.status==='pending'?'Підтвердити та прив’язати':'Змінити прив’язку';
-     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);status.textContent='Акаунт '+u.name+' прив’язаний.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
+     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Акаунт '+u.name+' прив’язаний і підтверджений.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
      if(u.role==='viewer'&&u.status==='pending'){
        const approve=document.createElement('button');approve.type='button';approve.textContent='Підтвердити глядача';
-       approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
+       approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
        card.append(approve);
      }
      card.append(label,meta,key,...(u.role==='viewer'?[]:[select,button]));root.append(card);
