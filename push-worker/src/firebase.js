@@ -54,7 +54,7 @@ export async function access(env, uid, adminOnly = false, claims) {
   const binding = await document(env, `employeeAccess/${encodeURIComponent(id)}`);
   return binding?.uid === uid;
 }
-export async function authenticate(request, env, adminOnly = false) {
+export async function authenticate(request, env, adminOnly = false, allowUnapproved = false) {
   const token = request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];
   if (!token || token.length > 8000) throw new ApiError('unauthenticated', 'Увійдіть у кабінет.', 401);
   let payload;
@@ -65,6 +65,6 @@ export async function authenticate(request, env, adminOnly = false) {
       requiredClaims: ['sub','exp','iat','auth_time']
     }));
   } catch { throw new ApiError('unauthenticated', 'Увійдіть повторно.', 401); }
-  if (!await access(env, payload.sub, adminOnly, payload)) throw new ApiError('permission-denied', 'Немає дозволу на цю дію.', 403);
+  if (!allowUnapproved && !await access(env, payload.sub, adminOnly, payload)) throw new ApiError('permission-denied', 'Немає дозволу на цю дію.', 403);
   return payload.sub;
 }
