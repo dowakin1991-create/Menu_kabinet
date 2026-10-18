@@ -5,7 +5,7 @@ import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
 const $ = id => document.getElementById(id);
 let lastCompact = null;
-let viewerMode=false,stopViewer=null,lastDirectoryUid=null;
+let viewerMode=false,stopViewer=null,stopApproval=null,lastDirectoryUid=null,accountApproved=true,approvalKnown=false;
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
@@ -87,8 +87,8 @@ export function initAccount() {
     }
     if(!user||user.isAnonymous)lastDirectoryUid=null;
     stopApproval?.();stopApproval=null;
-    accountApproved=false;approvalKnown=false;
-    if(user&&!user.isAnonymous)stopApproval=watchMyApproval(user,approved=>{const was=accountApproved,known=approvalKnown;accountApproved=approved;approvalKnown=true;renderAccount();if(approved&&known&&!was)document.getElementById('account-message').textContent='Ваш обліковий запис підтверджено. Можете користуватися KABINET.';});
+    accountApproved=isOwner(user)||isAdmin(user);approvalKnown=accountApproved;
+    if(user&&!user.isAnonymous&&!isOwner(user)&&!isAdmin(user))stopApproval=watchMyApproval(user,approved=>{const was=accountApproved,known=approvalKnown;accountApproved=approved;approvalKnown=true;renderAccount();if(approved&&known&&!was)document.getElementById('account-message').textContent='Ваш обліковий запис підтверджено. Можете користуватися KABINET.';});
     stopViewer?.(); stopViewer=null; viewerMode=false;
     if(user && !user.isAnonymous && user.emailVerified) stopViewer=watchViewerAccess(user,enabled=>{viewerMode=enabled;renderAccount();});
     const key=user && !user.isAnonymous && user.emailVerified && !isOwner(user) ? user.uid : null;
