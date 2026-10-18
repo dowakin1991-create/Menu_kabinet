@@ -5,7 +5,7 @@ let cachedToken, expires = 0, cachedKey, cachedAccount;
 export class ApiError extends Error {
   constructor(code, message, status = 400) { super(message); this.code = code; this.status = status; }
 }
-async function serviceToken(env) {
+export async function serviceToken(env) {
   if (cachedToken && Date.now() < expires) return cachedToken;
   if (!cachedAccount) {
     cachedAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT || '{}');
