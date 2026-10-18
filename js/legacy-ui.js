@@ -22,7 +22,7 @@ const $ = id => document.getElementById(id);
 const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 let todayDate = new Date();
-const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day'));if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day};}catch{}return null;})();
+const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day')),endDay=Number(url.searchParams.get('endDay'));if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day,endDay:Number.isInteger(endDay)&&endDay>=day&&endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()?endDay:day};}catch{}return null;})();
 let currentDate = notificationTarget ? new Date(Number(notificationTarget.month.slice(0,4)),Number(notificationTarget.month.slice(5,7))-1,1) : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
 let stopViewerAccess=null,viewerMode=false;
@@ -47,11 +47,11 @@ function render() {
   if (admin) renderAdmin(); else renderIndex();
 }
 let notificationFocusTimer;
-function focusNotificationDay(day) {
+function focusNotificationDay(day,endDay=day) {
   const wrapper=$('schedule-view');
   if(wrapper?.hidden) return;
   document.querySelectorAll('.notification-focus').forEach(node=>node.classList.remove('notification-focus'));
-  const nodes=document.querySelectorAll(`[data-day="${day}"]`);
+  const nodes=[...document.querySelectorAll('[data-day]')].filter(node=>Number(node.dataset.day)>=day&&Number(node.dataset.day)<=endDay);
   nodes.forEach(node=>node.classList.add('notification-focus'));
   const th=document.querySelector(`#header-row [data-day="${day}"]`);
   if(th) th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -134,7 +134,7 @@ async function loadData() {
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
     status('Дані актуальні'); render(); renderOwnerSelfBinding();
     if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
-    if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day);history.replaceState(null,'',location.pathname+location.hash);}
+    if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day,notificationTarget.endDay);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
     if (!admin && currentReceiptDay !== null && $('receiptModal').style.display === 'flex') renderWorkerReceipts();
   }, error => {
@@ -394,6 +394,14 @@ window.handleBanquetUpload = action(async event => {
     toast(`Збережено фото: ${saved}.`);
   } catch(error) {throw new Error(`Збережено фото: ${saved}. ${error.message || 'Помилка завантаження.'}`);}
   finally {event.target.value='';}
+});
+window.notifyNewSchedule = action(async half => {
+  if(!admin || !isAdmin(currentUser()))return;
+  const month=getDocId(),day=half===1?1:16,endDay=half===1?15:new Date(currentDate.getFullYear(),currentDate.getMonth()+1,0).getDate();
+  const name=monthNames[currentDate.getMonth()].toLowerCase();
+  if(!confirm(`Повідомити команду: «Графік додано на ${name} ${String(day).padStart(2,'0')}-${String(endDay).padStart(2,'0')}»?`))return;
+  const summary=await notifySchedule(month,[{kind:'schedule-added',day,endDay}]);
+  toast(summary);
 });
 window.notifyTeam = action(async () => {
   if (!allowed || !isAdmin(currentUser())) return;
