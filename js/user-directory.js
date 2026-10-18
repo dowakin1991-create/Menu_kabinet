@@ -1,10 +1,13 @@
-import {getFirestore,doc,setDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {firebaseApp} from './store.js?v=20261017.5';
 import {currentUser,isOwner,watchAuth} from './auth.js?v=20261017.5';
 const db=getFirestore(firebaseApp),$=id=>document.getElementById(id);
 export async function saveDirectoryProfile(user,role='worker'){
  if(!user||user.isAnonymous||!user.email)return;
- await setDoc(doc(db,'userDirectory',user.uid),{name:(user.displayName||'Працівник').slice(0,80),email:user.email.slice(0,254),role:role==='viewer'?'viewer':'worker'}, {merge:true});
+ const ref=doc(db,'userDirectory',user.uid);
+ const previous=await getDoc(ref);
+ const savedRole=previous.exists()&&previous.data().role==='viewer'?'viewer':role==='viewer'?'viewer':'worker';
+ await setDoc(ref,{name:(user.displayName||'Працівник').slice(0,80),email:user.email.slice(0,254),role:savedRole});
 }
 export function initUserDirectory(getEmployees) {
  let stop=null;
