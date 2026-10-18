@@ -1,4 +1,5 @@
 import {registerViewer,watchViewerAccess} from './access.js?v=20261017.13';
+import {saveDirectoryProfile} from './user-directory.js?v=20261018.12';
 import {disconnectPush} from './push.js?v=20261017.5';
 import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
@@ -55,13 +56,14 @@ export function initAccount() {
       if ($('register-password').value !== $('register-confirm').value) throw new Error('Паролі не збігаються.');
       const registered=await registerWorker($('register-name').value,$('register-email').value,$('register-password').value,$('remember-me').checked);
       if($('register-role').value==='viewer') await registerViewer(registered.uid);
+      await saveDirectoryProfile(registered,$('register-role').value);
       $('register-password').value=''; $('register-confirm').value='';
       try { await sendLetter(); }
       catch(error) { throw new Error('Обліковий запис створено, але лист не надіслано. '+authMessage(error)+' Скористайтеся кнопкою повторного надсилання.'); }
     });
   });
   $('worker-login').addEventListener('submit',event=>{
-    event.preventDefault();task(async()=>{await login($('worker-email').value,$('worker-password').value,$('remember-me').checked);$('worker-password').value='';});
+    event.preventDefault();task(async()=>{const signedIn=await login($('worker-email').value,$('worker-password').value,$('remember-me').checked);await saveDirectoryProfile(signedIn);$('worker-password').value='';});
   });
   $('worker-reset').addEventListener('click',()=>task(async()=>{
     const email=$('worker-email'); if (!email.value || !email.checkValidity()) throw new Error('Введіть коректну пошту в полі входу.');
