@@ -5,7 +5,7 @@ import { initAccount, openAccount, setScheduleAccess } from './account.js?v=2026
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.10';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
-import { withBusy, recordChange, changeJournal, clearChangeJournal, writeLocal } from './session.js?v=20261017.4';
+import { withBusy, recordChange, changeJournal, clearChangeJournal } from './session.js?v=20261017.4';
 import { compressReceipt } from './receipts.js?v=20261015.2';
 import { exportHalfMonth as exportPNG } from './export.js?v=20261017.13';
 
@@ -423,12 +423,7 @@ function openNoticeEditor(notices,month,fromJournal=false) {
    const summary=await notifySchedule(month,chosen);
    modal.hidden=true;
    if(fromJournal && /^Передано службі сповіщень: [1-9]\\d*\\. Помилок: 0\\./.test(summary)){
-     const journal=changeJournal(month);
-     for(const n of chosen){
-       if(n.kind==='schedule')journal.shifts.delete(n.day);
-       else if(n.kind!=='schedule-added')journal.banquets.delete(n.day);
-     }
-     writeLocal(`kabinet.changes.${month}`,JSON.stringify({shifts:[...journal.shifts],banquets:[...journal.banquets]}));
+     clearChangeJournal(month);
    }
    toast(summary);
  });
