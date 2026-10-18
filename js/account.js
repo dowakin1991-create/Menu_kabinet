@@ -5,7 +5,7 @@ import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
 const $ = id => document.getElementById(id);
 let lastCompact = null;
-let viewerMode=false,stopViewer=null;
+let viewerMode=false,stopViewer=null,lastDirectoryUid=null;
 let hasAccess = false, formMode = "register";
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
@@ -81,6 +81,11 @@ export function initAccount() {
   }));
   watchAuth(()=>{
     const user=currentUser();
+    if(user&&!user.isAnonymous&&user.uid!==lastDirectoryUid){
+      lastDirectoryUid=user.uid;
+      saveDirectoryProfile(user).catch(error=>{console.warn('Directory profile sync:',error.code||error.message);lastDirectoryUid=null;});
+    }
+    if(!user||user.isAnonymous)lastDirectoryUid=null;
     stopViewer?.(); stopViewer=null; viewerMode=false;
     if(user && !user.isAnonymous && user.emailVerified) stopViewer=watchViewerAccess(user,enabled=>{viewerMode=enabled;renderAccount();});
     const key=user && !user.isAnonymous && user.emailVerified && !isOwner(user) ? user.uid : null;
