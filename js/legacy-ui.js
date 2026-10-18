@@ -534,13 +534,14 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             
             let thClass = isWeekend ? 'weekend' : '';
             if (isToday) thClass += ' current-day-th';
+            if (isBanquet) thClass += ' event-day-th';
             if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ГЕНПРИБ.':'🎉 БЕНКЕТ'}</span>` : '';
 
             headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
-                ${i}<br>
+                <span class="day-number">${i}</span><br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
                 ${banquetLabel}
@@ -611,13 +612,14 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             
             let thClass = isWeekend ? 'weekend' : '';
             if (isToday) thClass += ' current-day-th';
+            if (isBanquet) thClass += ' event-day-th';
             if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ПРИБИРАННЯ':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ГЕНПРИБ.':'🎉 БЕНКЕТ'}</span>` : '';
 
         headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
-                ${i}<br>
+                <span class="day-number">${i}</span><br>
                 <span style="font-size: 0.65rem; font-weight: normal; opacity: 0.85;">${dayNames[dayIndex]}</span>
                 <span class="duty-text" style="${isBanquet ? 'color: white;' : ''}">${duty}</span>
                 ${banquetLabel}
