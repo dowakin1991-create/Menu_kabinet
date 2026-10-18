@@ -58,3 +58,10 @@ tr:nth-child(5n+1) td.cleaning-td,tr:nth-child(5n+2) td.cleaning-td,tr:nth-child
 #b-row .row-order-controls{gap:14px!important;margin-top:8px!important;justify-content:flex-start}
 #b-row .row-order-controls button{width:31px!important;min-width:31px!important;height:32px!important;min-height:32px!important;padding:0!important;font-size:17px!important;line-height:1!important;border-radius:9px!important}
 @media(pointer:coarse){#b-row .row-order-controls button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important}}
+
+
+/* Minimal employee actions, admin only; keep comfortable spacing between arrows. */
+#b-row .row-order-controls{gap:17px!important;margin-top:5px!important}
+#b-row .row-order-controls button{#b-row .row-order-controls button{width:28px!important;min-width:28px!important;height:28px!important;min-height:28px!important;padding:0!important;font-size:15px!important;line-height:1!important;border-radius:8px!important}
+@media(pointer:coarse){#b-row .row-order-controls button{width:28px!important;min-width:28px!important;height:28px!important;min-height:28px!important}}
+#b-row .edit-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:none!important;box-sizing:border-box!important;width:27px!important;min-width:27px!important;height:29px!important;min-height:29px!important;padding:0!important;margin-left:5px!important;border:1px solid rgba(200,133,29,.3)!important;background:rgba(243,156,18,.18)!important;color:#b16e10!important;border-radius:8px!important;font-size:14px!important;box-shadow:none!important}
