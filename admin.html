@@ -200,6 +200,8 @@
         <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
             <button class="export-btn" onclick="exportHalfMonth(event, 1)">📸 (1-15)</button>
             <button class="export-btn" onclick="exportHalfMonth(event, 2)">📸 (16-31)</button>
+            <button class="export-btn" onclick="notifyNewSchedule(1)" title="Повідомити про новий графік 1–15">🔔 Новий графік 1–15</button>
+            <button class="export-btn" onclick="notifyNewSchedule(2)" title="Повідомити про новий графік 16–кінець">🔔 Новий графік 16–кінець</button>
         </div>
     </div>
 
@@ -260,6 +262,6 @@
 
 <div id="export-wrapper"></div>
 
-<script type="module" src="js/legacy-ui.js?v=20261017.13"></script>
+<script type="module" src="js/legacy-ui.js?v=20261018.1"></script>
 </body>
 </html>
