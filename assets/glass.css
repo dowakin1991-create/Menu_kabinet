@@ -177,3 +177,9 @@ th.event-day-th .cleaning-label{font-size:.53rem;white-space:nowrap;letter-spaci
 th.event-day-th .banquet-label{white-space:nowrap}
 .notification-focus{border-color:#a5ee32!important}
 @media(prefers-reduced-motion:reduce){.notification-focus{animation:none}}
+
+/* Continuous red outline marks TODAY throughout the entire schedule column. */
+#schedule th.current-day-th,#admin-table th.current-day-th{border-left:3px solid #f04438!important;border-right:3px solid #f04438!important;border-top:3px solid #f04438!important;box-shadow:inset 2px 0 0 #f04438,inset -2px 0 0 #f04438;position:sticky}
+#schedule td.current-day-td,#admin-table td.current-day-td{border-left:3px solid #f04438!important;border-right:3px solid #f04438!important;box-shadow:inset 1px 0 0 #f04438,inset -1px 0 0 #f04438}
+#schedule td.current-day-td-bottom,#admin-table td.current-day-td-bottom{border-bottom:4px solid #f04438!important}
+#schedule th.current-day-th.event-day-th,#admin-table th.current-day-th.event-day-th{border-top:4px solid #f04438!important}
