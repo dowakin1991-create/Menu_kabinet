@@ -3,6 +3,7 @@
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
+  "triggers": {"crons":["15 2 * * *"]},
   "vars": {
     "FIREBASE_PROJECT": "kabinet-graphik-v2",
     "ALLOWED_ORIGIN": "https://dowakin1991-create.github.io"
