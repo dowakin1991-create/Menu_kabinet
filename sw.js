@@ -10,12 +10,21 @@ self.addEventListener('push', event => {
     const kinds={'schedule-added':'Графік додано',schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'};
     const notices=Array.isArray(data?.notices)?data.notices.filter(n=>month&&n&&Object.hasOwn(kinds,n.kind)&&Number.isInteger(n.day)&&n.day>0&&n.day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()&&(!n.endDay||(n.kind==='schedule-added'&&Number.isInteger(n.endDay)&&n.endDay>=n.day&&n.endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()))).slice(0,31):[];
     if(!notices.length) return self.registration.showNotification('KABINET',{body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.',icon:new URL('IMG_9802.png',self.registration.scope).href,tag:'kabinet-schedule',renotify:true});
-    await Promise.all(notices.map(({kind,day,endDay},index)=>{
-      const dateText=kind==='schedule-added'&&endDay ? `${['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'][Number(month.slice(5,7))-1]} ${String(day).padStart(2,'0')}-${String(endDay).padStart(2,'0')}` : `${String(day).padStart(2,'0')}.${month.slice(5,7)}`;
-       const body=`${kinds[kind]} ${kind==='schedule-added'?'на ':''}${dateText}. Відкрийте, щоб ознайомитися.`;
-      const target=new URL(`index.html?month=${month}&day=${day}${kind==='schedule-added'&&endDay?'&endDay='+endDay:''}`,self.registration.scope).href;
-      return self.registration.showNotification('KABINET',{body,icon:new URL('IMG_9802.png',self.registration.scope).href,tag:`kabinet-${month}-${day}-${kind}-${index}`,renotify:true,data:{target}});
-    }));
+    const monthNames=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','грудень'];
+    const lines=notices.map(({kind,day,endDay})=>{
+      const dateText=kind==='schedule-added'&&endDay
+        ? `${monthNames[Number(month.slice(5,7))-1]} ${String(day).padStart(2,'0')}-${String(endDay).padStart(2,'0')}`
+        : `${String(day).padStart(2,'0')}.${month.slice(5,7)}`;
+      return `${kinds[kind]} ${kind==='schedule-added'?'на ':''}${dateText}.`;
+    });
+    const target=new URL('index.html',self.registration.scope);
+    target.searchParams.set('month',month);
+    target.searchParams.set('day',String(notices[0].day));
+    const selectedDays=[...new Set(notices.flatMap(n=>Array.from({length:(n.endDay||n.day)-n.day+1},(_,i)=>n.day+i)))].sort((a,b)=>a-b);
+    target.searchParams.set('days',selectedDays.join(','));
+    const body=lines.join('\n')+'\nВідкрийте, щоб ознайомитися.';
+    return self.registration.showNotification('KABINET',{body,icon:new URL('IMG_9802.png',self.registration.scope).href,tag:'kabinet-batch-'+month+'-'+Date.now(),data:{target:target.href}});
+
   })());
 });
 self.addEventListener('notificationclick', event => {
