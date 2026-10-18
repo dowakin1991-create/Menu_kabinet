@@ -3,7 +3,7 @@ import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
-import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.10';
+import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261018.11';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
 import { withBusy, recordChange, changeJournal, clearChangeJournal } from './session.js?v=20261017.4';
 import { compressReceipt } from './receipts.js?v=20261015.2';
@@ -143,7 +143,7 @@ async function loadData() {
     closeAll(); render();
     const denied=error?.code==='permission-denied';
     const offline=error?.code==='unavailable' || (typeof navigator!=='undefined' && !navigator.onLine);
-    const message=denied?'Firestore відхилив читання графіка. Перевірте опубліковані Rules і прив’язку працівника.':offline?'Немає з’єднання з Firebase. Перевірте інтернет і повторіть.':`Не вдалося завантажити графік (${error?.code || 'невідома помилка'}).`;
+    const message=denied?`Firestore заборонив читання ${error.scheduleSource==='availability'?'заявок на вихідні (availability)':error.scheduleSource==='schedules'?'графіка (schedules)':'даних'}. Перевірте Rules у Firebase.`:offline?'Немає з’єднання з Firebase. Перевірте інтернет і повторіть.':`Не вдалося завантажити графік (${error?.code || 'невідома помилка'}).`;
     status(message,true);
     toast(message,'error');
   });
