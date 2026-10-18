@@ -2,6 +2,7 @@ import {buildPushPayload} from '@block65/webcrypto-web-push';
 import {ApiError, authenticate, access, document} from './firebase.js';
 import {validateSubscription, deviceId} from './policy.js';
 import {sendPush} from './transport.js';
+import {cleanupExpiredReceipts} from './receipt-cleanup.js';
 const routes = new Set(['pushConfig','pushSubscribe','pushUnsubscribe','pushSchedule','pushDeliver']);
 async function readBody(request) {
   const reader = request.body?.getReader();
@@ -120,4 +121,4 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
     }
   };
 }
-export default {fetch:createHandler()};
+export default {fetch:createHandler(),async scheduled(event,env,ctx){ctx.waitUntil(cleanupExpiredReceipts(env));}};
