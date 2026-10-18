@@ -91,7 +91,7 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
           stage='subscription';
           const subscription=validateSubscription(JSON.parse(device.subscription));
           stage='encryption';
-          const details=await db.prepare('SELECT notices FROM job_payload WHERE job=?').bind(data.jobId).first();
+          const details=await db.prepare('SELECT month, notices FROM job_payload WHERE job=?').bind(data.jobId).first();
           const payloadData=details?{title:'KABINET',month:details.month,notices:JSON.parse(details.notices)}:{title:'KABINET',body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.'};
           const payload=await deps.buildPushPayload({data:JSON.stringify(payloadData),options:{ttl:3600}},subscription,vapid);
           stage='provider';
