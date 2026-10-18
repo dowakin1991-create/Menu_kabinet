@@ -1,5 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
-import { initUserDirectory } from './user-directory.js?v=20261018.12';
+import { initUserDirectory, refreshOwnerUserDirectory } from './user-directory.js?v=20261018.12';
 import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.13';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261018.12';
@@ -133,7 +133,7 @@ async function loadData() {
   unsubscribe = subscribeSchedule(getDocId(), data => {
     if (ticket !== generation) return;
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
-    status('Дані актуальні'); render(); renderOwnerSelfBinding();
+    status('Дані актуальні'); render(); renderOwnerSelfBinding(); if(admin)refreshOwnerUserDirectory();
     if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
     if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day,notificationTarget.endDay,notificationTarget.days);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
