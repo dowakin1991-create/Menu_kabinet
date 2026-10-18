@@ -19,7 +19,7 @@ export function watchMyApproval(user,callback){
  return onSnapshot(doc(db,'userDirectory',user.uid),snap=>callback(!snap.exists()||snap.data().status!=='pending'),()=>callback(false));
 }
 export function initUserDirectory(getEmployees) {
- let stop=null;
+ let stop=null,stopBindings=null;let bindings=new Map();
  const root=$('owner-user-list'),status=$('owner-user-status');
  async function bind(uid,employeeId) {
    const ids=[...new Set(getEmployees().map(e=>String(e.id)))];
@@ -42,6 +42,8 @@ export function initUserDirectory(getEmployees) {
      tx.set(team,{employeeId});
      tx.update(doc(db,'userDirectory',uid),{status:'approved'});
    });
+   const check=await getDoc(team);
+   if(!check.exists()||String(check.data().employeeId)!==employeeId)throw Error('Firebase не підтвердив прив’язку. Повторіть спробу.');
  }
  let cachedUsers=[];
  function draw(users){
@@ -57,21 +59,25 @@ export function initUserDirectory(getEmployees) {
      const select=document.createElement('select');select.setAttribute('aria-label','Ім’я у графіку для '+u.name);
      select.add(new Option('Вибрати ім’я з графіка',''));
      for(const employee of getEmployees())select.add(new Option(employee.name,String(employee.id)));
+     const savedId=bindings.get(u.uid);
+     if(savedId&&Array.from(select.options).some(option=>option.value===savedId))select.value=savedId;
+     const bindingLabel=document.createElement('p');bindingLabel.textContent=savedId?'Прив’язано: '+(getEmployees().find(e=>String(e.id)===savedId)?.name||'інше ім’я з графіка'):'Не прив’язано до графіка';
      const button=document.createElement('button');button.type='button';button.textContent=u.status==='pending'?'Підтвердити та прив’язати':'Змінити прив’язку';
-     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Акаунт '+u.name+' прив’язаний і підтверджений.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
+     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);bindings.set(u.uid,select.value);bindingLabel.textContent='Прив’язано: '+(getEmployees().find(e=>String(e.id)===select.value)?.name||select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Акаунт '+u.name+' прив’язаний і підтверджений.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
      if(u.role==='viewer'&&u.status==='pending'){
        const approve=document.createElement('button');approve.type='button';approve.textContent='Підтвердити глядача';
        approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
        card.append(approve);
      }
-     card.append(label,meta,key,...(u.role==='viewer'?[]:[select,button]));root.append(card);
+     card.append(label,meta,key,...(u.role==='viewer'?[]:[bindingLabel,select,button]));root.append(card);
    }
  }
  function start(user){
-   stop?.();stop=null;const owner=isOwner(user);
+   stop?.();stopBindings?.();stop=null;stopBindings=null;bindings=new Map();const owner=isOwner(user);
    $('owner-users-panel').hidden=!owner;
    if(!owner)return;
    status.textContent='Завантаження користувачів…';
+   stopBindings=onSnapshot(collection(db,'teamAccess'),snapshot=>{bindings=new Map(snapshot.docs.map(d=>[d.id,String(d.data().employeeId||'')]));if(cachedUsers.length)draw(cachedUsers);},error=>{status.textContent='Не вдалося прочитати прив’язки: '+(error.code||error.message);});
    stop=onSnapshot(collection(db,'userDirectory'),snapshot=>{status.textContent='';cachedUsers=snapshot.docs.map(d=>({uid:d.id,...d.data()}));draw(cachedUsers);},error=>{status.textContent='Помилка читання користувачів: '+(error.code||error.message);});
  }
  refreshDirectory=()=>{if(isOwner(currentUser())&&cachedUsers.length)draw(cachedUsers);};
