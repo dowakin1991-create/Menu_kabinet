@@ -133,7 +133,7 @@ async function loadData() {
   unsubscribe = subscribeSchedule(getDocId(), data => {
     if (ticket !== generation) return;
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
-    status('Дані актуальні'); render(); renderOwnerSelfBinding(); if(admin)refreshOwnerUserDirectory();
+    status(data.availabilityError ? 'Графік відкрито, але вихідні тимчасово недоступні (Firestore: availability).' : 'Дані актуальні', !!data.availabilityError); render(); renderOwnerSelfBinding(); if(admin)refreshOwnerUserDirectory();
     if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
     if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day,notificationTarget.endDay,notificationTarget.days);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
