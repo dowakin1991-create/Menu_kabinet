@@ -71,11 +71,12 @@ export function monthId(date) {
 
 export function subscribeSchedule(id, onData, onError) {
   let schedule = normalizeSchedule();
-  let scheduleReady = false, availabilityReady = false, stopped = false, failed = false;
+  let scheduleReady = false, availabilityReady = false, stopped = false, failed = false, availabilityError = null;
   const fail = (error, source) => { failed = true; onError(Object.assign(error, {scheduleSource:source})); };
   const availability = new Map();
   const emit = () => { if (stopped || failed || !scheduleReady || !availabilityReady) return; onData({
     ...schedule,
+    availabilityError,
     employees: schedule.employees.map(employee => ({
       ...employee,
       unavail: availability.has(String(employee.id)) ? availability.get(String(employee.id)) : employee.unavail
@@ -91,7 +92,7 @@ export function subscribeSchedule(id, onData, onError) {
     availability.clear();
     snapshot.forEach(item => availability.set(item.id, days(item.data()?.days)));
     emit();
-  }, error=>fail(error,'availability'));
+  }, error=>{ availabilityError=error; availabilityReady=true; emit(); });
   return () => { stopped = true; stopSchedule(); stopAvailability(); };
 }
 
