@@ -183,3 +183,6 @@ th.event-day-th .banquet-label{white-space:nowrap}
 #schedule td.current-day-td,#admin-table td.current-day-td{border-left:3px solid #f04438!important;border-right:3px solid #f04438!important;box-shadow:inset 1px 0 0 #f04438,inset -1px 0 0 #f04438}
 #schedule td.current-day-td-bottom,#admin-table td.current-day-td-bottom{border-bottom:4px solid #f04438!important}
 #schedule th.current-day-th.event-day-th,#admin-table th.current-day-th.event-day-th{border-top:4px solid #f04438!important}
+
+/* Prevent iOS auto-zoom when focusing form fields; keep table scrolling intact. */
+@media (pointer:coarse){input,textarea,select{font-size:16px!important}}
