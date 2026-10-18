@@ -1,4 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261017.11';
+import { initUserDirectory } from './user-directory.js?v=20261018.12';
 import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261017.13';
 import { initOwnerPanel } from './owner.js?v=20261017.5';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261017.5';
@@ -456,7 +457,7 @@ window.exportHalfMonth = action(async (event,half) => {
 $('retry-load').addEventListener('click',()=>{ if(allowed)loadData();else startWorker(); });
 initPush();
 if (admin) {
-  initOwnerPanel(); installOwnerSelfBinding();
+  initOwnerPanel(); initUserDirectory(()=>employees); installOwnerSelfBinding();
   let stopOwnerBinding=null;
   watchAuth(user=>{
     stopOwnerBinding?.();stopOwnerBinding=null;
