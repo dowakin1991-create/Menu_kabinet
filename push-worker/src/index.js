@@ -52,8 +52,9 @@ export function createHandler(deps={authenticate,access,document,buildPushPayloa
         if(!Array.isArray(data.notices)||data.notices.length<1||data.notices.length>31)throw new ApiError('invalid-argument','Додайте від 1 до 31 опису змін.');
         const daysInMonth=new Date(Number(data.month.slice(0,4)),Number(data.month.slice(5,7)),0).getDate();
         const notices=data.notices.map(item=>{
-          if(!item||!['schedule','banquet','cleaning','cancel-banquet','cancel-cleaning'].includes(item.kind)||!Number.isInteger(item.day)||item.day<1||item.day>daysInMonth)throw new ApiError('invalid-argument','Некоректна зміна графіка.');
-          return {kind:item.kind,day:item.day};
+          if(!item||!['schedule','schedule-added','banquet','cleaning','cancel-banquet','cancel-cleaning'].includes(item.kind)||!Number.isInteger(item.day)||item.day<1||item.day>daysInMonth)throw new ApiError('invalid-argument','Некоректна зміна графіка.');
+          if(item.endDay !== undefined && (item.kind!=='schedule-added'||!Number.isInteger(item.endDay)||item.endDay<item.day||item.endDay>daysInMonth))throw new ApiError('invalid-argument','Некоректний діапазон дат.');
+           return {kind:item.kind,day:item.day,...(item.kind==='schedule-added'?{endDay:item.endDay}: {})};
         });
         if(!await deps.document(env,`schedules/${data.month}`))throw new ApiError('failed-precondition','Спочатку збережіть графік.');
         const now=Date.now();
