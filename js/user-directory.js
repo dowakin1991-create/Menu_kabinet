@@ -9,7 +9,12 @@ export async function saveDirectoryProfile(user,role='worker'){
  const ref=doc(db,'userDirectory',user.uid);
  const previous=await getDoc(ref);
  const savedRole=previous.exists()&&previous.data().role==='viewer'?'viewer':role==='viewer'?'viewer':'worker';
- await setDoc(ref,{name:(user.displayName||'Працівник').slice(0,80),email:user.email.slice(0,254),role:savedRole});
+ const status=previous.exists()?(previous.data().status||'approved'):'pending';
+ await setDoc(ref,{name:(user.displayName||'Працівник').slice(0,80),email:user.email.slice(0,254),role:savedRole,status});
+}
+export function watchMyApproval(user,callback){
+ if(!user||user.isAnonymous){callback(false);return()=>{};}
+ return onSnapshot(doc(db,'userDirectory',user.uid),snap=>callback(!snap.exists()||snap.data().status!=='pending'),()=>callback(false));
 }
 export function initUserDirectory(getEmployees) {
  let stop=null;
@@ -33,6 +38,7 @@ export function initUserDirectory(getEmployees) {
      if(oldRef&&oldSnap.exists()&&oldSnap.data().uid===uid)tx.set(oldRef,{uid:''});
      tx.set(refs[selected],{uid});
      tx.set(team,{employeeId});
+     tx.update(doc(db,'userDirectory',uid),{status:'approved'});
    });
  }
  let cachedUsers=[];
@@ -47,9 +53,14 @@ export function initUserDirectory(getEmployees) {
      const select=document.createElement('select');select.setAttribute('aria-label','Ім’я у графіку для '+u.name);
      select.add(new Option('Вибрати ім’я з графіка',''));
      for(const employee of getEmployees())select.add(new Option(employee.name,String(employee.id)));
-     const button=document.createElement('button');button.type='button';button.textContent='Прив’язати';
+     const button=document.createElement('button');button.type='button';button.textContent=u.status==='pending'?'Підтвердити та прив’язати':'Змінити прив’язку';
      button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);status.textContent='Акаунт '+u.name+' прив’язаний.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
-     card.append(label,meta,key,select,button);root.append(card);
+     if(u.role==='viewer'&&u.status==='pending'){
+       const approve=document.createElement('button');approve.type='button';approve.textContent='Підтвердити глядача';
+       approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
+       card.append(approve);
+     }
+     card.append(label,meta,key,...(u.role==='viewer'?[]:[select,button]));root.append(card);
    }
  }
  function start(user){
