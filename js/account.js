@@ -1,5 +1,5 @@
 import {registerViewer,watchViewerAccess} from './access.js?v=20261017.13';
-import {saveDirectoryProfile} from './user-directory.js?v=20261018.12';
+import {saveDirectoryProfile,watchMyApproval} from './user-directory.js?v=20261018.12';
 import {disconnectPush} from './push.js?v=20261017.5';
 import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261017.5';
@@ -23,10 +23,10 @@ function renderAccount() {
   $('worker-register').hidden = formMode !== 'register';
   $('account-panel').classList.toggle('auth-gate',!hasAccess);
   $('verification-controls').hidden = !signed || canEditWorker();
-  $('account-status').textContent = signed ? (canEditWorker() ? (hasAccess ? 'Ви маєте доступ до графіка команди.' : 'Пошту підтверджено. Щоб отримати доступ до графіка, передайте адміну свій код доступу.') : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Закритий графік команди. Для перегляду потрібні вхід і дозвіл адміністратора.';
-  $('copy-access').hidden = viewerMode || !canEditWorker();
+  $('account-status').textContent = signed && !accountApproved ? 'Очікуйте підтвердження вашого облікового запису власником.' : signed ? (canEditWorker() ? (hasAccess ? 'Ви маєте доступ до графіка команди.' : 'Пошту підтверджено. Щоб отримати доступ до графіка, передайте адміну свій код доступу.') : 'Підтвердьте пошту: відкрийте посилання в листі, потім натисніть «Я підтвердив пошту».') : 'Закритий графік команди. Для перегляду потрібні вхід і дозвіл адміністратора.';
+  $('copy-access').hidden = true;
   $('admin-link').hidden = !isAdmin(user);
-  $('request-admin').hidden = viewerMode || !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
+  $('request-admin').hidden = !accountApproved || viewerMode || !signed || !canEditWorker() || isAdmin(user) || roleStatus === 'pending';
   $('admin-request-status').textContent = isOwner(user) ? 'Ви — власник. Тільки ви призначаєте адміністраторів.' : isAdmin(user) ? 'Ви — адміністратор.' : ({pending:'Заявка очікує рішення власника.',rejected:'Власник відхилив заявку.',revoked:'Права адміністратора відкликано.',error:'Заявки недоступні. Потрібно перевірити правила Firebase.'}[roleStatus] || '');
 
 }
@@ -86,6 +86,9 @@ export function initAccount() {
       saveDirectoryProfile(user).catch(error=>{console.warn('Directory profile sync:',error.code||error.message);lastDirectoryUid=null;});
     }
     if(!user||user.isAnonymous)lastDirectoryUid=null;
+    stopApproval?.();stopApproval=null;
+    accountApproved=false;
+    if(user&&!user.isAnonymous)stopApproval=watchMyApproval(user,approved=>{const was=accountApproved;accountApproved=approved;renderAccount();if(approved&&!was)document.getElementById('account-message').textContent='Ваш обліковий запис підтверджено. Можете користуватися KABINET.';});
     stopViewer?.(); stopViewer=null; viewerMode=false;
     if(user && !user.isAnonymous && user.emailVerified) stopViewer=watchViewerAccess(user,enabled=>{viewerMode=enabled;renderAccount();});
     const key=user && !user.isAnonymous && user.emailVerified && !isOwner(user) ? user.uid : null;
