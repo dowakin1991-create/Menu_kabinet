@@ -2,6 +2,8 @@ import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,runTransaction} fro
 import {firebaseApp} from './store.js?v=20261017.5';
 import {currentUser,isOwner,watchAuth} from './auth.js?v=20261017.5';
 const db=getFirestore(firebaseApp),$=id=>document.getElementById(id);
+let refreshDirectory=()=>{};
+export function refreshOwnerUserDirectory(){refreshDirectory();}
 export async function saveDirectoryProfile(user,role='worker'){
  if(!user||user.isAnonymous||!user.email)return;
  const ref=doc(db,'userDirectory',user.uid);
@@ -33,6 +35,7 @@ export function initUserDirectory(getEmployees) {
      tx.set(team,{employeeId});
    });
  }
+ let cachedUsers=[];
  function draw(users){
    root.replaceChildren();
    if(!users.length){root.textContent='Зареєстровані користувачі ще не з’явилися у списку.';return;}
@@ -54,7 +57,8 @@ export function initUserDirectory(getEmployees) {
    $('owner-users-panel').hidden=!owner;
    if(!owner)return;
    status.textContent='Завантаження користувачів…';
-   stop=onSnapshot(collection(db,'userDirectory'),snapshot=>{status.textContent='';draw(snapshot.docs.map(d=>({uid:d.id,...d.data()})));},error=>{status.textContent='Помилка читання користувачів: '+(error.code||error.message);});
+   stop=onSnapshot(collection(db,'userDirectory'),snapshot=>{status.textContent='';cachedUsers=snapshot.docs.map(d=>({uid:d.id,...d.data()}));draw(cachedUsers);},error=>{status.textContent='Помилка читання користувачів: '+(error.code||error.message);});
  }
+ refreshDirectory=()=>{if(isOwner(currentUser())&&cachedUsers.length)draw(cachedUsers);};
  watchAuth(start);
 }
