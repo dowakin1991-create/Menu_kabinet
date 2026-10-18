@@ -20,6 +20,15 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/teamAccess/$(request.auth.uid))
         && get(/databases/$(database)/documents/employeeAccess/$(get(/databases/$(database)/documents/teamAccess/$(request.auth.uid)).data.employeeId)).data.uid == request.auth.uid);
     }
+    match /userDirectory/{uid} {
+      allow get, list: if isOwner() || (request.auth != null && request.auth.uid == uid);
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name','email','role'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role in ['worker','viewer'];
+      allow delete: if false;
+    }
     match /viewerAccess/{uid} {
       allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
       allow create: if request.auth != null && request.auth.uid == uid
