@@ -5,7 +5,7 @@ import { initAccount, openAccount, setScheduleAccess } from './account.js?v=2026
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261017.5';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261017.10';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
-import { withBusy, recordChange, changeJournal, clearChangeJournal } from './session.js?v=20261017.4';
+import { withBusy, recordChange, changeJournal, clearChangeJournal, writeLocal } from './session.js?v=20261017.4';
 import { compressReceipt } from './receipts.js?v=20261015.2';
 import { exportHalfMonth as exportPNG } from './export.js?v=20261017.13';
 
@@ -22,7 +22,7 @@ const $ = id => document.getElementById(id);
 const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
 let todayDate = new Date();
-const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day')),endDay=Number(url.searchParams.get('endDay'));if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day,endDay:Number.isInteger(endDay)&&endDay>=day&&endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()?endDay:day};}catch{}return null;})();
+const notificationTarget = (()=>{try{const url=new URL(location.href),month=url.searchParams.get('month'),day=Number(url.searchParams.get('day')),endDay=Number(url.searchParams.get('endDay')),rawDays=url.searchParams.get('days');if(/^20\d\d-(0[1-9]|1[0-2])$/.test(month||'')&&Number.isInteger(day)&&day>0&&day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate())return{month,day,endDay:Number.isInteger(endDay)&&endDay>=day&&endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()?endDay:day,days:rawDays&&/^\d{1,2}(,\d{1,2})*$/.test(rawDays)?rawDays.split(',').map(Number).filter(d=>d>=1&&d<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()):null};}catch{}return null;})();
 let currentDate = notificationTarget ? new Date(Number(notificationTarget.month.slice(0,4)),Number(notificationTarget.month.slice(5,7))-1,1) : new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 let employees = [], banquets = {}, unsubscribe = null, generation = 0;
 let stopViewerAccess=null,viewerMode=false;
@@ -47,11 +47,11 @@ function render() {
   if (admin) renderAdmin(); else renderIndex();
 }
 let notificationFocusTimer;
-function focusNotificationDay(day,endDay=day) {
+function focusNotificationDay(day,endDay=day,days=null) {
   const wrapper=$('schedule-view');
   if(wrapper?.hidden) return;
   document.querySelectorAll('.notification-focus').forEach(node=>node.classList.remove('notification-focus'));
-  const nodes=[...document.querySelectorAll('[data-day]')].filter(node=>Number(node.dataset.day)>=day&&Number(node.dataset.day)<=endDay);
+  const nodes=[...document.querySelectorAll('[data-day]')].filter(node=>days?.length?days.includes(Number(node.dataset.day)):Number(node.dataset.day)>=day&&Number(node.dataset.day)<=endDay);
   nodes.forEach(node=>node.classList.add('notification-focus'));
   const th=document.querySelector(`#header-row [data-day="${day}"]`);
   if(th) th.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -134,7 +134,7 @@ async function loadData() {
     employees = data.employees; banquets = data.banquets; ready = true; loadError = false;
     status('Дані актуальні'); render(); renderOwnerSelfBinding();
     if($('personal-view')&&!$('personal-view').hidden)renderPersonalDashboard();
-    if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day,notificationTarget.endDay);history.replaceState(null,'',location.pathname+location.hash);}
+    if(!admin&&notificationTarget&&getDocId()===notificationTarget.month){focusNotificationDay(notificationTarget.day,notificationTarget.endDay,notificationTarget.days);history.replaceState(null,'',location.pathname+location.hash);}
     if (admin && currentSettingsDay !== null && $('daySettingsModal').style.display === 'flex') renderDaySettings();
     if (!admin && currentReceiptDay !== null && $('receiptModal').style.display === 'flex') renderWorkerReceipts();
   }, error => {
@@ -395,13 +395,48 @@ window.handleBanquetUpload = action(async event => {
   } catch(error) {throw new Error(`Збережено фото: ${saved}. ${error.message || 'Помилка завантаження.'}`);}
   finally {event.target.value='';}
 });
+const noticeTitles={'schedule-added':'Графік додано',schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'};
+function noticeText(n) {
+ const date=n.kind==='schedule-added'?`${monthNames[currentDate.getMonth()].toLowerCase()} ${String(n.day).padStart(2,'0')}-${String(n.endDay).padStart(2,'0')}`:`${String(n.day).padStart(2,'0')}.${String(currentDate.getMonth()+1).padStart(2,'0')}`;
+ return `${noticeTitles[n.kind]} ${n.kind==='schedule-added'?'на ':''}${date}.`;
+}
+function openNoticeEditor(notices,month,fromJournal=false) {
+ const modal=$('notice-editor-modal'),list=$('notice-editor-list'),send=$('notice-editor-send');
+ const selected=notices.map((notice,i)=>({...notice,selectionId:i}));
+ function redraw(){
+   list.replaceChildren();
+   for(const item of selected){
+     const row=document.createElement('div');row.className='notice-editor-item';
+     const label=document.createElement('span');label.textContent=noticeText(item);
+     const remove=document.createElement('button');remove.type='button';remove.textContent='✕';remove.setAttribute('aria-label','Прибрати: '+noticeText(item));
+     remove.addEventListener('click',()=>{const i=selected.indexOf(item);if(i!==-1)selected.splice(i,1);redraw();});
+     row.append(label,remove);list.append(row);
+   }
+   send.disabled=!selected.length;
+   $('notice-editor-count').textContent=selected.length?`Пунктів: ${selected.length}. Одне push-повідомлення.`:'Немає вибраних змін.';
+ }
+ redraw();modal.hidden=false;
+ $('notice-editor-cancel').onclick=()=>{modal.hidden=true;};
+ send.onclick=action(async()=>{
+   if(!selected.length)return;
+   const chosen=selected.map(({selectionId,...item})=>item);
+   const summary=await notifySchedule(month,chosen);
+   modal.hidden=true;
+   if(fromJournal && /^Передано службі сповіщень: [1-9]\\d*\\. Помилок: 0\\./.test(summary)){
+     const journal=changeJournal(month);
+     for(const n of chosen){
+       if(n.kind==='schedule')journal.shifts.delete(n.day);
+       else if(n.kind!=='schedule-added')journal.banquets.delete(n.day);
+     }
+     writeLocal(`kabinet.changes.${month}`,JSON.stringify({shifts:[...journal.shifts],banquets:[...journal.banquets]}));
+   }
+   toast(summary);
+ });
+}
 window.notifyNewSchedule = action(async half => {
   if(!admin || !isAdmin(currentUser()))return;
   const month=getDocId(),day=half===1?1:16,endDay=half===1?15:new Date(currentDate.getFullYear(),currentDate.getMonth()+1,0).getDate();
-  const name=monthNames[currentDate.getMonth()].toLowerCase();
-  if(!confirm(`Повідомити команду: «Графік додано на ${name} ${String(day).padStart(2,'0')}-${String(endDay).padStart(2,'0')}»?`))return;
-  const summary=await notifySchedule(month,[{kind:'schedule-added',day,endDay}]);
-  toast(summary);
+  openNoticeEditor([{kind:'schedule-added',day,endDay}],month);
 });
 window.notifyTeam = action(async () => {
   if (!allowed || !isAdmin(currentUser())) return;
@@ -409,9 +444,8 @@ window.notifyTeam = action(async () => {
   for(const day of journal.shifts)notices.push({kind:'schedule',day:Number(day)});
   for(const [day,oldType] of journal.banquets){const event=banquets[day];notices.push({kind:event?.active?(event.type==='cleaning'?'cleaning':'banquet'):(oldType==='cleaning'?'cancel-cleaning':'cancel-banquet'),day:Number(day)});}
   const unique=[...new Map(notices.map(item=>[`${item.kind}:${item.day}`,item])).values()].sort((a,b)=>a.day-b.day);
-  if(!unique.length)return toast('Немає нових змін для сповіщення. Спочатку оновіть графік або додайте подію.','error');
-  const preview=unique.map(item=>`${{schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'}[item.kind]} ${String(item.day).padStart(2,'0')}.${String(currentDate.getMonth()+1).padStart(2,'0')}`).join('\n');
-  if(confirm(`Надіслати команді ці зміни?\n\n${preview}\n\nОтримають працівники, які ввімкнули сповіщення.`)){const month=getDocId(),summary=await notifySchedule(month,unique);if(/^Передано службі сповіщень: [1-9]\d*\. Помилок: 0\./.test(summary))clearChangeJournal(month);toast(summary);}
+  if(!unique.length)return toast('Немає нових змін для сповіщення.','error');
+  openNoticeEditor(unique,getDocId(),true);
 });
 window.exportViewerSchedule = action(async half => {
   if(!viewerMode)return;
