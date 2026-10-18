@@ -120,6 +120,9 @@ export async function disconnectPush() {
   await Promise.all((await reg.getNotifications()).map(n => n.close()));
   if (currentUser()) await call('pushUnsubscribe', {endpoint}).catch(() => {});
 }
+export async function sendAccountEvent(event,uid) {
+  return call('accountAlert',{event,uid});
+}
 export async function notifySchedule(month, notices) {
   try {
     const job = await call('pushSchedule', {month, notices});
