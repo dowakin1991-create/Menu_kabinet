@@ -77,7 +77,7 @@ export function subscribeSchedule(id, onData, onError) {
   const pending = new Set();
   const fail = (error, source) => { if (stopped) return; failed = true; onError(Object.assign(error, {scheduleSource: source})); };
   const emit = () => {
-    if (stopped || failed || !scheduleReady || pending.size) return;
+    if (stopped || failed || !scheduleReady) return;
     onData({
       ...schedule,
       availabilityError,
@@ -100,7 +100,7 @@ export function subscribeSchedule(id, onData, onError) {
       if (subscriptions.has(employeeId)) continue;
       pending.add(employeeId);
       const stop = onSnapshot(doc(db, "availability", id, "employees", employeeId), item => {
-        if (stopped || !subscriptions.has(employeeId)) return;
+        if (stopped) return;
         if (availabilityError) availabilityError = null;
         if (item.exists()) availability.set(employeeId, days(item.data()?.days));
         else availability.delete(employeeId);
