@@ -1,6 +1,6 @@
-import {registerViewer,watchViewerAccess} from './access.js?v=20261019.1';
-import {saveDirectoryProfile,watchMyApproval} from './user-directory.js?v=20261019.1';
-import {disconnectPush} from './push.js?v=20261019.1';
+import {registerViewer,watchViewerAccess} from './access.js?v=20261019.8';
+import {saveDirectoryProfile,watchMyApproval} from './user-directory.js?v=20261019.8';
+import {disconnectPush} from './push.js?v=20261019.8';
 import { requestAdmin, watchAdminRole } from './roles.js?v=20261017.5';
 import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWorker, sendVerification, refreshVerification, resetPassword, authMessage, watchAuth } from './auth.js?v=20261019.8';
 const $ = id => document.getElementById(id);
