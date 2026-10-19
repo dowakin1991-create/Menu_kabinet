@@ -18,7 +18,7 @@ self.addEventListener('push', event => {
     const kinds={'schedule-added':'Графік додано',schedule:'Графік змінено',banquet:'Додано Бенкет',cleaning:'Додано генеральне прибирання','cancel-banquet':'Бенкет скасовано','cancel-cleaning':'Генеральне прибирання скасовано'};
     const notices=Array.isArray(data?.notices)?data.notices.filter(n=>month&&n&&Object.hasOwn(kinds,n.kind)&&Number.isInteger(n.day)&&n.day>0&&n.day<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()&&(!n.endDay||(n.kind==='schedule-added'&&Number.isInteger(n.endDay)&&n.endDay>=n.day&&n.endDay<=new Date(Number(month.slice(0,4)),Number(month.slice(5,7)),0).getDate()))).slice(0,31):[];
     if(!notices.length) return self.registration.showNotification('KABINET',{body:'Графік оновлено. Відкрийте кабінет, щоб переглянути зміни.',icon:new URL('IMG_9802.png',self.registration.scope).href,tag:'kabinet-schedule',renotify:true});
-    const monthNames=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','грудень'];
+    const monthNames=['січень','лютий','березень','квітень','травень','червень','липень','серпень','вересень','жовтень','листопад','грудень'];
     const lines=notices.map(({kind,day,endDay})=>{
       const dateText=kind==='schedule-added'&&endDay
         ? `${monthNames[Number(month.slice(5,7))-1]} ${String(day).padStart(2,'0')}-${String(endDay).padStart(2,'0')}`
