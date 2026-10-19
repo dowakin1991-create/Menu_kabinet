@@ -6,9 +6,10 @@ import { isAdmin, isOwner, currentUser, canEditWorker, login, logout, registerWo
 const $ = id => document.getElementById(id);
 let lastCompact = null;
 let viewerMode=false,stopViewer=null,stopApproval=null,lastDirectoryUid=null,accountApproved=true,approvalKnown=false;
-let hasAccess = false, formMode = "register";
+let hasAccess = false, formMode = "register", authInitialized = false;
 let busy = false, lastSent = 0, roleStatus = null, roleUser = null, stopRole = null;
 function renderAccount() {
+  if(!authInitialized){$('account-summary').textContent='Відновлюємо вхід…';$('account-forms').hidden=true;$('account-signed').hidden=true;return;}
   const user = currentUser(), signed = user && !user.isAnonymous;
   $('account-forms').hidden = !!signed;
   $('account-signed').hidden = !signed;
@@ -80,6 +81,7 @@ export function initAccount() {
     await requestAdmin(currentUser()); $('account-message').textContent='Заявку надіслано власнику.';
   }));
   watchAuth(()=>{
+    authInitialized=true;
     const user=currentUser();
     if(user&&!user.isAnonymous&&user.uid!==lastDirectoryUid){
       lastDirectoryUid=user.uid;
