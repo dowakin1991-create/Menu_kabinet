@@ -21,7 +21,7 @@ export function watchMyApproval(user,callback){
 export function initUserDirectory(getEmployees) {
  let stop=null,stopBindings=null;let bindings=new Map();
  const root=$('owner-user-list'),status=$('owner-user-status');
- async function bind(uid,employeeId) {
+ async function bind(uid,employeeId,replaceUid='') {
    const ids=[...new Set(getEmployees().map(e=>String(e.id)))];
    if(!ids.includes(employeeId))throw Error('Оберіть ім’я з поточного графіка.');
    const team=doc(db,'teamAccess',uid);
@@ -32,7 +32,8 @@ export function initUserDirectory(getEmployees) {
      for(const ref of refs)snaps.push(await tx.get(ref));
      const selected=ids.indexOf(employeeId);
      const taken=snaps[selected].exists()?snaps[selected].data().uid:'';
-     if(taken&&taken!==uid)throw Error('Це ім’я вже зайняте іншим акаунтом.');
+     if(taken&&taken!==uid&&taken!==replaceUid){const error=new Error('Ім’я зайняте іншою прив’язкою.');error.occupiedUid=taken;throw error;}
+     if(taken&&taken!==uid){const replacedTeam=doc(db,'teamAccess',taken);const replacedSnap=await tx.get(replacedTeam);if(replacedSnap.exists()&&String(replacedSnap.data().employeeId)===employeeId)tx.delete(replacedTeam);}
      const oldId=current.exists()?String(current.data().employeeId||''):'';
      let oldRef=null,oldSnap=null;
      if(oldId&&!ids.includes(oldId)&&oldId!==employeeId){oldRef=doc(db,'employeeAccess',oldId);oldSnap=await tx.get(oldRef);}
@@ -63,7 +64,16 @@ export function initUserDirectory(getEmployees) {
      if(savedId&&Array.from(select.options).some(option=>option.value===savedId))select.value=savedId;
      const bindingLabel=document.createElement('p');bindingLabel.textContent=savedId?'Прив’язано: '+(getEmployees().find(e=>String(e.id)===savedId)?.name||'інше ім’я з графіка'):'Не прив’язано до графіка';
      const button=document.createElement('button');button.type='button';button.textContent=u.status==='pending'?'Підтвердити та прив’язати':'Змінити прив’язку';
-     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);bindings.set(u.uid,select.value);bindingLabel.textContent='Прив’язано: '+(getEmployees().find(e=>String(e.id)===select.value)?.name||select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Акаунт '+u.name+' прив’язаний і підтверджений.';}catch(e){status.textContent=e.message||'Не вдалося зберегти.';}finally{button.disabled=false;}};
+     button.onclick=async()=>{button.disabled=true;status.textContent='Збереження…';try{await bind(u.uid,select.value);bindings.set(u.uid,select.value);bindingLabel.textContent='Прив’язано: '+(getEmployees().find(e=>String(e.id)===select.value)?.name||select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Акаунт '+u.name+' прив’язаний і підтверджений.';}catch(e){
+       if(e.occupiedUid){
+         const holder=cachedUsers.find(user=>user.uid===e.occupiedUid);
+         const holderName=e.occupiedUid===currentUser()?.uid?'ВАШ АКАУНТ ВЛАСНИКА':holder?`${holder.name} (${holder.email})`:'акаунт, відсутній у довіднику';
+         if(confirm(`Ім’я вже прив’язане до: ${holderName}. Замінити цю прив’язку на ${u.name}? Попередній акаунт втратить доступ до цього імені.`)){
+           try{await bind(u.uid,select.value,e.occupiedUid);status.textContent='Прив’язку замінено та збережено.';bindings.set(u.uid,select.value);draw(cachedUsers);}
+           catch(retryError){status.textContent=retryError.message||'Не вдалося замінити прив’язку.';}
+         }else status.textContent='Заміну скасовано. Стару прив’язку збережено.';
+       }else status.textContent=e.message||'Не вдалося зберегти.';
+     }finally{button.disabled=false;}};
      if(u.role==='viewer'&&u.status==='pending'){
        const approve=document.createElement('button');approve.type='button';approve.textContent='Підтвердити глядача';
        approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
