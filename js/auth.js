@@ -11,6 +11,8 @@ import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
 auth.languageCode = 'uk';
+// Preserve an existing signed-in account across browser/app restarts.
+auth.authStateReady().then(() => setPersistence(auth, browserLocalPersistence)).catch(error => console.warn('Auth persistence:', error));
 let approvedUid = null;
 export const isOwner = user => !!user && user.uid === ADMIN_UID;
 export const isAdmin = user => isOwner(user) || !!(user && user.emailVerified && approvedUid === user.uid);
