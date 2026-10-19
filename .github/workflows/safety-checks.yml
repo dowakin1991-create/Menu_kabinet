@@ -29,4 +29,5 @@ jobs:
       - name: JavaScript regression tests
         run: npm test
       - name: Firestore permissions in isolated emulator
+        if: success() || failure()
         run: npm run test:rules
