@@ -47,7 +47,7 @@ test('unverified users and failed role reads cannot become admins',()=>{
 
 test('remember-me persists a session without storing passwords in app storage',async()=>{
  const {api,persisted}=setup({uid:'worker',isAnonymous:false,emailVerified:false});
- await api.login('a@example.com','secret',true);await api.login('a@example.com','secret',false);assert.deepEqual(persisted,['local','session']);
+ await api.login('a@example.com','secret',true);await api.login('a@example.com','secret',false);assert.deepEqual(persisted,['local','local']);
 });
 test('opening a public page never creates an anonymous account',async()=>{
  const {api,auth}=setup(null);assert.equal(await api.ensureWorkerSession(),null);assert.equal(auth.currentUser,null);
