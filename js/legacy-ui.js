@@ -484,9 +484,13 @@ if (admin) {
     try { await navigator.clipboard.writeText(user.uid); toast('Код скопійовано. Передайте адміністратору.'); }
     catch { prompt('Скопіюйте код і передайте адміністратору:',user.uid); }
   });
+  let lastWorkerAuthUid=null,lastWorkerAdmin=null;
   watchAuth(user=>{
+    const authUid=user?.uid||null,adminRole=isAdmin(user);
+    if(authUid===lastWorkerAuthUid&&adminRole===lastWorkerAdmin)return;
+    lastWorkerAuthUid=authUid;lastWorkerAdmin=adminRole;
     renderRoleBadge(user);
-    stopTeamAccess?.();stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
+    stopTeamAccess?.()stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
     let accountApproved=false,teamLinked=false,linkedEmployee=null,viewerLinked=false;
     const refreshAccess=()=>{
       if(ticket!==accessGeneration||isAdmin(user))return;
@@ -497,6 +501,7 @@ if (admin) {
     };
     const applyAccess = (access, employeeId = null) => {
       if(ticket!==accessGeneration)return;
+      if(allowed===access&&boundEmployeeId===(access?employeeId:null)&&ready)return;
       unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
       boundEmployeeId=access?employeeId:null;
       employees=[];banquets={};isRedDotMode=false;
