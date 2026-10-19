@@ -69,7 +69,7 @@ export function initUserDirectory(getEmployees) {
          const holder=cachedUsers.find(user=>user.uid===e.occupiedUid);
          const holderName=e.occupiedUid===currentUser()?.uid?'ВАШ АКАУНТ ВЛАСНИКА':holder?`${holder.name} (${holder.email})`:'акаунт, відсутній у довіднику';
          if(confirm(`Ім’я вже прив’язане до: ${holderName}. Замінити цю прив’язку на ${u.name}? Попередній акаунт втратить доступ до цього імені.`)){
-           try{await bind(u.uid,select.value,e.occupiedUid);status.textContent='Прив’язку замінено та збережено.';bindings.set(u.uid,select.value);draw(cachedUsers);}
+           try{await bind(u.uid,select.value,e.occupiedUid);status.textContent='Прив’язку замінено та збережено.';bindings.set(u.uid,select.value);if(u.status==='pending')await sendAccountEvent('approved',u.uid).catch(()=>{});draw(cachedUsers);}
            catch(retryError){status.textContent=retryError.message||'Не вдалося замінити прив’язку.';}
          }else status.textContent='Заміну скасовано. Стару прив’язку збережено.';
        }else status.textContent=e.message||'Не вдалося зберегти.';
