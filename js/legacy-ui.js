@@ -490,7 +490,7 @@ if (admin) {
     if(authUid===lastWorkerAuthUid&&adminRole===lastWorkerAdmin)return;
     lastWorkerAuthUid=authUid;lastWorkerAdmin=adminRole;
     renderRoleBadge(user);
-    stopTeamAccess?.()stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
+    stopTeamAccess?.();stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
     let accountApproved=false,teamLinked=false,linkedEmployee=null,viewerLinked=false,lastAccessKey=null;
     const refreshAccess=()=>{
       if(ticket!==accessGeneration||isAdmin(user))return;
