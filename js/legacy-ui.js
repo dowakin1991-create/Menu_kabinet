@@ -475,7 +475,8 @@ if (admin) {
     finally{$('login-submit').disabled=false;$('login-password').value='';}
   });
   $('logout').addEventListener('click',()=>{window.location.assign(new URL('index.html',location.href).href);});
-  watchAuth(user=>{renderRoleBadge(user);allowed=isAdmin(user);setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
+  let lastAdminSession=null;
+  watchAuth(user=>{const nextAllowed=isAdmin(user),sessionKey=`${user?.uid||'guest'}:${nextAllowed}`;if(lastAdminSession===sessionKey)return;lastAdminSession=sessionKey;renderRoleBadge(user);allowed=nextAllowed;setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
 } else {
   initAccount();
   $('copy-access').addEventListener('click',async()=>{
@@ -535,6 +536,8 @@ if (admin) {
   });
 }
 async function startWorker(){render();try{await ensureWorkerSession();}catch(error){loadError=true;render();status('Не вдалося підключитися. Перевірте інтернет.',true);}}
+let lastRecoveryAt=0;
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&allowed&&!ready&&Date.now()-lastRecoveryAt>12000){lastRecoveryAt=Date.now();loadData();}});
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();});
     function renderIndex() {
         const year = currentDate.getFullYear();
