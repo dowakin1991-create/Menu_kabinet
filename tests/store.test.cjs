@@ -37,7 +37,7 @@ test('schedule appears immediately; availability updates later; errors and stop 
  assert.equal(output.length,0,'do not show an empty graph before schedule data');
  listeners[0].next({exists:()=>true,data:seed});
  assert.equal(output.length,1,'schedule must render without waiting for availability');
- assert.deepEqual(output[0].employees[0].shifts,[15]);
+ assert.deepEqual([...output[0].employees[0].shifts],[15]);
  assert.equal(listeners[1].ref,'availability/2026-10/employees/1');
  listeners[1].next({exists:()=>true,data:()=>({days:[20]})});
  assert.equal(output.length,2);
