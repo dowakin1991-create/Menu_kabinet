@@ -17,10 +17,11 @@ let approvedUid = null;
 export const isOwner = user => !!user && user.uid === ADMIN_UID;
 export const isAdmin = user => isOwner(user) || !!(user && user.emailVerified && approvedUid === user.uid);
 export function watchAuth(callback) {
-  let stopRole = null, generation = 0, lastUid;
+  let stopRole = null, generation = 0, lastIdentity;
   const stopAuth = onAuthStateChanged(auth, user => {
-    if(user?.uid === lastUid && lastUid !== undefined) { callback(user); return; }
-    lastUid = user?.uid;
+    const identity = `${user?.uid ?? 'guest'}:${!!user?.emailVerified}:${!!user?.isAnonymous}`;
+    if(identity === lastIdentity) { callback(user); return; }
+    lastIdentity = identity;
     const ticket = ++generation; stopRole?.(); stopRole = null; approvedUid = null;
     if (!user || user.isAnonymous || isOwner(user) || !user.emailVerified) { callback(user); return; }
     stopRole = watchAdminRole(user.uid, data => {
@@ -65,7 +66,7 @@ export async function registerWorker(name, email, password, remember = true) {
 export async function socialLogin(kind, remember = true) {
   const provider = kind === 'google' ? new GoogleAuthProvider() : new OAuthProvider('apple.com');
   if (kind === 'apple') { provider.addScope('email'); provider.addScope('name'); }
-  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+  await setPersistence(auth, browserLocalPersistence);
   return (await signInWithPopup(auth,provider)).user;
 }
 export async function sendVerification() {
