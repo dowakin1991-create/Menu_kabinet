@@ -30,6 +30,7 @@ let stopViewerAccess=null,stopApprovalAccess=null,viewerMode=false;
 let stopTeamAccess = null, accessGeneration = 0, boundEmployeeId = null;
 let ready = false, allowed = false, loadError = false, initialScrollDone = false;
 let activeColDay = null, activeRowEmpId = null, isRedDotMode = false;
+let daySettingsStage = 'main';
 let pendingAction = null, currentEditEmpId = null, currentEditDay = null, currentSettingsDay = null, currentReceiptDay = null;
 const getDocId = () => monthId(currentDate);
 const findEmployee = id => employees.find(e => String(e.id) === String(id));
@@ -312,7 +313,7 @@ window.editEmployeeAccess = action(async () => {
 
 window.openDaySettings = day => {
   if (!admin || !ready) return;
-  currentSettingsDay = day;
+  currentSettingsDay = day; daySettingsStage='main';
   $('daySettingsTitle').textContent = `Налаштування: ${day} ${monthNames[currentDate.getMonth()].toLowerCase()}`;
   renderDaySettings(); show('daySettingsModal');
 };
@@ -330,19 +331,48 @@ function renderWorkerReceipts() {
   const b = banquets[currentReceiptDay];
   renderPhotos($('receiptImagesContainer'),getDocId(),currentReceiptDay,b,false);
 }
+window.showBanquetChoices = () => { daySettingsStage='banquet'; renderDaySettings(); };
+window.showDayMainActions = () => { daySettingsStage='main'; renderDaySettings(); };
+window.chooseDayEvent = type => {
+  if(type==='banquet')return window.showBanquetChoices();
+  if(type==='cleaning')return window.markCleaning();
+};
 function renderDaySettings() {
-  const day = currentSettingsDay, b = banquets[day];
-  const container = $('banquetContainer');
-  // Static markup only; all user content goes through textContent / DOM properties.
-  container.innerHTML = '<div id="legacy-receipts"></div><input type="file" id="banquetFile" accept="image/*" multiple style="display:none" onchange="handleBanquetUpload(event)">';
-  const type=b?.type==='cleaning'?'cleaning':'banquet';
-  if (b?.active) {
-    container.insertAdjacentHTML('beforeend',`<p>${type==='cleaning'?'Генеральне прибирання заплановане.':'Бенкет заплановано.'}</p>${type==='banquet'?'<button id="banquetUploadBtn" class="modal-btn" style="background:#2ecc71;color:white;border:none;margin-bottom:5px" onclick="document.getElementById(\'banquetFile\').click()">➕ Додати ще фото чеку</button>':''}<button class="modal-btn danger" onclick="deleteBanquet()">🗑 Скасувати ${type==='cleaning'?'прибирання':'бенкет'}</button>`);
-  } else {
-    container.insertAdjacentHTML('beforeend','<p style="font-size:.85rem;opacity:.8">Оберіть, що запланувати на цей день.</p><button id="banquetUploadBtn" class="modal-btn" style="background:#e67e22;color:white;border:none;margin-bottom:10px" onclick="document.getElementById(\'banquetFile\').click()">📸 Завантажити чек(и) бенкету</button><button class="modal-btn" style="background:var(--primary);color:white;border:none;margin-bottom:8px" onclick="markBanquetNoPhoto()">🎉 Додати бенкет</button><button class="modal-btn" style="background:#176c7b;color:white;border:none" onclick="markCleaning()">🧹 Додати генеральне прибирання</button>');
+  const day=currentSettingsDay,b=banquets[day],container=$('banquetContainer');
+  if(!day)return;
+  container.replaceChildren();
+  const file=document.createElement('input');
+  file.type='file'; file.id='banquetFile'; file.accept='image/*'; file.multiple=true; file.hidden=true;
+  file.addEventListener('change',event=>window.handleBanquetUpload(event));
+  container.append(file);
+  const actions=document.createElement('div'); actions.className='day-action-list';container.append(actions);
+  const button=(label,color,click)=>{
+    const el=document.createElement('button');el.type='button';el.className='day-action-btn '+color;el.textContent=label;el.onclick=click;actions.append(el);return el;
+  };
+  const active=!!b?.active, type=b?.type==='cleaning'?'cleaning':'banquet';
+  const highlighting=activeColDay===day;
+  if(daySettingsStage==='banquet'){
+    const text=document.createElement('p');text.className='day-action-note';text.textContent='Як додати бенкет?';actions.append(text);
+    button('📸 Додати фото чеку','gold',()=>file.click());
+    button('🎉 Виділити бенкет без чеку','gold',()=>window.markBanquetNoPhoto());
+    button('← Назад','neutral',()=>window.showDayMainActions());
+  }else{
+    button(highlighting?'🟩 Зняти виділення стовпця':'🟩 Виділити стовпець','green',()=>window.toggleColFromSettings());
+    if(active){
+      const msg=document.createElement('p');msg.className='day-action-note';msg.textContent=type==='cleaning'?'🧹 Заплановано генеральне прибирання':'🎉 Заплановано бенкет';actions.append(msg);
+      if(type==='banquet')button('📸 Додати фото чеку','gold',()=>file.click());
+      button('🗑 Скасувати '+(type==='cleaning'?'генеральне прибирання':'бенкет'),'danger',()=>window.deleteBanquet());
+      if(type==='cleaning')button('🎉 Додати бенкет','gold',()=>{if(confirm('Замінити прибирання на бенкет?'))window.showBanquetChoices();});
+      else button('🧹 Додати генеральне прибирання','pink',()=>{if(confirm('Замінити бенкет на прибирання? Фото чеків цього бенкету буде від’єднано.'))window.markCleaning();});
+    }else{
+      button('🎉 Додати бенкет','gold',()=>window.showBanquetChoices());
+      button('🧹 Додати генеральне прибирання','pink',()=>window.markCleaning());
+    }
   }
-  renderPhotos($('legacy-receipts'),getDocId(),day,b?.type==='cleaning'?null:b,true);
+  const photos=document.createElement('div');photos.id='legacy-receipts';container.append(photos);
+  if(active&&type==='banquet')renderPhotos(photos,getDocId(),day,b,true);
 }
+
 function renderPhotos(container,month,day,banquet,editable) {
   const ticket = {}; container.ticket = ticket; container.replaceChildren();
   const ids = banquet?.receiptIds || [];
@@ -372,7 +402,7 @@ function renderPhotos(container,month,day,banquet,editable) {
 window.markBanquetNoPhoto = action(async () => {
   const month=getDocId(),day=currentSettingsDay;if(!admin || !day)return;
   await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true,type:'banquet'};});
-  recordChange(month,'banquets',day,'banquet');
+  recordChange(month,'banquets',day,'banquet');daySettingsStage='main';
 });
 window.markCleaning = action(async () => {
   const month=getDocId(),day=currentSettingsDay;if(!admin||!day)return;
