@@ -30,7 +30,7 @@ function message(text) {
 }
 function errorText(error) {
   if (error.code === 'not-configured') return error.message;
-  if (error.code === 'functions/permission-denied') return 'Адміністратор має надати вам доступ до графіка.';
+  if (error.code === 'functions/permission-denied') return 'Сервер відхилив підписку. Власнику потрібно оновити Cloudflare Worker.';
   if (error.code === 'functions/resource-exhausted' || error.code === 'functions/failed-precondition') return error.message;
   if (error.code === 'functions/unauthenticated') return 'Увійдіть у кабінет повторно.';
   if (error.name === 'NotAllowedError') return 'Сповіщення заборонені. Дозвольте їх у налаштуваннях пристрою.';
@@ -84,7 +84,7 @@ export async function setPushAccess(access) {
       registeredUid = uid;
       message('Сповіщення увімкнено на цьому пристрої.'); draw(true);
     } else {
-      message(Notification.permission === 'denied' ? 'Сповіщення заблоковані. Дозвольте їх у налаштуваннях пристрою.' : 'Отримуйте повідомлення, коли адміністратор оновить графік.'); draw(false);
+      message(Notification.permission === 'denied' ? 'Сповіщення заблоковані. Дозвольте їх у налаштуваннях пристрою.' : 'Натисніть «Увімкнути сповіщення», щоб отримувати зміни графіка.'); draw(false);
     }
   } catch (error) { if (ticket === generation) message(errorText(error)); }
 }
