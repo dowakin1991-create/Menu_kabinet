@@ -506,7 +506,7 @@ if (admin) {
   });
   $('logout').addEventListener('click',()=>{window.location.assign(new URL('index.html',location.href).href);});
   let lastAdminSession=null;
-  watchAuth(user=>{const nextAllowed=isAdmin(user),sessionKey=`${user?.uid||'guest'}:${nextAllowed}`;if(lastAdminSession===sessionKey)return;lastAdminSession=sessionKey;renderRoleBadge(user);allowed=nextAllowed;setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
+  watchAuth(user=>{const nextAllowed=isAdmin(user),sessionKey=`${user?.uid||'guest'}:${nextAllowed}`;if(lastAdminSession===sessionKey)return;lastAdminSession=sessionKey;const authLoading=$('admin-auth-loading');if(authLoading)authLoading.hidden=true;renderRoleBadge(user);allowed=nextAllowed;setPushAccess(allowed);unsubscribe?.();generation++;closeAll();employees=[];banquets={};ready=false;$('admin-panel').hidden=!allowed;$('login-panel').hidden=allowed;if(!allowed)clearPrivateContent();if(allowed){loadData();syncTeamAccess().catch(()=>toast('Для доступу працівників опублікуйте нові Rules та перезавантажте адмінку.','error'));}});
 } else {
   initAccount();
   $('copy-access').addEventListener('click',async()=>{
