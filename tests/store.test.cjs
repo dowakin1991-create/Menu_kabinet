@@ -32,11 +32,21 @@ test('separate administrator edits preserve latest schedule',async()=>{
  const {api,docs}=setup();await Promise.all([api.updateSchedule('2026-10',d=>d.employees[0].shifts.push(16)),api.updateSchedule('2026-10',d=>d.banquets['20']={active:true})]);
  assert.deepEqual(docs.get('schedules/2026-10').employees[0].shifts,[15,16]);assert(docs.get('schedules/2026-10').banquets['20']);
 });
-test('subscription waits for both sources and does not emit after error/stop',()=>{
- const {api,listeners}=setup();const output=[], errors=[];const stop=api.subscribeSchedule('2026-10',d=>output.push(d),e=>errors.push(e));
- listeners[0].next({exists:()=>true,data:seed});assert.equal(output.length,0);
- listeners[1].next({forEach:fn=>fn({id:'1',data:()=>({days:[20]})})});assert.equal(output.length,1);assert.equal(output[0].employees[0].unavail[0],20);
- listeners[0].error(Error('denied'));listeners[1].next({forEach:()=>{}});assert.equal(output.length,1);assert.equal(errors.length,1);stop();assert(listeners.every(l=>l.stopped));
+test('schedule appears immediately; availability updates later; errors and stop prevent stale events',()=>{
+ const {api,listeners}=setup();const output=[],errors=[];const stop=api.subscribeSchedule('2026-10',d=>output.push(d),e=>errors.push(e));
+ assert.equal(output.length,0,'do not show an empty graph before schedule data');
+ listeners[0].next({exists:()=>true,data:seed});
+ assert.equal(output.length,1,'schedule must render without waiting for availability');
+ assert.deepEqual(output[0].employees[0].shifts,[15]);
+ assert.equal(listeners[1].ref,'availability/2026-10/employees/1');
+ listeners[1].next({exists:()=>true,data:()=>({days:[20]})});
+ assert.equal(output.length,2);
+ assert.deepEqual([...output[1].employees[0].unavail],[20]);
+ listeners[0].error(Error('denied'));
+ listeners[1].next({exists:()=>true,data:()=>({days:[21]})});
+ assert.equal(output.length,2,'stop publishing after fatal schedule error');
+ assert.equal(errors.length,1);
+ stop();assert(listeners.every(l=>l.stopped));
 });
 test('employee and access save atomically; missing employee fails without access write',async()=>{
  const {api,docs}=setup();await api.saveEmployeeProfile('2026-10',1,'Антон М','uid');assert.equal(docs.get('employeeAccess/1').uid,'uid');assert.equal(docs.get('schedules/2026-10').employees[0].name,'Антон М');await assert.rejects(api.saveEmployeeProfile('2026-10',2,'Інший','uid'));assert(!docs.has('employeeAccess/2'));
