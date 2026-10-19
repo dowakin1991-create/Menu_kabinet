@@ -12,13 +12,15 @@ import { ADMIN_UID } from "./config.js?v=20261015.2";
 const auth = getAuth(firebaseApp);
 auth.languageCode = 'uk';
 // Preserve an existing signed-in account across browser/app restarts.
-auth.authStateReady().then(() => setPersistence(auth, browserLocalPersistence)).catch(error => console.warn('Auth persistence:', error));
+// Firebase restores the existing session. Persistence is selected on sign-in, not during startup.
 let approvedUid = null;
 export const isOwner = user => !!user && user.uid === ADMIN_UID;
 export const isAdmin = user => isOwner(user) || !!(user && user.emailVerified && approvedUid === user.uid);
 export function watchAuth(callback) {
-  let stopRole = null, generation = 0;
+  let stopRole = null, generation = 0, lastUid;
   const stopAuth = onAuthStateChanged(auth, user => {
+    if(user?.uid === lastUid && lastUid !== undefined) { callback(user); return; }
+    lastUid = user?.uid;
     const ticket = ++generation; stopRole?.(); stopRole = null; approvedUid = null;
     if (!user || user.isAnonymous || isOwner(user) || !user.emailVerified) { callback(user); return; }
     stopRole = watchAdminRole(user.uid, data => {
@@ -52,7 +54,7 @@ export async function registerWorker(name, email, password, remember = true) {
   if (password.length < 8) throw new Error('Пароль має містити щонайменше 8 символів.');
   await auth.authStateReady();
   if (auth.currentUser && !auth.currentUser.isAnonymous) throw new Error('Спочатку вийдіть із поточного облікового запису.');
-  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+  await setPersistence(auth, browserLocalPersistence);
   // Upgrade the guest instead of replacing its UID and existing employee binding.
   const result = auth.currentUser?.isAnonymous
     ? await linkWithCredential(auth.currentUser, EmailAuthProvider.credential(email, password))
