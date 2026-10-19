@@ -491,7 +491,7 @@ if (admin) {
     lastWorkerAuthUid=authUid;lastWorkerAdmin=adminRole;
     renderRoleBadge(user);
     stopTeamAccess?.()stopViewerAccess?.();stopApprovalAccess?.();viewerMode=false;const ticket=++accessGeneration;
-    let accountApproved=false,teamLinked=false,linkedEmployee=null,viewerLinked=false;
+    let accountApproved=false,teamLinked=false,linkedEmployee=null,viewerLinked=false,lastAccessKey=null;
     const refreshAccess=()=>{
       if(ticket!==accessGeneration||isAdmin(user))return;
       const viewerAllowed=accountApproved&&viewerLinked&&!teamLinked;
@@ -501,7 +501,9 @@ if (admin) {
     };
     const applyAccess = (access, employeeId = null) => {
       if(ticket!==accessGeneration)return;
-      if(allowed===access&&boundEmployeeId===(access?employeeId:null)&&ready)return;
+      const accessKey=`${access}:${access?employeeId??'viewer':'none'}:${viewerMode}`;
+      if(lastAccessKey===accessKey)return;
+      lastAccessKey=accessKey;
       unsubscribe?.();generation++;closeAll();ready=false;allowed=access;
       boundEmployeeId=access?employeeId:null;
       employees=[];banquets={};isRedDotMode=false;
