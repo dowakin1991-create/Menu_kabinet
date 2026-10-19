@@ -1,5 +1,5 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261019.1';
-import { initUserDirectory, refreshOwnerUserDirectory, watchMyApproval } from './user-directory.js?v=20261019.1';
+import { initUserDirectory, refreshOwnerUserDirectory, watchMyApproval } from './user-directory.js?v=20261019.4';
 import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261019.1';
 import { initOwnerPanel } from './owner.js?v=20261019.1';
 import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261019.1';
