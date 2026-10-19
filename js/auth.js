@@ -36,7 +36,7 @@ export const ensureWorkerSession = async () => {
   return auth.currentUser;
 };
 export async function login(email, password, remember = true) {
-  await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+  await setPersistence(auth, browserLocalPersistence);
   const result = await signInWithEmailAndPassword(auth, email.trim(), password);
   approvedUid = null;
   if (!isOwner(result.user) && result.user.emailVerified) {
