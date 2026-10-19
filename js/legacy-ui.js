@@ -407,7 +407,7 @@ window.markBanquetNoPhoto = action(async () => {
 window.markCleaning = action(async () => {
   const month=getDocId(),day=currentSettingsDay;if(!admin||!day)return;
   await updateSchedule(month,draft=>{draft.banquets[day]={active:true,type:'cleaning',note:'',links:[],receiptIds:[],time:'',guests:null};});
-  recordChange(month,'banquets',day,'cleaning');toast('Генеральне прибирання додано.');
+  daySettingsStage='main';recordChange(month,'banquets',day,'cleaning');toast('Генеральне прибирання додано.');
 });
 window.deleteBanquet = action(async () => {
   const month=getDocId(),day=currentSettingsDay;
@@ -423,10 +423,10 @@ window.handleBanquetUpload = action(async event => {
     // Compress before creating a banquet: an invalid first file must not create an empty event.
     for (const file of files) {
       const image=await compressReceipt(file);
-      if (!saved && !banquets[day]?.active) await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]||{}),active:true};});
+      if (!saved && (!banquets[day]?.active || banquets[day]?.type==='cleaning')) await updateSchedule(month,draft=>{draft.banquets[day]={...(draft.banquets[day]?.type==='cleaning'?{}:draft.banquets[day]||{}),active:true,type:'banquet'};});
       await addReceipt(month,day,image);saved++;recordChange(month,'banquets',day);
     }
-    toast(`Збережено фото: ${saved}.`);
+    daySettingsStage='main';toast(`Збережено фото: ${saved}.`);
   } catch(error) {throw new Error(`Збережено фото: ${saved}. ${error.message || 'Помилка завантаження.'}`);}
   finally {event.target.value='';}
 });
