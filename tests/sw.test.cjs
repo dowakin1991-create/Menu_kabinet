@@ -17,8 +17,8 @@ test('change push bundles updates and navigates to all affected days',async()=>{
  const x=setup(),payload={month:'2026-10',notices:[{kind:'schedule',day:15},{kind:'cleaning',day:20}]};
  let wait; x.handlers.push({data:{json:()=>payload},waitUntil:p=>wait=p});await wait;
  assert.equal(x.shown.length,1);
- assert.match(x.shown[0].options.body,/Графік змінено 15\.10/);
- assert.match(x.shown[0].options.body,/Додано генеральне прибирання 20\.10/);
+ assert(x.shown[0].options.body.includes('Графік змінено 15.10.'));
+ assert(x.shown[0].options.body.includes('Додано генеральне прибирання 20.10.'));
  const opened=[];x.clients.push({url:x.scope+'index.html',focus:async()=>{},navigate:async url=>opened.push(url)});
  let click;x.handlers.notificationclick({notification:{data:x.shown[0].options.data,close(){}},waitUntil:p=>click=p});await click;
  assert.equal(new URL(opened[0]).searchParams.get('month'),'2026-10');
