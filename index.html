@@ -143,6 +143,7 @@
 #push-bell-icon{font-size:27px;line-height:1}
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
      .viewer-export{display:flex;gap:8px;margin-bottom:12px}.viewer-export button{flex:1;border:1px solid var(--border);background:var(--primary);color:white;border-radius:12px;padding:12px;font-weight:700}.viewer-export[hidden]{display:none}
+    #admin-link.admin-open-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:10px 16px;border:1px solid #176f79;border-radius:13px;background:#177381;color:#fff;font-weight:750;text-decoration:none;box-sizing:border-box;box-shadow:none}#admin-link.admin-open-button[hidden]{display:none!important}#admin-link.admin-open-button:active{background:#115761}
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261018.9">
@@ -198,7 +199,7 @@
         </div>
         <p id="admin-request-status" role="status"></p>
         <button id="request-admin" type="button" hidden>Подати заявку на адміністратора</button>
-        <a id="admin-link" href="admin.html" hidden>Відкрити адмінку</a>
+        <a id="admin-link" class="account-control admin-open-button" href="admin.html" hidden><span aria-hidden="true">↗</span> Відкрити адмінку</a>
     <button id="copy-access" type="button" class="account-control">Скопіювати мій код доступу</button>
         <button id="worker-logout" type="button">Вийти</button>
       </div>
