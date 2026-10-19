@@ -162,6 +162,7 @@ body[data-page="admin"] #push-panel{display:none!important}
 .admin-tools-panel[open] .tools-chevron{transform:rotate(180deg)}
 .admin-tools-panel .admin-controls{margin:0!important;border:0!important;border-top:1px solid var(--border)!important;border-radius:0!important}
 .directory-card{display:grid;gap:7px;padding:12px;border:1px solid var(--border);border-radius:12px;margin:10px 0;background:var(--bg-card)}.directory-card p{margin:0;font-size:.8rem}.directory-card code{font-size:.68rem;overflow-wrap:anywhere;user-select:all}.directory-card select,.directory-card button{width:100%;min-height:42px;border:1px solid var(--border);border-radius:10px;padding:8px}.directory-card button{background:var(--primary);color:white;font-weight:700}
+    .day-action-btn{display:flex!important;align-items:center!important;justify-content:center!important;min-height:62px!important;width:100%!important;box-sizing:border-box!important;padding:12px 15px!important;margin:0!important;border:0!important;border-radius:14px!important;font-size:1rem!important;line-height:1.25!important;font-weight:750!important;text-align:center!important;white-space:normal!important;color:white!important;cursor:pointer!important}.day-action-list{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;width:100%}.day-action-btn.green{background:#23a63e!important}.day-action-btn.gold{background:#d99a15!important}.day-action-btn.pink{background:#da4b85!important}.day-action-btn.neutral{background:#627883!important}.day-action-btn.danger{background:#b73d50!important}.day-action-btn:disabled{opacity:.5}.day-action-note{font-size:.85rem;color:var(--text-main);text-align:center;margin:0 0 12px}
     </style>
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261018.8">
 <link rel="stylesheet" href="assets/glass.css?v=20261018.9">
@@ -209,7 +210,7 @@ body[data-page="admin"] #push-panel{display:none!important}
     <details id="owner-users-panel" class="account-panel" hidden><summary>Користувачі та прив’язки</summary><p>Акаунти, які зареєструвалися або ввійшли після оновлення. UID — ідентифікатор доступу, не пароль.</p><p id="owner-user-status" role="status"></p><div id="owner-user-list"></div></details>
     <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
-    <details class="admin-tools-panel" open><summary>Інструменти графіка <span class="tools-chevron" aria-hidden="true">⌄</span></summary>
+    <details class="admin-tools-panel"><summary>Інструменти графіка <span class="tools-chevron" aria-hidden="true">⌄</span></summary>
     <div class="admin-controls">
       <details class="schedule-publish"><summary>Повідомити про новий графік ▾</summary><div class="publish-actions"><button type="button" onclick="notifyNewSchedule(1)">1–15</button><button type="button" onclick="notifyNewSchedule(2)">16–кінець</button></div></details>
         <div class="input-group">
@@ -262,9 +263,9 @@ body[data-page="admin"] #push-panel{display:none!important}
 <div id="daySettingsModal" class="modal-overlay">
     <div class="modal-content">
         <h3 id="daySettingsTitle">Налаштування дня</h3>
-        <button class="modal-btn" onclick="toggleColFromSettings()">🟩 Виділити / Зняти виділення стовпця</button>
-        <hr style="width:100%; border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
-        <h4 style="margin: 0 0 10px 0; text-align: center; color: #e67e22; font-size: 1.1rem;">🎉 БЕНКЕТ / 🧹 ГЕНЕРАЛЬНЕ ПРИБИРАННЯ</h4>
+        
+        
+        
         <div id="banquetContainer" style="text-align: center;"></div>
         <button class="modal-btn" onclick="closeModal('daySettingsModal')" style="margin-top: 15px; background: transparent; border: none; text-decoration: underline;">Закрити</button>
     </div>
