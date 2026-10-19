@@ -3,7 +3,7 @@ function setup({ios=false,installed=false,offline=false}={}){
  const elements={},log=[],handlers={},storage=new Map();let subscribed=false;
  const sub={endpoint:'https://web.push.apple.com/test',toJSON:()=>({endpoint:'https://web.push.apple.com/test'}),unsubscribe:async()=>{log.push('unsubscribe');subscribed=false;return true}};
  const registration={active:{},pushManager:{getSubscription:async()=>subscribed?sub:null,subscribe:async()=>{log.push('subscribe');subscribed=true;return sub}},getNotifications:async()=>[]};
- const el=id=>elements[id]??={textContent:'',hidden:false,disabled:false,addEventListener:(type,fn)=>{handlers[id]=fn}};
+ const el=id=>elements[id]??={textContent:'',hidden:false,disabled:false,setAttribute(){},removeAttribute(){},addEventListener:(type,fn)=>{handlers[id]=fn}};
  const ctx={console,URL,Uint8Array,DOMException,AbortSignal,setTimeout,clearTimeout,atob,PUSH_API_URL:'https://push.example',currentUser:()=>({uid:'worker',getIdToken:async()=> 'token'}),firebaseApp:{},
  fetch:async url=>{const name=url.split('/').pop();log.push(name);if(offline&&name==='pushSubscribe')throw Error('offline');return {ok:true,json:async()=>({publicKey:'BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'})}},
  document:{getElementById:el},navigator:{userAgent:ios?'iPhone':'desktop',platform:'',maxTouchPoints:0,serviceWorker:{register:async()=>registration,getRegistration:async()=>registration}},
