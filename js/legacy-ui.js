@@ -245,7 +245,7 @@ window.handleCellClick = (id, day) => {
   if (admin) {
     const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day) || (emp.shiftsSoho||[]).includes(day);
     currentEditEmpId = emp.id; currentEditDay = day;
-    show('shiftModal');
+    if (hasShift) show('shiftModal'); else window.setShiftType('full');
   } else if (isRedDotMode && boundEmployeeId && String(emp.id) === String(boundEmployeeId)) {
     const removing = emp.unavail.includes(day);
     pendingAction = {month:getDocId(), id:emp.id, day, unavailable:!removing};
