@@ -1,5 +1,5 @@
 import { getFirestore, doc, onSnapshot, collection, getDocs, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { firebaseApp } from './store.js?v=20261017.5';
+import { firebaseApp } from './store.js?v=20261029.soho1';
 import { isOwner } from './auth.js?v=20261019.8';
 const db=getFirestore(firebaseApp);
 export async function registerViewer(uid) {
