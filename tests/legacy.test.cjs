@@ -30,3 +30,14 @@ test('admin row controls have boundary guards and are absent from worker table',
  assert.match(elements['b-row'].innerHTML,/moveEmployeeRow\(event, &quot;b&quot;, 1\)" disabled/);
  assert(!elements['body-row'].innerHTML.includes('row-order-controls'));
 });
+
+test('SOHO shift option and compact red badge exist in both schedules',()=>{
+ const admin=fs.readFileSync(path.join(root,'admin.html'),'utf8');
+ const viewer=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const ui=fs.readFileSync(path.join(root,'js/legacy-ui.js'),'utf8');
+ assert(admin.includes("setShiftType('soho')"));
+ assert(admin.includes('SOHO зміна в іншому закладі'));
+ for(const html of [admin,viewer])assert(html.includes('.shift-soho'));
+ assert(ui.includes("content = '<span class=\"shift-soho\">SOHO</span>'"));
+ assert(ui.includes("soho:'shiftsSoho'"));
+});
