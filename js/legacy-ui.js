@@ -65,13 +65,14 @@ window.showPersonalView=()=>{if($('schedule-view'))$('schedule-view').hidden=tru
 function renderPersonalDashboard(){
   $('month-label-profile').textContent=`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
   const employee=employees.find(item=>String(item.id)===String(boundEmployeeId));
-  if(!employee){$('personal-title').textContent='Персональний кабінет';$('personal-days').textContent='0';$('personal-breakdown').textContent='Працівника ще не прив’язано до облікового запису.';$('personal-chart').replaceChildren();return;}
+  if(!employee){$('personal-title').textContent='Персональний кабінет';$('personal-days').textContent='0';$('personal-soho').textContent='';$('personal-breakdown').textContent='Працівника ще не прив’язано до облікового запису.';$('personal-chart').replaceChildren();return;}
   const year=currentDate.getFullYear(),month=currentDate.getMonth(),totalDays=new Date(year,month+1,0).getDate();
   const full=new Set(employee.shifts),first=new Set(employee.shiftsFirst),second=new Set(employee.shiftsSecond),soho=new Set(employee.shiftsSoho||[]);
-  const count=full.size+soho.size+(first.size+second.size)/2;
+  const count=full.size+(first.size+second.size)/2;
   $('personal-title').textContent=employee.name;
   $('personal-heading').textContent=`Особиста статистика · ${employee.name}`;
   $('personal-days').textContent=Number.isInteger(count)?String(count):count.toFixed(1).replace('.',',');
+  $('personal-soho').textContent=soho.size?`+${soho.size}`:'';
   $('personal-breakdown').textContent=`${full.size} повних · ${first.size} перших половин · ${second.size} других половин · ${soho.size} SOHO`;
   const chart=$('personal-chart');chart.replaceChildren();chart.setAttribute('aria-label',`Діаграма змін за ${monthNames[month]} ${year}`);
   for(let day=1;day<=totalDays;day++){
@@ -215,9 +216,15 @@ window.showEmployeeInfo = (event, id) => {
   event?.stopPropagation(); const emp = findEmployee(id); if (!emp) return;
   currentEditEmpId = emp.id; window.toggleRowHighlight(emp.id);
   $('infoModalName').textContent = emp.name;
+  const sohoInRange=(start,end)=>(emp.shiftsSoho||[]).filter(day=>day>=start&&day<=end).length;
+  const firstSoho=sohoInRange(1,15);
   $('statFirstHalf').textContent = shiftCount(emp, 1, 15);
+  $('statFirstSoho').replaceChildren();
+  if(firstSoho) $('statFirstSoho').textContent=`+${firstSoho}`;
   const end = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0).getDate();
-  $('statSecondLabel').innerHTML = `Зміни (16-${end}): <strong id="statSecondHalf">${shiftCount(emp,16,end)}</strong>`;
+  $('statSecondLabel').firstChild.textContent=`Зміни (16-${end}): `;
+  $('statSecondHalf').textContent=shiftCount(emp,16,end);
+  $('statSecondSoho').textContent=sohoInRange(16,end)?`+${sohoInRange(16,end)}`:'';
   show('infoModal');
 };
 // The original pencil referenced an undefined editEmployee function.
