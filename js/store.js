@@ -25,12 +25,14 @@ function normalizeEmployee(employee, index) {
   const full = days(employee?.shifts);
   const first = days(employee?.shiftsFirst).filter(day => !full.includes(day));
   const second = days(employee?.shiftsSecond).filter(day => !full.includes(day) && !first.includes(day));
+  const soho = days(employee?.shiftsSoho).filter(day => !full.includes(day) && !first.includes(day) && !second.includes(day));
   return {
     id: employee?.id ?? `legacy-${index}`,
     name: safeText(employee?.name, "Без імені").trim() || "Без імені",
     shifts: full,
     shiftsFirst: first,
     shiftsSecond: second,
+    shiftsSoho: soho,
     unavail: days(employee?.unavail)
   };
 }
@@ -295,7 +297,7 @@ export async function ensureMonthRoster(month) {
     const roster = normalizeSchedule(prior.data()).employees;
     if (!roster.length) return false;
     tx.set(target, {
-      employees: roster.map(({id, name}) => ({id, name, shifts:[], shiftsFirst:[], shiftsSecond:[], unavail:[]})),
+      employees: roster.map(({id, name}) => ({id, name, shifts:[], shiftsFirst:[], shiftsSecond:[], shiftsSoho:[], unavail:[]})),
       banquets: {}, schemaVersion: 2, updatedAt: serverTimestamp()
     });
     return true;
