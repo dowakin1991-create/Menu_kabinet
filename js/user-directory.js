@@ -1,5 +1,5 @@
 import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import {firebaseApp} from './store.js?v=20261017.5';
+import {firebaseApp} from './store.js?v=20261029.soho1';
 import {sendAccountEvent} from './push.js?v=20261019.8';
 import {currentUser,isOwner,watchAuth} from './auth.js?v=20261019.8';
 const db=getFirestore(firebaseApp),$=id=>document.getElementById(id);
