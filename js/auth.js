@@ -6,7 +6,7 @@ import {
   createUserWithEmailAndPassword, linkWithCredential, EmailAuthProvider,
   updateProfile, sendEmailVerification, sendPasswordResetEmail, reload
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { firebaseApp } from "./store.js?v=20261017.5";
+import { firebaseApp } from "./store.js?v=20261029.soho1";
 import { ADMIN_UID } from "./config.js?v=20261015.2";
 
 const auth = getAuth(firebaseApp);
