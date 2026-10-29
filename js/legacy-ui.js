@@ -67,8 +67,8 @@ function renderPersonalDashboard(){
   const employee=employees.find(item=>String(item.id)===String(boundEmployeeId));
   if(!employee){$('personal-title').textContent='Персональний кабінет';$('personal-days').textContent='0';$('personal-breakdown').textContent='Працівника ще не прив’язано до облікового запису.';$('personal-chart').replaceChildren();return;}
   const year=currentDate.getFullYear(),month=currentDate.getMonth(),totalDays=new Date(year,month+1,0).getDate();
-  const full=new Set(employee.shifts),first=new Set(employee.shiftsFirst),second=new Set(employee.shiftsSecond);
-  const count=full.size+(first.size+second.size)/2;
+  const full=new Set(employee.shifts),first=new Set(employee.shiftsFirst),second=new Set(employee.shiftsSecond),soho=new Set(employee.shiftsSoho||[]);
+  const count=full.size+soho.size+(first.size+second.size)/2;
   $('personal-title').textContent=employee.name;
   $('personal-heading').textContent=`Особиста статистика · ${employee.name}`;
   $('personal-days').textContent=Number.isInteger(count)?String(count):count.toFixed(1).replace('.',',');
@@ -243,7 +243,7 @@ window.handleCellClick = (id, day) => {
   if (!ready) return;
   const emp = findEmployee(id); if (!emp) return;
   if (admin) {
-    const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day);
+    const hasShift = emp.shifts.includes(day) || emp.shiftsFirst.includes(day) || emp.shiftsSecond.includes(day) || (emp.shiftsSoho||[]).includes(day);
     currentEditEmpId = emp.id; currentEditDay = day;
     if (hasShift) show('shiftModal'); else window.setShiftType('full');
   } else if (isRedDotMode && boundEmployeeId && String(emp.id) === String(boundEmployeeId)) {
@@ -264,8 +264,8 @@ window.setShiftType = action(async type => {
   await updateSchedule(month, draft => {
     const emp = draft.employees.find(e => String(e.id) === String(id));
     if (!emp) throw new Error('Працівника вже видалено.');
-    for (const key of ['shifts','shiftsFirst','shiftsSecond']) emp[key] = emp[key].filter(d => d !== day);
-    const field = {full:'shifts',first:'shiftsFirst',second:'shiftsSecond'}[type];
+    for (const key of ['shifts','shiftsFirst','shiftsSecond','shiftsSoho']) emp[key] = emp[key].filter(d => d !== day);
+    const field = {full:'shifts',first:'shiftsFirst',second:'shiftsSecond',soho:'shiftsSoho'}[type];
     if (field) emp[field].push(day);
   });
   recordChange(month,'shifts',day); hide('shiftModal');
@@ -277,7 +277,7 @@ window.addEmployee = action(async () => {
   const id = crypto.randomUUID();
   await updateSchedule(getDocId(), draft => {
     if (draft.employees.some(e => e.name.toLocaleLowerCase('uk') === name.toLocaleLowerCase('uk'))) throw new Error('Таке ім’я вже існує.');
-    draft.employees.push({id,name,shifts:[],shiftsFirst:[],shiftsSecond:[],unavail:[]});
+    draft.employees.push({id,name,shifts:[],shiftsFirst:[],shiftsSecond:[],shiftsSoho:[],unavail:[]});
   });
   $('newEmpName').value = '';
 });
@@ -631,6 +631,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
                     else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
                     else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    else if((emp.shiftsSoho||[]).includes(day)) content = '<span class="shift-soho">SOHO</span>';
                     if(emp.unavail.includes(day)) content += '<span class="unavailable">•</span>';
                     
                     return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
@@ -719,6 +720,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
                     if(emp.shifts.includes(day)) content = '<span class="shift-icon shift-full"></span>';
                     else if(emp.shiftsFirst.includes(day)) content = '<span class="shift-icon shift-first"></span>';
                     else if(emp.shiftsSecond.includes(day)) content = '<span class="shift-icon shift-second"></span>';
+                    else if((emp.shiftsSoho||[]).includes(day)) content = '<span class="shift-soho">SOHO</span>';
                     if(emp.unavail.includes(day)) content += '<span class="unavail-marker">•</span>';
                     
                     return `<td data-day="${day}" class="${tdClass}" onclick="handleCellClick(${safeId(emp.id)}, ${day})">${content}</td>`;
