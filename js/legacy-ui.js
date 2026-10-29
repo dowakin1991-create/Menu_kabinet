@@ -72,12 +72,12 @@ function renderPersonalDashboard(){
   $('personal-title').textContent=employee.name;
   $('personal-heading').textContent=`Особиста статистика · ${employee.name}`;
   $('personal-days').textContent=Number.isInteger(count)?String(count):count.toFixed(1).replace('.',',');
-  $('personal-breakdown').textContent=`${full.size} повних · ${first.size} перших половин · ${second.size} других половин`;
+  $('personal-breakdown').textContent=`${full.size} повних · ${first.size} перших половин · ${second.size} других половин · ${soho.size} SOHO`;
   const chart=$('personal-chart');chart.replaceChildren();chart.setAttribute('aria-label',`Діаграма змін за ${monthNames[month]} ${year}`);
   for(let day=1;day<=totalDays;day++){
-    const value=full.has(day)?1:(first.has(day)||second.has(day))?.5:0;
+    const value=(full.has(day)||soho.has(day))?1:(first.has(day)||second.has(day))?.5:0;
     const column=document.createElement('div');column.className='personal-bar-column';
-    const bar=document.createElement('span');bar.className='personal-bar'+(value?' is-work':'');bar.style.setProperty('--bar-height',`${Math.max(value*100,4)}%`);bar.title=`${day}: ${value===1?'1 день':value===.5?'½ дня':'без зміни'}`;
+    const bar=document.createElement('span');bar.className='personal-bar'+(value?' is-work':'');bar.style.setProperty('--bar-height',`${Math.max(value*100,4)}%`);bar.title=`${day}: ${soho.has(day)?'SOHO':value===1?'1 день':value===.5?'½ дня':'без зміни'}`;
     const label=document.createElement('small');label.textContent=String(day);
     column.append(bar,label);chart.append(column);
   }
@@ -611,7 +611,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
         body.innerHTML = employees.map((emp, index) => {
             const isLastRow = (index === employees.length - 1);
             const isRowHighlighted = (activeRowEmpId === emp.id);
-            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay) || (emp.shiftsSoho||[]).includes(activeColDay));
             
             return `<tr class="${isRowHighlighted ? 'highlight-row' : ''}">
                 <td onclick="showEmployeeInfo(event, ${safeId(emp.id)})" class="${worksOnActiveDay ? 'highlight-name' : ''}">${escapeHTML(emp.name)}</td>
@@ -690,7 +690,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
         body.innerHTML = employees.map((emp, index) => {
             const isLastRow = (index === employees.length - 1);
             const isRowHighlighted = (activeRowEmpId === emp.id);
-            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay));
+            const worksOnActiveDay = activeColDay && (emp.shifts.includes(activeColDay) || emp.shiftsFirst.includes(activeColDay) || emp.shiftsSecond.includes(activeColDay) || (emp.shiftsSoho||[]).includes(activeColDay));
             
             return `<tr ondragover="overEmployeeRow(event)" ondragleave="leaveEmployeeRow(event)" ondrop="dropEmployeeRow(event, ${safeId(emp.id)})" class="${isRowHighlighted ? 'highlight-row' : ''}">
                 <td onclick="showEmployeeInfo(event, ${safeId(emp.id)})" class="${worksOnActiveDay ? 'highlight-name' : ''}">
