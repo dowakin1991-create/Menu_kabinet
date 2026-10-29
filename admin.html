@@ -110,6 +110,7 @@
 
         .duty-text { font-size: 0.55rem; color: #f1c40f; font-weight: bold; display: block; margin-top: 3px; letter-spacing: 0.5px; }
 
+        .shift-soho { display:inline-block; background:#e00018; color:#090909; padding:5px 7px; font-size:10px; font-weight:900; line-height:1; white-space:nowrap; letter-spacing:0; vertical-align:middle; }
         .shift-icon { display: inline-block; width: 18px; height: 18px; background-color: var(--primary); vertical-align: middle; cursor: pointer; }
         .shift-full { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
         .shift-first { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
@@ -241,7 +242,8 @@ body[data-page="admin"] #push-panel{display:none!important}
         <button class="modal-btn" onclick="setShiftType('full')"><span class="shift-icon shift-full" style="background-color: var(--text-main);"></span> Повний день</button>
         <button class="modal-btn" onclick="setShiftType('first')"><span class="shift-icon shift-first" style="background-color: var(--text-main);"></span> Перша половина</button>
         <button class="modal-btn" onclick="setShiftType('second')"><span class="shift-icon shift-second" style="background-color: var(--text-main);"></span> Друга половина</button>
-        <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
+        <button class="modal-btn" onclick="setShiftType('soho')"><span class="shift-soho">SOHO</span> SOHO зміна в іншому закладі</button>
+         <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
         <button class="modal-btn" onclick="closeModal('shiftModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
     </div>
 </div>
