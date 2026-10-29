@@ -88,3 +88,15 @@ test('roster initialization never overwrites existing or concurrently edited mon
  assert.equal(docs.get('schedules/2026-12').employees[0].id,'new');
  await api.ensureMonthRoster('2026-09');assert(!docs.has('schedules/2026-09'));
 });
+
+test('SOHO is a separate exclusive shift, persists and is cleared in a new roster',async()=>{
+ const {api,docs}=setup();
+ await api.updateSchedule('2026-10',d=>{d.employees[0].shiftsSoho=[18];});
+ const saved=docs.get('schedules/2026-10');
+ assert.deepEqual(saved.employees[0].shiftsSoho,[18]);
+ const normalized=api.normalizeSchedule({employees:[{id:'x',name:'X',shifts:[10],shiftsFirst:[11],shiftsSecond:[12],shiftsSoho:[10,11,12,13]}]});
+ assert.deepEqual([...normalized.employees[0].shiftsSoho],[13]);
+ assert.deepEqual([...api.normalizeSchedule(saved).employees[0].shiftsSoho],[18]);
+ await api.ensureMonthRoster('2026-11');
+ assert.deepEqual(docs.get('schedules/2026-11').employees[0].shiftsSoho,[]);
+});
