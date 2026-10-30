@@ -21,6 +21,7 @@ export function shiftType(employee, day) {
   if (employee.shifts.includes(day)) return "full";
   if (employee.shiftsFirst.includes(day)) return "first";
   if (employee.shiftsSecond.includes(day)) return "second";
+  if ((employee.shiftsSoho || []).includes(day)) return "soho";
   return "none";
 }
 
