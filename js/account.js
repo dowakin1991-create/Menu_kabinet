@@ -1,3 +1,4 @@
+import {initPresence} from './presence.js?v=20261031.1';
 import {registerViewer,watchViewerAccess} from './access.js?v=20261019.8';
 import {saveDirectoryProfile,watchMyApproval} from './user-directory.js?v=20261019.8';
 import {disconnectPush} from './push.js?v=20261019.8';
@@ -48,6 +49,7 @@ async function sendLetter() {
 export function setScheduleAccess(value) { hasAccess = value; renderAccount(); }
 export function openAccount() { $('account-panel').open=true; $('account-panel').scrollIntoView({behavior:'smooth',block:'nearest'}); }
 export function initAccount() {
+  initPresence();
   $('show-login').addEventListener('click',()=>{formMode='login';renderAccount();$('worker-email').focus();});
   $('show-register').addEventListener('click',()=>{formMode='register';renderAccount();$('register-name').focus();});
 
