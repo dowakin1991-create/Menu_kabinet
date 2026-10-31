@@ -34,6 +34,17 @@ service cloud.firestore {
       allow update: if isOwner() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status in ['approved','pending'];
       allow delete: if false;
     }
+    match /presence/{uid} {
+      // Only the signed-in account can update its own heartbeat; only the owner
+      // can inspect presence of other accounts.
+      allow get: if isOwner() || (request.auth != null && request.auth.uid == uid);
+      allow list: if isOwner();
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasOnly(['lastSeen'])
+        && request.resource.data.lastSeen == request.time;
+      allow delete: if false;
+    }
     match /viewerAccess/{uid} {
       allow read: if isOwner() || (request.auth != null && request.auth.uid == uid);
       allow create: if request.auth != null && request.auth.uid == uid
