@@ -1,8 +1,8 @@
 import {initPush, setPushAccess, disconnectPush, notifySchedule} from './push.js?v=20261019.8';
-import { initUserDirectory, refreshOwnerUserDirectory, watchMyApproval } from './user-directory.js?v=20261019.8';
+import { initUserDirectory, refreshOwnerUserDirectory, watchMyApproval } from './user-directory.js?v=20261031.presence';
 import { watchTeamAccess, watchViewerAccess, syncTeamAccess } from './access.js?v=20261019.8';
 import { initOwnerPanel } from './owner.js?v=20261019.8';
-import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261019.8';
+import { initAccount, openAccount, setScheduleAccess } from './account.js?v=20261031.presence';
 import { isOwner, currentUser, canEditWorker, ensureWorkerSession, isAdmin, login, logout, watchAuth } from './auth.js?v=20261019.8';
 import { ensureMonthRoster, moveEmployee, subscribeSchedule, monthId, updateSchedule, setAvailability, employeeAccess, bindEmployee, bindOwnerEmployee, addReceipt, deleteReceipt, removeBanquet, readReceipt } from './store.js?v=20261029.soho1';
 import { dutyName as getDutyName, shiftCount, toast } from './ui.js?v=20261015.2';
