@@ -19,7 +19,7 @@ service cloud.firestore {
       return request.auth != null && (!exists(/databases/$(database)/documents/userDirectory/$(request.auth.uid)) || get(/databases/$(database)/documents/userDirectory/$(request.auth.uid)).data.get('status','approved') == 'approved');
     }
     function canReadSchedule() {
-      return isAdmin() || (approvedAccount() && (isViewer() || (request.auth != null && request.auth.token.email_verified == true
+      return isAdmin() || (approvedAccount() && ((isViewer() && exists(/databases/$(database)/documents/userDirectory/$(request.auth.uid)) && get(/databases/$(database)/documents/userDirectory/$(request.auth.uid)).data.role == 'viewer') || (request.auth != null && request.auth.token.email_verified == true
         && exists(/databases/$(database)/documents/teamAccess/$(request.auth.uid))
         && get(/databases/$(database)/documents/employeeAccess/$(get(/databases/$(database)/documents/teamAccess/$(request.auth.uid)).data.employeeId)).data.uid == request.auth.uid)));
     }
