@@ -1,3 +1,4 @@
+import {watchOwnerPresence,presenceOnline} from './presence.js?v=20261031.1';
 import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {firebaseApp} from './store.js?v=20261029.soho1';
 import {sendAccountEvent} from './push.js?v=20261019.8';
@@ -46,7 +47,8 @@ export function initUserDirectory(getEmployees) {
    const check=await getDoc(team);
    if(!check.exists()||String(check.data().employeeId)!==employeeId)throw Error('Firebase не підтвердив прив’язку. Повторіть спробу.');
  }
- let cachedUsers=[];
+ let cachedUsers=[],seen=new Map(),stopPresence=null,refreshTimer=null;
+ const presenceLabel=uid=>{const t=seen.get(uid);if(!t)return 'Активність ще не зафіксована';const date=t.toDate();return (presenceOnline(t)?'🟢 Онлайн · ':'⚪ Не в мережі · ')+'останній сигнал: '+date.toLocaleString('uk-UA',{dateStyle:'short',timeStyle:'short'});};
  function draw(users){
    root.replaceChildren();
    if(!users.length){root.textContent='Зареєстровані користувачі ще не з’явилися у списку.';return;}
@@ -57,6 +59,7 @@ export function initUserDirectory(getEmployees) {
      const label=document.createElement('strong');label.textContent=u.name||'Без імені';
      const meta=document.createElement('p');meta.textContent=(u.email||'')+' · '+(u.role==='viewer'?'Глядач':'Працівник');
      const key=document.createElement('code');key.textContent=u.uid;
+     const activity=document.createElement('p');activity.className='presence-indicator';activity.textContent=presenceLabel(u.uid);
      const select=document.createElement('select');select.setAttribute('aria-label','Ім’я у графіку для '+u.name);
      select.add(new Option('Вибрати ім’я з графіка',''));
      for(const employee of getEmployees())select.add(new Option(employee.name,String(employee.id)));
@@ -79,14 +82,16 @@ export function initUserDirectory(getEmployees) {
        approve.onclick=async()=>{approve.disabled=true;try{await setDoc(doc(db,'userDirectory',u.uid),{status:'approved'},{merge:true});await sendAccountEvent('approved',u.uid).catch(()=>{});status.textContent='Глядача підтверджено.';}catch(e){status.textContent=e.message;}finally{approve.disabled=false;}};
        card.append(approve);
      }
-     card.append(label,meta,key,...(u.role==='viewer'?[]:[bindingLabel,select,button]));root.append(card);
+     card.append(label,meta,activity,key,...(u.role==='viewer'?[]:[bindingLabel,select,button]));root.append(card);
    }
  }
  function start(user){
-   stop?.();stopBindings?.();stop=null;stopBindings=null;bindings=new Map();const owner=isOwner(user);
+   stop?.();stopBindings?.();stopPresence?.();if(refreshTimer)clearInterval(refreshTimer);refreshTimer=null;stop=null;stopBindings=null;stopPresence=null;bindings=new Map();const owner=isOwner(user);
    $('owner-users-panel').hidden=!owner;
    if(!owner)return;
    status.textContent='Завантаження користувачів…';
+   stopPresence=watchOwnerPresence(user,value=>{seen=value;if(cachedUsers.length)draw(cachedUsers);},error=>{status.textContent='Статус активності недоступний: '+(error.code||error.message);});
+   refreshTimer=setInterval(()=>{if(cachedUsers.length)draw(cachedUsers);},30000);
    stopBindings=onSnapshot(collection(db,'teamAccess'),snapshot=>{bindings=new Map(snapshot.docs.map(d=>[d.id,String(d.data().employeeId||'')]));if(cachedUsers.length)draw(cachedUsers);},error=>{status.textContent='Не вдалося прочитати прив’язки: '+(error.code||error.message);});
    stop=onSnapshot(collection(db,'userDirectory'),snapshot=>{status.textContent='';cachedUsers=snapshot.docs.map(d=>({uid:d.id,...d.data()}));draw(cachedUsers);},error=>{status.textContent='Помилка читання користувачів: '+(error.code||error.message);});
  }
