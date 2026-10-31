@@ -32,6 +32,14 @@ const {doc,setDoc,updateDoc,getDoc,getDocs,collection,serverTimestamp}=require('
   await assertSucceeds(setDoc(doc(worker,'adminRequests','worker'),request));
   await assertFails(setDoc(doc(worker,'schedules','2026-10'),{employees:[],banquets:{}}));
 
+  // A viewer cannot bypass approval by self-creating viewerAccess.
+  const viewer=env.authenticatedContext('viewer',{email:'viewer@example.com',email_verified:true}).firestore();
+  await assertSucceeds(setDoc(doc(viewer,'viewerAccess','viewer'),{role:'viewer'}));
+  await assertFails(getDoc(doc(viewer,'schedules','2026-10')));
+  await assertSucceeds(setDoc(doc(viewer,'userDirectory','viewer'),{name:'Viewer',email:'viewer@example.com',role:'viewer',status:'pending'}));
+  await assertFails(getDoc(doc(viewer,'schedules','2026-10')));
+  await assertSucceeds(updateDoc(doc(owner,'userDirectory','viewer'),{status:'approved'}));
+  await assertSucceeds(getDoc(doc(viewer,'schedules','2026-10')));
   // Presence is self-writable but other users' activity is owner-only.
   await assertSucceeds(setDoc(doc(worker,'presence','worker'),{lastSeen:serverTimestamp()}));
   await assertSucceeds(getDoc(doc(worker,'presence','worker')));
