@@ -32,6 +32,15 @@ const {doc,setDoc,updateDoc,getDoc,getDocs,collection,serverTimestamp}=require('
   await assertSucceeds(setDoc(doc(worker,'adminRequests','worker'),request));
   await assertFails(setDoc(doc(worker,'schedules','2026-10'),{employees:[],banquets:{}}));
 
+  // Presence is self-writable but other users' activity is owner-only.
+  await assertSucceeds(setDoc(doc(worker,'presence','worker'),{lastSeen:serverTimestamp()}));
+  await assertSucceeds(getDoc(doc(worker,'presence','worker')));
+  await assertSucceeds(getDoc(doc(owner,'presence','worker')));
+  await assertSucceeds(getDocs(collection(owner,'presence')));
+  await assertFails(getDoc(doc(other,'presence','worker')));
+  await assertFails(getDocs(collection(other,'presence')));
+  await assertFails(setDoc(doc(other,'presence','worker'),{lastSeen:serverTimestamp()}));
+  await assertFails(setDoc(doc(worker,'presence','worker'),{lastSeen:serverTimestamp(),admin:true}));
   const guest=env.unauthenticatedContext().firestore();
   const anonymous=env.authenticatedContext('guest',{firebase:{sign_in_provider:'anonymous'}}).firestore();
   await assertFails(getDoc(doc(guest,'schedules','2026-10')));
