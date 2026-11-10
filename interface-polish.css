@@ -115,9 +115,9 @@ body[data-page] .table-wrapper tbody td .unavail-marker {
   body[data-page="index"] #schedule-view #redDotToggleBtn {
     position:absolute;
     top:0;
-    right:0;
-    left:auto;
-    width:min(30%,285px);
+    right:auto;
+    left:508px;
+    width:285px;
     max-width:285px;
     min-height:57px;
     margin:0;
@@ -139,7 +139,7 @@ body[data-page] .table-wrapper tbody td .unavail-marker {
 }
 @media (min-width:960px) and (max-width:1100px) {
   body[data-page="index"] #private-schedule .worker-tabs {width:440px}
-  body[data-page="index"] #schedule-view #redDotToggleBtn {width:250px}
+  body[data-page="index"] #schedule-view #redDotToggleBtn {left:456px;width:250px}
 }
 @media (prefers-reduced-motion:reduce) {
   body[data-page] .table-wrapper {scroll-behavior:auto}
