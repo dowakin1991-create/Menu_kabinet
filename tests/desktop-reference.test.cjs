@@ -7,7 +7,7 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 
 test('approved owner desktop design is connected without replacing mobile admin panels',()=>{
  const html=read('admin.html'),css=read('desktop-reference.css');
- assert.match(html,/desktop-reference\.css\?v=20261110\.2/);
+ assert.match(html,/desktop-reference\.css\?v=20261110\.3/);
  assert(html.indexOf('desktop-reference.css')>html.indexOf('interface-polish.css'),'reference CSS loads after old overrides');
  for(const id of ['owner-panel','owner-users-panel','admin-tools-panel','admin-table','logout','pushNotifyBtn']){
    assert(html.includes('id="'+id+'"'),'preserve existing '+id);
@@ -43,7 +43,7 @@ test('owner home follows reference layout and preserves existing schedule contro
  assert.match(home,/class="desktop-owner-logout"/);
  assert.match(home,/href="admin\.html#owner-panel"/);
  assert.match(home,/href="admin\.html#owner-users-panel"/);
- assert.match(home,/desktop-reference\.css\?v=20261110\.2/);
+ assert.match(home,/desktop-reference\.css\?v=20261110\.3/);
  assert.match(ui,/document\.body\.dataset\.owner = isOwner\(user\)/);
  for(const id of ['account-panel','push-panel','private-schedule','schedule-tab','personal-tab','redDotToggleBtn','schedule','personal-view']){
    assert(home.includes('id="'+id+'"'));
@@ -51,6 +51,7 @@ test('owner home follows reference layout and preserves existing schedule contro
  assert.match(css,/\[data-owner="true"\] \.desktop-owner-shortcuts/);
  assert.match(css,/\.desktop-main-workspace #redDotToggleBtn/);
  assert.match(css,/@media \(max-width:959px\)/);
+ assert.match(css,/\.month-selector\[hidden\]\{display:none!important\}/);
 });
 test('existing management panels open on authorized deep links',()=>{
  const admin=read('admin.html'),router=read('js/admin-deeplinks.js');
