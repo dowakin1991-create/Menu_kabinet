@@ -156,6 +156,7 @@
      .viewer-export{display:flex;gap:8px;margin-bottom:12px}.viewer-export button{flex:1;border:1px solid var(--border);background:var(--primary);color:white;border-radius:12px;padding:12px;font-weight:700}.viewer-export[hidden]{display:none}
     #admin-link.admin-open-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:10px 16px;border:1px solid #176f79;border-radius:13px;background:#177381;color:#fff;font-weight:750;text-decoration:none;box-sizing:border-box;box-shadow:none}#admin-link.admin-open-button[hidden]{display:none!important}#admin-link.admin-open-button:active{background:#115761}
     </style>
+<link rel="stylesheet" href="responsive.css?v=20261110.1">
 <link rel="stylesheet" href="assets/legacy-extras.css?v=20261017.10">
 <link rel="stylesheet" href="assets/glass.css?v=20261018.9">
 <link rel="manifest" href="manifest.webmanifest">
@@ -236,6 +237,14 @@
         🔴 Поставити вихідний
     </button>
 
+    <nav class="schedule-scroll-controls" aria-label="Переміщення по датах графіка">
+      <span class="scroll-copy"><span aria-hidden="true">↔</span><span>Графік за місяць · прокручуйте дати</span></span>
+      <span class="scroll-actions">
+        <button type="button" data-scroll="left" aria-label="Попередні дати" title="Прокрутити до попередніх дат">◀</button>
+        <span class="scroll-position" aria-live="off">Прокручування графіка</span>
+        <button type="button" data-scroll="right" aria-label="Наступні дати" title="Прокрутити до наступних дат">▶</button>
+      </span>
+    </nav>
     <div class="table-wrapper">
         <table id="schedule">
             <thead><tr id="header-row"></tr></thead>
@@ -308,5 +317,6 @@
 </div>
 
 <script type="module" src="js/legacy-ui.js?v=20261110.supra1"></script>
+<script src="js/schedule-viewport.js?v=20261110.1" defer></script>
 </body>
 </html>
