@@ -59,3 +59,22 @@ test('SUPRA option, badges, aligned statistics and counters are wired on both pa
  assert(ui.includes('shift-supra'));
  assert(ui.includes("if (hasShift) show('shiftModal'); else window.setShiftType('full');"));
 });
+
+test('compact event badges fit schedule cells and new-schedule dropdown is removed',()=>{
+ const admin=fs.readFileSync(path.join(root,'admin.html'),'utf8');
+ const viewer=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const ui=fs.readFileSync(path.join(root,'js/legacy-ui.js'),'utf8');
+ const css=fs.readFileSync(path.join(root,'event-labels.css'),'utf8');
+ assert.doesNotMatch(admin,/class="schedule-publish"/);
+ assert.match(admin,/id="pushNotifyBtn"/);
+ assert.match(admin,/onclick="notifyTeam\(\)"/);
+ assert.equal((ui.match(/'ГЕН\.'/g)||[]).length,2);
+ assert.equal((ui.match(/'БЕНК\.'/g)||[]).length,2);
+ assert.match(ui,/window\.notifyTeam =/);
+ for(const html of [admin,viewer]){
+   assert.match(html,/event-labels\.css\?v=20261110\.1/);
+   assert.match(html,/js\/legacy-ui\.js\?v=20261110\.events1/);
+ }
+ assert.match(css,/max-width:calc\(100% - 2px\)/);
+ assert.match(css,/white-space:nowrap/);
+});
