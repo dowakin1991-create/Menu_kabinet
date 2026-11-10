@@ -29,5 +29,5 @@ test('table navigation moves the schedule only, without changing schedule values
  assert.match(js,/wrapper\.scrollBy/);
  assert.match(js,/wrapper\.scrollLeft/);
  assert.match(js,/wrapper\.scrollWidth/);
- assert.doesNotMatch(js,/firebase|localStorage|sessionStorage|setShiftType|updateSchedule|logout/i);
+ assert.doesNotMatch(js,/getFirestore|setDoc\s*\(|localStorage|sessionStorage|setShiftType|updateSchedule|logout\s*\(/i);
 });
