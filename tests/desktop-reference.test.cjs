@@ -60,3 +60,23 @@ test('existing management panels open on authorized deep links',()=>{
  assert.match(router,/panel\.open=true/);
  assert.doesNotMatch(router,/firebase|updateDoc|setDoc|deleteDoc/);
 });
+
+test('desktop repair uses a genuine grid, not overlapping absolute controls',()=>{
+ const css=read('desktop-repair.css');
+ const home=read('index.html'),admin=read('admin.html');
+ for(const html of [home,admin]){
+   assert.match(html,/desktop-repair\.css\?v=20261110\.1/);
+   assert(html.indexOf('desktop-repair.css')>html.indexOf('desktop-reference.css'));
+ }
+ assert.match(css,/grid-template-columns:minmax\(255px/);
+ assert.match(css,/#private-schedule:not\(\[hidden\]\)/);
+ assert.match(css,/#schedule-view:not\(\[hidden\]\)/);
+ assert.match(css,/#private-schedule\[hidden\]/);
+ assert.match(css,/#schedule-view #redDotToggleBtn/);
+ assert.match(css,/position:static!important/);
+ assert.match(css,/grid-column:3/);
+ assert.match(css,/table th:first-child/);
+ assert.match(css,/position:sticky!important/);
+ assert.match(css,/overflow:visible!important/);
+ assert.doesNotMatch(css,/setDoc\(|setPersistence|firebase/);
+});
