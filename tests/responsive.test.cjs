@@ -52,7 +52,7 @@ test('final interface polish is last stylesheet on both pages and preserves appl
  assert.match(css,/#redDotToggleBtn\[hidden\]/);
  for(const page of ['index.html','admin.html']){
    const html=fs.readFileSync(path.join(root,page),'utf8');
-   assert.match(html,/interface-polish\.css\?v=20261110\.2/);
+   assert.match(html,/interface-polish\.css\?v=20261110\.3/);
    assert(html.indexOf('interface-polish.css')>html.indexOf('assets/glass.css'));
    assert.match(html,/class="table-wrapper"/);
  }
@@ -61,4 +61,15 @@ test('final interface polish is last stylesheet on both pages and preserves appl
  assert.match(viewer,/id="redDotToggleBtn"/);
  assert.match(admin,/id="admin-table"/);
  assert.match(viewer,/id="schedule"/);
+});
+
+test('desktop workspace has proportionate header, toolbar, and centered unavailable indicators',()=>{
+ const css=fs.readFileSync(path.join(root,'interface-polish.css'),'utf8');
+ assert.match(css,/\.profile-push-row/);
+ assert.match(css,/#private-schedule \.worker-tabs/);
+ assert.match(css,/#schedule-view #redDotToggleBtn/);
+ assert.match(css,/\.table-wrapper/);
+ assert.match(css,/top:50%!important/);
+ assert.match(css,/left:50%!important/);
+ assert.match(css,/translate\(-50%,-50%\)/);
 });
