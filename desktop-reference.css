@@ -1,0 +1,303 @@
+/* Desktop design parity with the approved KABINET reference.
+   Scoped to administration on wide screens; original mobile UI is untouched. */
+.desktop-owner-toolbar{display:none}
+@media (min-width:960px) {
+  body[data-page="admin"] {
+    background:radial-gradient(ellipse 68% 55% at 0% 7%,rgba(1,119,126,.23),transparent 72%),
+      radial-gradient(ellipse 52% 62% at 98% 46%,rgba(37,77,139,.20),transparent 76%),#101a23;
+    color:#e9f6f9;
+    padding:20px clamp(16px,3vw,54px) 48px;
+  }
+  body[data-page="admin"] #admin-panel:not([hidden]) {
+    display:flex;
+    flex-direction:column;
+    width:min(100%,1510px);
+    max-width:1510px;
+    margin-inline:auto;
+    gap:0;
+  }
+  body[data-page="admin"] #admin-panel>header {
+    position:relative;
+    min-height:96px;
+    display:grid;
+    grid-template-columns:minmax(235px,1fr) auto minmax(235px,1fr);
+    align-items:center;
+    gap:15px;
+    margin:0 0 18px;
+    padding:14px 25px;
+    background:linear-gradient(108deg,rgba(14,70,77,.72),rgba(24,42,61,.87));
+    border:1px solid rgba(104,188,202,.42);
+    border-radius:24px;
+    box-shadow:0 13px 37px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06);
+  }
+  body[data-page="admin"] #admin-panel>header .logo-block {justify-self:start;min-width:0}
+  body[data-page="admin"] #admin-panel>header .logo-block>div {display:flex;align-items:center;gap:15px}
+  body[data-page="admin"] #admin-panel>header .logo {width:61px;height:61px}
+  body[data-page="admin"] #admin-panel>header .admin-badge {
+    font-size:.7rem;
+    padding:6px 13px;
+    border-radius:24px;
+    background:linear-gradient(110deg,#856321,#b28b42);
+    color:#fff;
+  }
+  body[data-page="admin"] #admin-panel>header .month-selector {display:contents}
+  body[data-page="admin"] #admin-panel>header #month-label {
+    grid-column:2;
+    grid-row:1;
+    font-size:1.75rem!important;
+    font-weight:900;
+    letter-spacing:-.035em;
+    color:#f3fbff;
+    white-space:nowrap;
+    text-align:center;
+  }
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn {
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    display:grid;
+    place-items:center;
+    width:48px;
+    height:48px;
+    min-width:48px;
+    min-height:48px;
+    padding:0;
+    border-radius:50%;
+    border:1px solid rgba(131,185,204,.43);
+    background:rgba(255,255,255,.05);
+    color:#f5fcfe;
+    font-size:1.1rem;
+    transition:background .18s ease,border-color .18s ease;
+  }
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:first-child {left:195px}
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:last-child {right:167px}
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:hover {
+    transform:translateY(-50%);
+    background:rgba(0,144,158,.23);
+    border-color:#50b7c3;
+  }
+  body[data-page="admin"] #admin-panel>header .admin-logout {
+    grid-column:3;
+    grid-row:1;
+    justify-self:end;
+    min-width:140px;
+    min-height:48px;
+    border-radius:16px;
+    border:1px solid #dc5c71;
+    background:linear-gradient(130deg,#d92848,#9f1a31);
+    color:#fff;
+    font-size:.93rem;
+    box-shadow:0 5px 18px rgba(127,12,32,.18);
+  }
+  body[data-page="admin"] #admin-panel>.admin-utility-row {
+    width:100%;
+    max-width:none;
+    margin:0 0 10px;
+  }
+  body[data-page="admin"] #admin-panel>.admin-utility-row #owner-panel,
+  body[data-page="admin"] #admin-panel>#owner-users-panel {
+    width:100%;
+    max-width:none;
+    margin:0;
+    flex:1 1 auto;
+    min-width:0;
+    border:1px solid rgba(103,181,194,.40);
+    border-radius:18px;
+    background:linear-gradient(110deg,rgba(18,65,73,.72),rgba(25,42,62,.85));
+    box-shadow:0 8px 24px rgba(0,0,0,.10),inset 0 1px rgba(255,255,255,.045);
+  }
+  body[data-page="admin"] #admin-panel>#owner-users-panel {margin-bottom:15px}
+  body[data-page="admin"] #admin-panel>.admin-utility-row #owner-panel>summary,
+  body[data-page="admin"] #admin-panel>#owner-users-panel>summary {
+    min-height:58px;
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:11px 18px;
+    font-size:1.03rem;
+    font-weight:800;
+    color:#edfaff;
+    cursor:pointer;
+    list-style:none;
+  }
+  body[data-page="admin"] #admin-panel>.admin-utility-row #owner-panel>summary::before,
+  body[data-page="admin"] #admin-panel>#owner-users-panel>summary::before {
+    content:'♙';
+    display:grid;
+    place-items:center;
+    flex:0 0 39px;
+    width:39px;
+    height:39px;
+    border-radius:12px;
+    background:linear-gradient(140deg,#027c8c,#136274);
+    color:#fff;
+    font-size:1.25rem;
+    font-weight:500;
+  }
+  body[data-page="admin"] #admin-panel>#owner-users-panel>summary::before {content:'↗';font-size:1.3rem}
+  body[data-page="admin"] #admin-panel>.admin-utility-row #owner-panel>summary::-webkit-details-marker,
+  body[data-page="admin"] #admin-panel>#owner-users-panel>summary::-webkit-details-marker {display:none}
+  body[data-page="admin"] #admin-panel>.admin-utility-row #owner-panel>summary::after,
+  body[data-page="admin"] #admin-panel>#owner-users-panel>summary::after {
+    content:'⌄';margin-left:auto;font-size:1.5rem;color:#daeef1;
+  }
+  body[data-page="admin"] #admin-panel>.admin-utility-row .notify-compact {display:none}
+  body[data-page="admin"] #admin-panel>#connection-status {
+    margin:0 6px 9px;
+    font-size:.77rem;
+    opacity:.8;
+  }
+  body[data-page="admin"] #admin-panel>.desktop-owner-toolbar {
+    display:grid;
+    order:5;
+    grid-template-columns:minmax(250px,1.13fr) 70px 1px minmax(295px,.91fr) minmax(228px,.79fr);
+    align-items:center;
+    gap:16px;
+    width:100%;
+    margin:4px 0 24px;
+  }
+  body[data-page="admin"] .desktop-owner-toolbar a {text-decoration:none}
+  body[data-page="admin"] .desktop-profile-card {
+    display:flex;
+    align-items:center;
+    min-width:0;
+    min-height:78px;
+    padding:11px 17px;
+    gap:14px;
+    border:1px solid rgba(113,186,200,.42);
+    border-radius:19px;
+    background:linear-gradient(110deg,rgba(16,71,77,.75),rgba(22,41,59,.82));
+    color:#f5fcfd;
+    box-shadow:0 10px 23px rgba(0,0,0,.11);
+  }
+  body[data-page="admin"] .desktop-profile-icon {
+    flex:0 0 48px;
+    height:48px;
+    width:48px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(140deg,#008b9a,#136f82);
+    border-radius:14px;
+    color:white;
+  }
+  body[data-page="admin"] .desktop-profile-text {
+    display:flex;
+    flex:1;
+    flex-direction:column;
+    gap:3px;
+    min-width:0;
+    color:#f5fcfd;
+  }
+  body[data-page="admin"] .desktop-profile-text strong {font-size:1.02rem}
+  body[data-page="admin"] .desktop-profile-text small {
+    opacity:.8;
+    font-size:.79rem;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  body[data-page="admin"] .desktop-profile-arrow {font-size:1.25rem;opacity:.8}
+  body[data-page="admin"] .desktop-notice-bell {
+    width:70px;
+    height:78px;
+    border:1px solid rgba(119,185,199,.47);
+    border-radius:19px;
+    background:linear-gradient(130deg,rgba(10,82,87,.79),rgba(29,43,60,.82));
+    font-size:1.75rem;
+    box-shadow:0 10px 25px rgba(0,0,0,.13);
+  }
+  body[data-page="admin"] .desktop-toolbar-divider {
+    height:58px;
+    background:rgba(117,174,190,.30);
+  }
+  body[data-page="admin"] .desktop-owner-tabs {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:stretch;
+    padding:6px;
+    min-width:0;
+    min-height:76px;
+    gap:5px;
+    border:1px solid rgba(114,181,200,.50);
+    border-radius:19px;
+    background:linear-gradient(100deg,rgba(13,52,60,.73),rgba(26,39,58,.88));
+  }
+  body[data-page="admin"] .desktop-owner-tab {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+    padding:10px 8px;
+    border-radius:13px;
+    color:#effaff;
+    font-size:.94rem;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  body[data-page="admin"] .desktop-owner-tab.active {
+    background:linear-gradient(120deg,#067c8b,#1996a5);
+    box-shadow:0 4px 12px rgba(2,128,150,.23);
+  }
+  body[data-page="admin"] .desktop-dayoff-link {
+    min-height:76px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    padding:10px 14px;
+    border:1px solid rgba(124,181,199,.46);
+    border-radius:19px;
+    background:linear-gradient(110deg,rgba(25,57,70,.88),rgba(26,42,62,.87));
+    color:#f7fbff;
+    font-weight:800;
+    font-size:.91rem;
+    white-space:nowrap;
+    box-shadow:0 10px 23px rgba(0,0,0,.09);
+  }
+  body[data-page="admin"] .desktop-dayoff-dot {
+    display:block;flex:none;width:20px;height:20px;border-radius:50%;
+    background:radial-gradient(circle at 32% 26%,#ff8c9b 0%,#fa3855 35%,#bb0b2d 85%);
+  }
+  body[data-page="admin"] .desktop-owner-toolbar a:hover,
+  body[data-page="admin"] .desktop-owner-toolbar button:hover {filter:brightness(1.12)}
+  body[data-page="admin"] #admin-panel>.admin-tools-panel {order:20;margin-top:18px}
+  body[data-page="admin"] #admin-panel>.table-wrapper {
+    order:10;
+    width:100%;
+    max-width:100%;
+    max-height:min(74vh,890px);
+    border:1px solid rgba(100,189,205,.56);
+    border-radius:26px!important;
+    background:rgba(9,48,59,.75);
+    padding:10px;
+    box-shadow:0 16px 39px rgba(0,0,0,.19),0 0 0 3px rgba(5,148,162,.04);
+  }
+  body[data-page="admin"] #admin-panel>.table-wrapper table {
+    width:max-content;
+    min-width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:17px;
+  }
+  body[data-page="admin"] #admin-panel>.table-wrapper thead th:first-child {
+    text-align:center!important;
+    border-top-left-radius:16px;
+  }
+  body[data-page="admin"] #admin-panel>.table-wrapper tbody td:first-child {
+    text-align:left;
+  }
+}
+@media (min-width:960px) and (max-width:1260px) {
+  body[data-page="admin"] #admin-panel>.desktop-owner-toolbar {
+    grid-template-columns:minmax(220px,1fr) 60px minmax(290px,1fr);
+    gap:10px;
+  }
+  body[data-page="admin"] .desktop-toolbar-divider{display:none}
+  body[data-page="admin"] .desktop-notice-bell{width:60px}
+  body[data-page="admin"] .desktop-dayoff-link{grid-column:3;min-height:52px}
+  body[data-page="admin"] .desktop-owner-tabs{grid-column:3;grid-row:1}
+  body[data-page="admin"] .desktop-profile-card{grid-column:1}
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:first-child{left:165px}
+}
+@media (max-width:959px){.desktop-owner-toolbar{display:none!important}}
