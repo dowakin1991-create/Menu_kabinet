@@ -44,12 +44,15 @@ test('final interface polish is last stylesheet on both pages and preserves appl
  assert.match(css,/\.unavailable,/);
  assert.match(css,/\.unavail-marker/);
  assert.match(css,/position:absolute!important/);
+ assert.match(css,/top:50%!important/);
+ assert.match(css,/left:50%!important/);
+ assert.match(css,/transform:translate\(-50%,-50%\)!important/);
  assert.match(css,/border-top:0!important/);
  assert.match(css,/@media \(min-width:960px\)/);
  assert.match(css,/#redDotToggleBtn\[hidden\]/);
  for(const page of ['index.html','admin.html']){
    const html=fs.readFileSync(path.join(root,page),'utf8');
-   assert.match(html,/interface-polish\.css\?v=20261110\.1/);
+   assert.match(html,/interface-polish\.css\?v=20261110\.2/);
    assert(html.indexOf('interface-polish.css')>html.indexOf('assets/glass.css'));
    assert.match(html,/class="table-wrapper"/);
  }
