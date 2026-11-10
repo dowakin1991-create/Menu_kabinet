@@ -246,6 +246,22 @@ body[data-page="admin"] #push-panel{display:none!important}
     <details id="owner-users-panel" class="account-panel" hidden><summary>Користувачі та прив’язки</summary><p>Акаунти, які зареєструвалися або ввійшли після оновлення. UID — ідентифікатор доступу, не пароль.</p><p id="owner-user-status" role="status"></p><div id="owner-user-list"></div></details>
     <div id="connection-status" role="status"><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
+    <nav class="desktop-owner-toolbar" aria-label="Панель власника KABINET">
+      <a class="desktop-profile-card" href="index.html" title="Перейти до свого профілю">
+        <span class="desktop-profile-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>
+        </span>
+        <span class="desktop-profile-text"><strong>Власник</strong><small>Власник · Керування профілем</small></span>
+        <span class="desktop-profile-arrow" aria-hidden="true">⌄</span>
+      </a>
+      <button type="button" class="desktop-notice-bell" onclick="notifyTeam()" title="Надіслати зміни команді" aria-label="Надіслати зміни команді">🔔</button>
+      <span class="desktop-toolbar-divider" aria-hidden="true"></span>
+      <div class="desktop-owner-tabs" aria-label="Розділи кабінету">
+        <span class="desktop-owner-tab active" aria-current="page">Графік</span>
+        <a class="desktop-owner-tab" href="index.html#personal-view">Мій кабінет</a>
+      </div>
+      <a class="desktop-dayoff-link" href="index.html#day-off"><span class="desktop-dayoff-dot" aria-hidden="true"></span>Поставити вихідний</a>
+    </nav>
     <details class="admin-tools-panel"><summary>Інструменти графіка <span class="tools-chevron" aria-hidden="true">⌄</span></summary>
     <div class="admin-controls">
       
