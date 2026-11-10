@@ -335,6 +335,7 @@
     font-size:.7rem;
   }
   body[data-page="index"] .container>header .month-selector{display:contents}
+  body[data-page="index"] .container>header .month-selector[hidden]{display:none!important}
   body[data-page="index"] .container>header #month-label{
     grid-column:2;
     grid-row:1;
