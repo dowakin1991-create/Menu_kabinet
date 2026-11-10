@@ -33,3 +33,18 @@ test('every HTML module and relative import resolves locally',()=>{
   for(const [,value]of matches)assert(fs.existsSync(path.resolve(root,path.dirname(file),value.split('?')[0])),file+': '+value);
  }
 });
+
+test('SUPRA shift is recognized and PNG draws blue badge with bold black label',async()=>{
+ const fills=[],labels=[];
+ const ctx2d={scale(){},strokeRect(){},measureText:t=>({width:t.length*7}),beginPath(){},moveTo(){},lineTo(){},stroke(){},arc(){},fill(){},fillRect(x,y,w,h){fills.push({color:this.fillStyle,w,h})},fillText(t){labels.push({text:t,color:this.fillStyle,font:this.font})}};
+ const canvas={getContext:()=>ctx2d,toBlob:fn=>fn({type:'image/png'})};
+ const mk=tag=>tag==='canvas'?canvas:{style:{},append(){},addEventListener(){},showModal(){},remove(){},close(){}};
+ const context={document:{createElement:mk,body:{append(){}}},Image:function(){return mk('img')},URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}},daysInMonth:()=>30,monthLabel:()=> 'листопад 2026',dutyName:()=> '🧽 Столи',shiftType:(e,d)=>e.shiftsSupra?.includes(d)?'supra':'none'};
+ vm.createContext(context);vm.runInContext(read('export.js'),context);
+ await context.exportHalfMonth(new Date(2026,10,1),{employees:[{name:'Настя',shiftsSupra:[20],unavail:[]}],banquets:{}},2);
+ assert(fills.some(f=>f.color==='#4fc3f7'&&f.w===51&&f.h===20),'SUPRA blue fill in PNG');
+ assert(labels.some(l=>l.text==='SUPRA'&&l.color==='#090909'&&/900/.test(l.font)),'SUPRA bold black label in PNG');
+ const ui={};vm.createContext(ui);vm.runInContext(read('ui.js'),ui);
+ assert.equal(vm.runInContext('shiftType({shifts:[],shiftsFirst:[],shiftsSecond:[],shiftsSoho:[],shiftsSupra:[20]},20)',ui),'supra');
+ assert.equal(vm.runInContext('shiftCount({shifts:[1],shiftsFirst:[2],shiftsSecond:[],shiftsSoho:[3],shiftsSupra:[4]},1,4)',ui),1.5);
+});
