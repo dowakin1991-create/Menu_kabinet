@@ -110,8 +110,16 @@
 
         .duty-text { font-size: 0.55rem; color: #f1c40f; font-weight: bold; display: block; margin-top: 3px; letter-spacing: 0.5px; }
 
-        .soho-count:not(:empty) { display:inline-block; border:2px solid #e00018; color:#e00018; border-radius:4px; padding:1px 5px; font-size:.85em; font-weight:800; line-height:1.3; margin-left:5px; vertical-align:middle; white-space:nowrap; }
+        .soho-count:not(:empty), .supra-count:not(:empty) { display:inline-flex; align-items:center; justify-content:center; border:2px solid; border-radius:4px; padding:1px 4px; font-size:.78em; font-weight:800; line-height:1.3; white-space:nowrap; box-sizing:border-box; }
+        .soho-count:not(:empty) { border-color:#e00018; color:#e00018; }
+        .supra-count:not(:empty) { border-color:#4fc3f7; color:#4fc3f7; }
+        .shift-stat-row { display:grid!important; grid-template-columns:minmax(0,1fr) 30px 43px 48px; align-items:center; column-gap:5px; margin:8px 0; }
+        .shift-stat-label { min-width:0; white-space:nowrap; font-size:clamp(.78rem,3vw,1rem); }
+        .shift-stat-row strong { text-align:center; font-variant-numeric:tabular-nums; }
+        .shift-stat-row .soho-count, .shift-stat-row .supra-count { margin:0; justify-self:center; }
+        .shift-stat-row .soho-count:not(:empty), .shift-stat-row .supra-count:not(:empty) { width:100%; }
         .shift-soho { display:inline-block; background:#e00018; color:#090909; padding:5px 7px; font-size:10px; font-weight:900; line-height:1; white-space:nowrap; letter-spacing:0; vertical-align:middle; }
+        .shift-supra { display:inline-block; background:#4fc3f7; color:#090909; padding:5px 5px; font-size:10px; font-weight:900; line-height:1; white-space:nowrap; letter-spacing:0; vertical-align:middle; }
         .shift-icon { display: inline-block; width: 18px; height: 18px; background-color: var(--primary); vertical-align: middle; cursor: pointer; }
         .shift-full { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L16,16 M16,4 L4,16' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
         .shift-first { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4,4 L10,10 M16,4 L5,18' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
@@ -244,6 +252,7 @@ body[data-page="admin"] #push-panel{display:none!important}
         <button class="modal-btn" onclick="setShiftType('first')"><span class="shift-icon shift-first" style="background-color: var(--text-main);"></span> Перша половина</button>
         <button class="modal-btn" onclick="setShiftType('second')"><span class="shift-icon shift-second" style="background-color: var(--text-main);"></span> Друга половина</button>
         <button class="modal-btn" onclick="setShiftType('soho')"><span class="shift-soho">SOHO</span> SOHO зміна в іншому закладі</button>
+        <button class="modal-btn" onclick="setShiftType('supra')"><span class="shift-supra">SUPRA</span> SUPRA зміна в іншому закладі</button>
          <button class="modal-btn danger" onclick="setShiftType('none')">Видалити зміну</button>
         <button class="modal-btn" onclick="closeModal('shiftModal')" style="margin-top: 5px; background: transparent; border: none; text-decoration: underline;">Скасувати</button>
     </div>
@@ -253,8 +262,8 @@ body[data-page="admin"] #push-panel{display:none!important}
     <div class="modal-content">
         <h3 id="infoModalName">Ім'я</h3>
         <div class="emp-stats">
-            <p>Зміни (1-15): <strong id="statFirstHalf">0</strong><span id="statFirstSoho" class="soho-count"></span></p>
-            <p id="statSecondLabel">Зміни (16-31): <strong id="statSecondHalf">0</strong><span id="statSecondSoho" class="soho-count"></span></p>
+            <p class="shift-stat-row"><span class="shift-stat-label">Зміни (1-15):</span><strong id="statFirstHalf">0</strong><span id="statFirstSoho" class="soho-count"></span><span id="statFirstSupra" class="supra-count"></span></p>
+            <p id="statSecondLabel" class="shift-stat-row"><span class="shift-stat-label">Зміни (16-31):</span><strong id="statSecondHalf">0</strong><span id="statSecondSoho" class="soho-count"></span><span id="statSecondSupra" class="supra-count"></span></p>
         </div>
         <button class="modal-btn" onclick="editEmployeeAccess()">🔑 Доступ працівника</button>
         <button class="modal-btn" style="background: #f39c12; color: white; border: none;" onclick="triggerEditName()">✏️ Редагувати ім'я</button>
@@ -286,6 +295,6 @@ body[data-page="admin"] #push-panel{display:none!important}
 
 <div id="export-wrapper"></div>
 
-<script type="module" src="js/legacy-ui.js?v=20261031.presence"></script>
+<script type="module" src="js/legacy-ui.js?v=20261110.supra1"></script>
 <div id="notice-editor-modal" class="notice-editor-overlay" hidden><section class="notice-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="notice-editor-title"><h3 id="notice-editor-title">Перевірте сповіщення</h3><p>Приберіть непотрібні пункти хрестиком. Вони не потраплять у повідомлення.</p><div id="notice-editor-list"></div><p id="notice-editor-count" role="status"></p><div class="notice-editor-actions"><button id="notice-editor-cancel" type="button">Скасувати</button><button id="notice-editor-send" type="button">Надіслати команді</button></div></section></div></body>
 </html>
