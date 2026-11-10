@@ -1,0 +1,169 @@
+/* Desktop repair: replaces the overlapping absolute-position dashboard with a safe grid.
+   The authenticated schedule keeps its original DOM order and all event handlers. */
+@media (min-width:960px) {
+  body[data-page="index"] .desktop-main-workspace {
+    display:grid!important;
+    grid-template-columns:minmax(255px,1.12fr) minmax(280px,.96fr) minmax(235px,.79fr);
+    gap:16px;
+    align-items:start;
+    width:100%;
+    min-width:0;
+  }
+  body[data-page="index"] .desktop-main-workspace>.profile-push-row {
+    grid-column:1;
+    grid-row:1;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0;
+    min-height:76px;
+    margin:0!important;
+    display:flex;
+    gap:12px;
+    align-items:stretch;
+  }
+  body[data-page="index"] .desktop-main-workspace>.profile-push-row #account-panel {
+    min-width:0;
+    flex:1 1 0;
+  }
+  body[data-page="index"] .desktop-main-workspace>.profile-push-row #push-panel {
+    flex:0 0 72px;
+    width:72px;
+    min-width:72px;
+  }
+  body[data-page="index"] .desktop-main-workspace #private-schedule:not([hidden]),
+  body[data-page="index"] .desktop-main-workspace #schedule-view:not([hidden]) {
+    display:contents!important;
+  }
+  body[data-page="index"] .desktop-main-workspace #private-schedule[hidden],
+  body[data-page="index"] .desktop-main-workspace #schedule-view[hidden],
+  body[data-page="index"] .desktop-main-workspace #personal-view[hidden] {
+    display:none!important;
+  }
+  body[data-page="index"] .desktop-main-workspace #private-schedule>.worker-tabs {
+    position:static!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    grid-column:2;
+    grid-row:1;
+    width:100%!important;
+    min-width:0;
+    max-width:none!important;
+    margin:0!important;
+    min-height:76px;
+  }
+  body[data-page="index"] .desktop-main-workspace #schedule-view #redDotToggleBtn {
+    position:static!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    grid-column:3;
+    grid-row:1;
+    width:100%!important;
+    min-width:0;
+    max-width:none!important;
+    min-height:76px;
+    margin:0!important;
+  }
+  body[data-page="index"] .desktop-main-workspace #viewer-export:not([hidden]) {
+    grid-column:1/-1;
+    grid-row:2;
+    margin:0;
+    max-width:100%;
+  }
+  body[data-page="index"] .desktop-main-workspace .table-wrapper {
+    grid-column:1/-1!important;
+    grid-row:3;
+    min-width:0;
+    width:100%!important;
+    max-width:100%!important;
+    margin:10px 0 0!important;
+    overflow-x:auto!important;
+    overflow-y:auto!important;
+  }
+  body[data-page="index"] .desktop-main-workspace .hint-text {
+    grid-column:1/-1;
+    grid-row:4;
+    margin:12px 0 0;
+  }
+  body[data-page="index"] .desktop-main-workspace #personal-view:not([hidden]) {
+    grid-column:1/-1;
+    grid-row:3;
+    width:100%;
+    margin:8px 0 0;
+  }
+  body[data-page="index"] .desktop-main-workspace .table-wrapper table,
+  body[data-page="admin"] #admin-panel>.table-wrapper table {
+    width:max-content!important;
+    min-width:100%;
+    table-layout:fixed;
+    overflow:visible!important;
+    border-radius:0!important;
+  }
+  body[data-page="index"] .table-wrapper table th:first-child,
+  body[data-page="index"] .table-wrapper table td:first-child,
+  body[data-page="admin"] .table-wrapper table th:first-child,
+  body[data-page="admin"] .table-wrapper table td:first-child {
+    position:sticky!important;
+    left:0!important;
+    min-width:190px!important;
+    width:190px!important;
+    max-width:190px!important;
+    background-clip:padding-box;
+  }
+  body[data-page="index"] .table-wrapper table th:first-child,
+  body[data-page="admin"] .table-wrapper table th:first-child {
+    z-index:14!important;
+    text-align:center!important;
+  }
+  body[data-page="index"] .table-wrapper table td:first-child,
+  body[data-page="admin"] .table-wrapper table td:first-child {
+    z-index:9!important;
+  }
+  body[data-page="index"] .table-wrapper table th:not(:first-child),
+  body[data-page="index"] .table-wrapper table td:not(:first-child),
+  body[data-page="admin"] .table-wrapper table th:not(:first-child),
+  body[data-page="admin"] .table-wrapper table td:not(:first-child) {
+    min-width:65px!important;
+    width:65px!important;
+    max-width:65px!important;
+  }
+  /* Keep the logo + owner badge together; the month nav arrows in their lanes. */
+  body[data-page="index"] .container>header .logo-block,
+  body[data-page="admin"] #admin-panel>header .logo-block {
+    grid-column:1;
+    grid-row:1;
+    justify-self:start!important;
+    min-width:0;
+    margin:0!important;
+  }
+  body[data-page="index"] .container>header .logo-block>div,
+  body[data-page="admin"] #admin-panel>header .logo-block>div {
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:14px!important;
+  }
+  body[data-page="index"] .container>header .month-selector .nav-btn:first-child,
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:first-child {
+    left:185px!important;
+  }
+}
+@media (min-width:960px) and (max-width:1200px) {
+  body[data-page="index"] .desktop-main-workspace {
+    grid-template-columns:minmax(225px,1.05fr) minmax(230px,.92fr) minmax(195px,.78fr);
+    gap:10px;
+  }
+  body[data-page="index"] .desktop-main-workspace #schedule-view #redDotToggleBtn{
+    font-size:.82rem;
+    padding-inline:8px;
+  }
+  body[data-page="index"] .table-wrapper table th:first-child,
+  body[data-page="index"] .table-wrapper table td:first-child,
+  body[data-page="admin"] .table-wrapper table th:first-child,
+  body[data-page="admin"] .table-wrapper table td:first-child {
+    min-width:175px!important;
+    width:175px!important;
+    max-width:175px!important;
+  }
+}
