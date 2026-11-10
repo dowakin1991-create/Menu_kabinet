@@ -41,3 +41,21 @@ test('SOHO shift option and compact red badge exist in both schedules',()=>{
  assert(ui.includes("content = '<span class=\"shift-soho\">SOHO</span>'"));
  assert(ui.includes("soho:'shiftsSoho'"));
 });
+
+test('SUPRA option, badges, aligned statistics and counters are wired on both pages',()=>{
+ const admin=fs.readFileSync(path.join(root,'admin.html'),'utf8');
+ const viewer=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const ui=fs.readFileSync(path.join(root,'js/legacy-ui.js'),'utf8');
+ assert(admin.includes("setShiftType('supra')"));
+ for(const html of [admin,viewer]){
+   assert(html.includes('.shift-supra'));
+   assert(html.includes('.supra-count'));
+   assert(html.includes('id="statFirstSupra"'));
+   assert(html.includes('id="statSecondSupra"'));
+   assert(html.includes('class="shift-stat-row"'));
+ }
+ assert(viewer.includes('id="personal-supra"'));
+ assert(ui.includes("supra:'shiftsSupra'"));
+ assert(ui.includes('shift-supra'));
+ assert(ui.includes("if (hasShift) show('shiftModal'); else window.setShiftType('full');"));
+});
