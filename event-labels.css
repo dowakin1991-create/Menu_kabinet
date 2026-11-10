@@ -1,0 +1,23 @@
+/* Compact event labels: always fit the narrow day header on phones and desktop. */
+.table-wrapper thead th .banquet-label,
+.table-wrapper thead th .cleaning-label {
+  display:block!important;
+  width:max-content;
+  max-width:calc(100% - 2px);
+  margin:3px auto 0!important;
+  padding:2px 3px!important;
+  box-sizing:border-box;
+  overflow:hidden;
+  white-space:nowrap!important;
+  text-overflow:clip;
+  font-family:Montserrat,system-ui,sans-serif;
+  font-size:9px!important;
+  line-height:1.15;
+  letter-spacing:0!important;
+  font-weight:900;
+  border-radius:4px;
+  background:#fff;
+  box-shadow:0 1px 3px #0002;
+}
+.table-wrapper thead th .banquet-label {color:#b65300;}
+.table-wrapper thead th .cleaning-label {color:#a50063;}
