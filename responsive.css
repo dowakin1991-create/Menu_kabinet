@@ -22,6 +22,8 @@ body{min-width:320px}
 .schedule-scroll-controls button{min-height:40px;min-width:44px;padding:7px 12px;background:var(--bg-body);border:1px solid var(--border);color:var(--text-main);border-radius:10px;cursor:pointer;font:700 .9rem Montserrat,sans-serif}
 .schedule-scroll-controls button:hover:not(:disabled){background:var(--primary);color:#fff}
 .schedule-scroll-controls button:disabled{opacity:.35;cursor:default}
+.schedule-scroll-controls .scroll-half{font-size:.77rem;min-width:60px;padding:7px 10px}
+
 .schedule-scroll-controls[hidden]{display:none!important}
 @media (min-width:960px){
   body{padding:16px clamp(18px,2.4vw,50px)}
@@ -58,6 +60,7 @@ body{min-width:320px}
   .table-wrapper{max-height:70vh}
 }
 @media (max-width:600px){
+  .schedule-scroll-controls .scroll-half{display:none}
   body{padding:max(7px,env(safe-area-inset-top)) max(7px,env(safe-area-inset-right)) max(7px,env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left))}
   .container{max-width:100%}
   .container>header{gap:8px;padding:10px;align-items:center}
