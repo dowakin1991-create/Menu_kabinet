@@ -1,0 +1,83 @@
+/* KABINET responsive layout | presentation only, no schedule or auth behavior changes */
+*,*::before,*::after{box-sizing:border-box}
+html{min-width:320px}
+body{min-width:320px}
+.container{width:100%;min-width:0}
+.container>*,.admin-utility-row,.table-wrapper{min-width:0}
+.table-wrapper{position:relative;max-width:100%;overflow-x:auto;overflow-y:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#5d8392 transparent;touch-action:pan-x pan-y}
+.table-wrapper::-webkit-scrollbar{height:12px}
+.table-wrapper::-webkit-scrollbar-track{background:rgba(124,153,165,.13)}
+.table-wrapper::-webkit-scrollbar-thumb{background:#668d9c;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+.table-wrapper table{width:max-content;min-width:100%;table-layout:fixed;border-spacing:0}
+.table-wrapper table th:not(:first-child),.table-wrapper table td:not(:first-child){min-width:62px!important;width:62px!important;max-width:62px}
+.table-wrapper table th:first-child,.table-wrapper table td:first-child{min-width:170px;max-width:170px;width:170px}
+.table-wrapper table td{font-variant-numeric:tabular-nums}
+.table-wrapper table th:first-child{z-index:8}
+.table-wrapper table td:first-child{z-index:6}
+.schedule-scroll-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 10px;padding:9px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-card);color:var(--text-main)}
+.schedule-scroll-controls .scroll-copy{display:flex;align-items:center;gap:9px;font-size:.83rem;font-weight:650;min-width:0}
+.schedule-scroll-controls .scroll-copy svg{flex-shrink:0}
+.schedule-scroll-controls .scroll-actions{display:flex;align-items:center;gap:7px}
+.schedule-scroll-controls .scroll-position{font-size:.75rem;color:var(--text-main);opacity:.8;min-width:120px;text-align:center}
+.schedule-scroll-controls button{min-height:40px;min-width:44px;padding:7px 12px;background:var(--bg-body);border:1px solid var(--border);color:var(--text-main);border-radius:10px;cursor:pointer;font:700 .9rem Montserrat,sans-serif}
+.schedule-scroll-controls button:hover:not(:disabled){background:var(--primary);color:#fff}
+.schedule-scroll-controls button:disabled{opacity:.35;cursor:default}
+.schedule-scroll-controls[hidden]{display:none!important}
+@media (min-width:960px){
+  body{padding:16px clamp(18px,2.4vw,50px)}
+  body .container{max-width:1920px}
+  body .container>header{padding:13px 23px;margin-bottom:14px;min-height:86px;gap:20px}
+  body .container>header .month-selector{flex:1;min-width:230px}
+  body .container>header .nav-btn{min-width:44px;min-height:44px;padding:0 10px;border:1px solid var(--border);border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+  body .container>header .nav-btn:hover{background:var(--primary);color:white}
+  #admin-panel>.admin-utility-row{margin-bottom:12px}
+  #admin-panel>.account-panel{margin-bottom:12px}
+  .admin-tools-panel{margin-bottom:14px}
+  .schedule-scroll-controls{padding:9px 15px}
+  .table-wrapper{border-radius:14px;max-height:min(74vh,980px);border:1px solid var(--border)}
+  .table-wrapper table th:not(:first-child),.table-wrapper table td:not(:first-child){min-width:67px!important;width:67px!important;max-width:67px}
+  .table-wrapper table th:first-child,.table-wrapper table td:first-child{min-width:200px;max-width:200px;width:200px}
+  .table-wrapper table tbody td{height:62px;font-size:.92rem}
+  .table-wrapper table thead th{height:100px;font-size:.86rem;top:0}
+  .table-wrapper table .shift-icon{width:21px;height:21px}
+  .table-wrapper table .shift-soho,.table-wrapper table .shift-supra{font-size:10px}
+  #admin-panel .admin-tools-panel>summary{min-height:60px}
+  #admin-panel .admin-tools-panel .admin-controls{max-width:1050px}
+  #admin-panel .directory-card{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+  #owner-users-panel{padding:18px 24px}
+}
+@media (min-width:960px) and (max-width:1250px){
+  .table-wrapper table th:first-child,.table-wrapper table td:first-child{min-width:180px;max-width:180px;width:180px}
+  .table-wrapper table th:not(:first-child),.table-wrapper table td:not(:first-child){min-width:64px!important;width:64px!important;max-width:64px}
+}
+@media (min-width:601px) and (max-width:959px){
+  body{padding:12px}
+  .container{max-width:100%}
+  .table-wrapper table th:first-child,.table-wrapper table td:first-child{min-width:156px;max-width:156px;width:156px}
+  .table-wrapper table th:not(:first-child),.table-wrapper table td:not(:first-child){min-width:60px!important;width:60px!important;max-width:60px}
+  .table-wrapper{max-height:70vh}
+}
+@media (max-width:600px){
+  body{padding:max(7px,env(safe-area-inset-top)) max(7px,env(safe-area-inset-right)) max(7px,env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left))}
+  .container{max-width:100%}
+  .container>header{gap:8px;padding:10px;align-items:center}
+  .container>header .month-selector{min-width:0;flex:1}
+  .container>header .month-selector #month-label{font-size:.92rem!important;min-width:0!important}
+  .container>header .nav-btn{padding:4px 8px;min-width:39px;min-height:39px}
+  .table-wrapper table th:first-child,.table-wrapper table td:first-child{min-width:125px;max-width:125px;width:125px}
+  .table-wrapper table th:not(:first-child),.table-wrapper table td:not(:first-child){min-width:57px!important;width:57px!important;max-width:57px}
+  .table-wrapper table td{height:55px}
+  .schedule-scroll-controls{padding:7px 9px;gap:5px}
+  .schedule-scroll-controls .scroll-copy{font-size:.71rem}
+  .schedule-scroll-controls .scroll-position{display:none}
+  .schedule-scroll-controls button{min-height:40px;min-width:40px;padding:6px 9px}
+  #admin-panel .table-wrapper{border-radius:12px}
+}
+@media (hover:none) and (pointer:coarse){
+  .table-wrapper{scrollbar-width:auto}
+  .schedule-scroll-controls button{min-width:44px;min-height:44px}
+  .table-wrapper table td{touch-action:manipulation}
+}
+@media (prefers-reduced-motion:reduce){
+ .table-wrapper{scroll-behavior:auto}
+}
