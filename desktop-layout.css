@@ -1,0 +1,113 @@
+/* Desktop layout correction: constrain chrome; keep the schedule table scrollable. */
+@media (min-width:960px) {
+  body[data-page="index"],body[data-page="admin"] {
+    padding:18px 24px 36px;
+  }
+  body[data-page="index"] > .container,
+  body[data-page="admin"] > .container {
+    width:min(100%,1380px);
+    max-width:1380px;
+    margin-inline:auto;
+    padding:0;
+  }
+  body[data-page="index"] .container > header,
+  body[data-page="admin"] .container > header {
+    width:100%;
+    min-height:76px;
+    padding:12px 18px;
+    margin-bottom:14px;
+    gap:12px;
+    flex-wrap:nowrap;
+    border-radius:18px;
+  }
+  body[data-page="index"] .container > header .month-selector,
+  body[data-page="admin"] .container > header .month-selector{
+    flex:1 1 auto;
+    min-width:0;
+    max-width:none;
+  }
+  body[data-page="index"] .container > header .nav-btn,
+  body[data-page="admin"] .container > header .nav-btn {
+    width:43px;
+    height:43px;
+    flex:0 0 43px;
+    padding:0;
+  }
+  body[data-page="index"] .profile-push-row {
+    width:min(100%,670px);
+    max-width:670px;
+    margin:0 0 14px;
+  }
+  body[data-page="index"] .profile-push-row #account-panel {
+    flex:1 1 auto;
+    max-width:none;
+    min-width:0;
+  }
+  body[data-page="index"] #private-schedule .worker-tabs{
+    width:min(100%,590px);
+    max-width:590px;
+    margin:12px 0 14px;
+  }
+  body[data-page="index"] #private-schedule #redDotToggleBtn {
+    width:min(100%,340px);
+    max-width:340px;
+    margin:0 0 14px;
+    padding:11px 16px;
+  }
+  body[data-page="index"] #private-schedule .viewer-export {
+    max-width:680px;
+  }
+  body[data-page="index"] #private-schedule .schedule-scroll-controls,
+  body[data-page="admin"] #admin-panel .schedule-scroll-controls{
+    width:100%;
+    max-width:100%;
+    margin:0 0 10px;
+    padding:8px 12px;
+    flex-wrap:wrap;
+  }
+  body[data-page="index"] .schedule-scroll-controls .scroll-copy,
+  body[data-page="admin"] .schedule-scroll-controls .scroll-copy {
+    flex:0 1 auto;
+    font-size:.78rem;
+  }
+  body[data-page="index"] .schedule-scroll-controls .scroll-actions,
+  body[data-page="admin"] .schedule-scroll-controls .scroll-actions {
+    flex:0 0 auto;
+  }
+  body[data-page="index"] .schedule-scroll-controls .scroll-position,
+  body[data-page="admin"] .schedule-scroll-controls .scroll-position {
+    min-width:0;
+    width:auto;
+    max-width:190px;
+  }
+  body[data-page="index"] .table-wrapper,
+  body[data-page="admin"] .table-wrapper {
+    max-width:100%;
+    width:100%;
+    margin:0;
+    border-radius:16px;
+    overflow-x:auto;
+  }
+  body[data-page="index"] .table-wrapper table,
+  body[data-page="admin"] .table-wrapper table {
+    width:max-content;
+    min-width:100%;
+  }
+  body[data-page="admin"] #admin-panel > .admin-utility-row {
+    max-width:720px;
+  }
+  body[data-page="admin"] #admin-panel > #owner-users-panel {
+    padding:14px 18px;
+  }
+  body[data-page="admin"] #admin-panel > .admin-tools-panel {
+    margin-bottom:12px;
+  }
+  body[data-page="admin"] #admin-panel > .admin-tools-panel > summary {
+    min-height:54px;
+  }
+}
+@media (min-width:960px) and (max-width:1100px) {
+  body[data-page="index"],body[data-page="admin"] {padding:12px 14px 28px;}
+  body[data-page="index"] .schedule-scroll-controls .scroll-copy,
+  body[data-page="admin"] .schedule-scroll-controls .scroll-copy {display:none;}
+}
