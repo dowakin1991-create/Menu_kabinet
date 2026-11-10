@@ -37,15 +37,15 @@ body[data-page] .table-wrapper tbody tr:last-child td:last-child {
 body[data-page] .table-wrapper tbody td:not(:first-child) {
   position:relative;
 }
-/* An unavailable-day marker is a real datum, not a stray dot.
-   Keep it in a consistent upper-right corner, never along the baseline. */
+/* Keep unavailable-day dots precisely centered inside their date cells. */
 body[data-page] .table-wrapper tbody td .unavailable,
 body[data-page] .table-wrapper tbody td .unavail-marker {
   position:absolute!important;
-  top:7px;
-  right:7px;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
   bottom:auto!important;
-  left:auto!important;
+  transform:translate(-50%,-50%)!important;
   display:block!important;
   width:8px;
   height:8px;
@@ -67,7 +67,7 @@ body[data-page] .table-wrapper tbody td .unavail-marker {
   body[data-page] .table-wrapper tbody tr:last-child td:first-child {border-bottom-left-radius:14px}
   body[data-page] .table-wrapper tbody tr:last-child td:last-child {border-bottom-right-radius:14px}
   body[data-page] .table-wrapper tbody td .unavailable,
-  body[data-page] .table-wrapper tbody td .unavail-marker {top:5px;right:5px;width:7px;height:7px}
+  body[data-page] .table-wrapper tbody td .unavail-marker {width:7px;height:7px}
 }
 @media (min-width:960px) {
   body[data-page="index"]>.container {max-width:1380px}
