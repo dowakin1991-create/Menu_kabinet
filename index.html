@@ -175,9 +175,15 @@
             <span id="month-label" style="font-weight:900; font-size: 1.1rem; text-align: center; min-width: 140px;">...</span>
             <button class="nav-btn" onclick="changeMonth(1)">▶</button>
         </div>
+        <button type="button" class="desktop-owner-logout" onclick="document.getElementById(\'worker-logout\')?.click()">↪ Вийти</button>
     </header>
+    <nav class="desktop-owner-shortcuts" aria-label="Розділи керування власника">
+      <a class="desktop-owner-shortcut" href="admin.html#owner-panel"><span class="owner-shortcut-icon" aria-hidden="true">♙</span><span>Керування адміністраторами</span><span class="owner-shortcut-chevron" aria-hidden="true">⌄</span></a>
+      <a class="desktop-owner-shortcut" href="admin.html#owner-users-panel"><span class="owner-shortcut-icon" aria-hidden="true">↗</span><span>Користувачі та прив’язки</span><span class="owner-shortcut-chevron" aria-hidden="true">⌄</span></a>
+    </nav>
     <div id="connection-status" role="status" data-schedule-only hidden><span>Підключення…</span><button id="retry-load" type="button" hidden>Повторити</button></div>
 
+    <div class="desktop-main-workspace">
     <div class="profile-push-row">
     <details id="account-panel" class="account-panel auth-gate" open>
       <summary class="profile-summary"><span class="profile-icon" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span><span class="profile-heading"><span id="account-summary">Відновлюємо вхід…</span><span id="profile-hint">Обліковий запис</span></span><span class="disclosure-arrow" aria-hidden="true">⌄</span></summary>
@@ -271,6 +277,7 @@
         <div class="personal-legend"><span>— немає зміни</span><span>½ половина дня</span><span>● повний день</span></div>
       </article>
     </section>
+    </div>
     </div>
 </div>
 
