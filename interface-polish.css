@@ -61,7 +61,7 @@ body[data-page] .table-wrapper tbody td .unavail-marker {
   pointer-events:none;
 }
 @media (max-width:600px) {
-  body[data-page] .table-wrapper {border-radius:16px!important;box-shadow:0 5px 16px rgba(5,20,28,.12)}
+  body[data-page] .table-wrapper {border-radius:16px!important;border-top:0!important;box-shadow:0 5px 16px rgba(5,20,28,.12)}
   body[data-page] .table-wrapper thead th:first-child {border-top-left-radius:14px}
   body[data-page] .table-wrapper thead th:last-child {border-top-right-radius:14px}
   body[data-page] .table-wrapper tbody tr:last-child td:first-child {border-bottom-left-radius:14px}
@@ -126,6 +126,7 @@ body[data-page] .table-wrapper tbody td .unavail-marker {
     font-size:.88rem;
     box-shadow:0 6px 16px rgba(3,21,30,.08);
   }
+  body[data-page="index"] #schedule-view #redDotToggleBtn[hidden] {display:none!important}
   body[data-page="index"] #schedule-view .table-wrapper {margin-top:3px}
   body[data-page="index"] #private-schedule .hint-text {
     max-width:100%;
