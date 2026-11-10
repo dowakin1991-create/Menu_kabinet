@@ -600,7 +600,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ГЕНПРИБ.':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}" title="${dayEvent.type==='cleaning'?'Генеральне прибирання':'Бенкет'}">${dayEvent.type==='cleaning'?'ГЕН.':'БЕНК.'}</span>` : '';
 
             headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="handleHeaderClick(${i})">
                 <span class="day-number">${i}</span><br>
@@ -680,7 +680,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeAll();}
             if (isBanquet) thClass += dayEvent.type==='cleaning' ? ' cleaning-th' : ' banquet-th';
             else if (activeColDay === i) thClass += ' highlight-col';
             
-            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}">${dayEvent.type==='cleaning'?'🧹 ГЕНПРИБ.':'🎉 БЕНКЕТ'}</span>` : '';
+            let banquetLabel = isBanquet ? `<span class="${dayEvent.type==='cleaning'?'cleaning-label':'banquet-label'}" title="${dayEvent.type==='cleaning'?'Генеральне прибирання':'Бенкет'}">${dayEvent.type==='cleaning'?'ГЕН.':'БЕНК.'}</span>` : '';
 
         headHtml += `<th data-day="${i}" class="${thClass}" style="line-height: 1.1; min-width: 50px; cursor: pointer;" onclick="openDaySettings(${i})">
                 <span class="day-number">${i}</span><br>
