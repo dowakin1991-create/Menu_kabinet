@@ -16,6 +16,7 @@ function renderRoleBadge(user) {
   badge.textContent = label;
   badge.hidden = !label;
   badge.dataset.role = isOwner(user) ? 'owner' : 'admin';
+  document.body.dataset.owner = isOwner(user) ? 'true' : 'false';
   if (document.body.dataset.page === 'admin') document.title = label ? `KABINET — ${label}` : 'KABINET — Вхід';
 }
 const admin = document.body.dataset.page === 'admin';
