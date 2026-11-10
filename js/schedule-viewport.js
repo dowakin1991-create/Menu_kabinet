@@ -21,8 +21,17 @@
         const distance = Math.max(240, wrapper.clientWidth - labelWidth - 60);
         wrapper.scrollBy({left: direction * distance, behavior: 'smooth'});
       };
+      const jumpToDay = day => {
+        const header = wrapper.querySelector('thead th[data-day="' + day + '"]');
+        if (!header) return;
+        const first = wrapper.querySelector('th:first-child');
+        const frozenWidth = first ? first.getBoundingClientRect().width : 160;
+        wrapper.scrollTo({left:Math.max(0,header.offsetLeft - frozenWidth),behavior:'smooth'});
+      };
       left?.addEventListener('click', () => move(-1));
       right?.addEventListener('click', () => move(1));
+      toolbar.querySelector('[data-scroll="first"]')?.addEventListener('click', () => jumpToDay(1));
+      toolbar.querySelector('[data-scroll="second"]')?.addEventListener('click', () => jumpToDay(16));
       wrapper.addEventListener('scroll', refresh, {passive:true});
       window.addEventListener('resize', refresh, {passive:true});
       if (typeof ResizeObserver !== 'undefined') {
