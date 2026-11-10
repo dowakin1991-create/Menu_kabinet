@@ -290,14 +290,17 @@
 }
 @media (min-width:960px) and (max-width:1260px) {
   body[data-page="admin"] #admin-panel>.desktop-owner-toolbar {
-    grid-template-columns:minmax(220px,1fr) 60px minmax(290px,1fr);
+    grid-template-columns:minmax(190px,1fr) 60px minmax(220px,1fr) minmax(180px,.92fr);
     gap:10px;
   }
   body[data-page="admin"] .desktop-toolbar-divider{display:none}
   body[data-page="admin"] .desktop-notice-bell{width:60px}
-  body[data-page="admin"] .desktop-dayoff-link{grid-column:3;min-height:52px}
-  body[data-page="admin"] .desktop-owner-tabs{grid-column:3;grid-row:1}
-  body[data-page="admin"] .desktop-profile-card{grid-column:1}
-  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:first-child{left:165px}
+  body[data-page="admin"] .desktop-profile-card{padding:9px;gap:9px}
+  body[data-page="admin"] .desktop-profile-icon{width:40px;height:40px;flex-basis:40px}
+  body[data-page="admin"] .desktop-profile-text small{font-size:.69rem}
+  body[data-page="admin"] .desktop-owner-tab,
+  body[data-page="admin"] .desktop-dayoff-link{font-size:.78rem}
+  body[data-page="admin"] .desktop-dayoff-link{min-height:76px;padding-inline:8px}
+  body[data-page="admin"] #admin-panel>header .month-selector .nav-btn:first-child{left:195px}
 }
 @media (max-width:959px){.desktop-owner-toolbar{display:none!important}}
