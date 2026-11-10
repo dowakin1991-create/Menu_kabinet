@@ -1,4 +1,4 @@
-import { daysInMonth, dutyName, monthLabel, shiftType } from './ui.js?v=20261030.soho';
+import { daysInMonth, dutyName, monthLabel, shiftType } from './ui.js?v=20261110.supra';
 
 // Canvas draws text directly: no HTML injection, remote renderer or CSS-mask support needed.
 export async function exportHalfMonth(date, data, half, legacy = null) {
@@ -42,15 +42,15 @@ export async function exportHalfMonth(date, data, half, legacy = null) {
       box(x, y, cell, rowHeight, cleaning ? '#ffe1f2' : banquet ? '#fff3df' : weekend ? '#edf1f4' : '#fff');
       const type = shiftType(employee, day), cx = x + cell / 2, cy = y + 19;
       ctx.strokeStyle = '#155e63'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-      if (type === 'soho') {
-        // Match the live schedule: compact red rectangle with bold black SOHO lettering.
-        const badgeWidth = 45, badgeHeight = 20;
-        ctx.fillStyle = '#e00018';
+      if (type === 'soho' || type === 'supra') {
+        // Draw venue shifts as compact colored badges in the exported PNG.
+        const badgeWidth = type === 'supra' ? 51 : 45, badgeHeight = 20;
+        ctx.fillStyle = type === 'supra' ? '#4fc3f7' : '#e00018';
         ctx.fillRect(cx - badgeWidth / 2, cy - 4, badgeWidth, badgeHeight);
         ctx.fillStyle = '#090909';
         ctx.font = '900 11px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('SOHO', cx, cy + 10);
+        ctx.fillText(type === 'supra' ? 'SUPRA' : 'SOHO', cx, cy + 10);
       } else if (type !== 'none') {
         ctx.beginPath(); ctx.moveTo(cx - 7, cy + 7); ctx.lineTo(cx + 7, cy - 7);
         if (type === 'full' || type === 'first') { ctx.moveTo(cx - 7, cy - 7); ctx.lineTo(cx, cy); }
