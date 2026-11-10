@@ -100,3 +100,25 @@ test('SOHO is a separate exclusive shift, persists and is cleared in a new roste
  await api.ensureMonthRoster('2026-11');
  assert.deepEqual(docs.get('schedules/2026-11').employees[0].shiftsSoho,[]);
 });
+
+test('SUPRA persists separately from SOHO and regular shifts, with no carryover',async()=>{
+ const {api,docs}=setup();
+ await api.updateSchedule('2026-10',draft=>{
+   draft.employees[0].shiftsSoho=[17];
+   draft.employees[0].shiftsSupra=[18,19];
+ });
+ const stored=docs.get('schedules/2026-10').employees[0];
+ assert.deepEqual(stored.shiftsSupra,[18,19]);
+ assert.deepEqual(stored.shiftsSoho,[17]);
+ assert.deepEqual(stored.shifts,[15]);
+ const normalized=api.normalizeSchedule({employees:[{
+   id:1,name:'X',shifts:[1],shiftsFirst:[2],shiftsSecond:[3],
+   shiftsSoho:[1,4],shiftsSupra:[1,2,3,4,5]
+ }]});
+ assert.deepEqual([...normalized.employees[0].shiftsSupra],[5]);
+ assert.deepEqual([...normalized.employees[0].shiftsSoho],[4]);
+ await api.ensureMonthRoster('2026-11');
+ const next=docs.get('schedules/2026-11').employees[0];
+ assert.deepEqual(next.shiftsSupra,[]);
+ assert.deepEqual(next.shiftsSoho,[]);
+});
