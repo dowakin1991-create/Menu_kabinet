@@ -7,10 +7,10 @@ const css=fs.readFileSync(path.join(root,'responsive.css'),'utf8');
 test('both pages omit redundant schedule toolbar while retaining scrollable tables',()=>{
  for(const page of ['admin.html','index.html']){
    const html=fs.readFileSync(path.join(root,page),'utf8');
-   assert.match(html,/responsive\\.css\\?v=20261110\\.2/);
+   assert.match(html,/responsive\.css\?v=20261110\.2/);
    assert.match(html,/class="table-wrapper"/);
    assert.doesNotMatch(html,/class="schedule-scroll-controls"/);
-   assert.doesNotMatch(html,/js\\/schedule-viewport\\.js/);
+   assert.doesNotMatch(html,/js\/schedule-viewport\.js/);
  }
 });
 test('responsive schedule keeps names fixed and supplies distinct desktop, tablet and mobile breakpoints',()=>{
