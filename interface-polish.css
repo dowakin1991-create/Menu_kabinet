@@ -1,0 +1,145 @@
+/* KABINET UI polish: presentation only. Applied after all legacy/theme CSS. */
+body[data-page] .table-wrapper {
+  border:1px solid var(--border);
+  border-radius:18px!important;
+  overflow:auto;
+  background:var(--bg-card);
+  box-shadow:0 8px 26px rgba(5,20,28,.16);
+  isolation:isolate;
+}
+body[data-page] .table-wrapper table {
+  border-spacing:0;
+  border-collapse:separate;
+  margin:0;
+  background:var(--bg-card);
+}
+body[data-page] .table-wrapper thead th {
+  /* The outer container owns the top outline; avoid doubled seams. */
+  border-top:0;
+}
+body[data-page] .table-wrapper thead th:first-child {
+  text-align:center!important;
+  padding-left:4px!important;
+  padding-right:4px!important;
+  vertical-align:middle;
+  border-top-left-radius:16px;
+  background-clip:padding-box;
+}
+body[data-page] .table-wrapper thead th:last-child {
+  border-top-right-radius:16px;
+}
+body[data-page] .table-wrapper tbody tr:last-child td:first-child {
+  border-bottom-left-radius:16px;
+}
+body[data-page] .table-wrapper tbody tr:last-child td:last-child {
+  border-bottom-right-radius:16px;
+}
+body[data-page] .table-wrapper tbody td:not(:first-child) {
+  position:relative;
+}
+/* An unavailable-day marker is a real datum, not a stray dot.
+   Keep it in a consistent upper-right corner, never along the baseline. */
+body[data-page] .table-wrapper tbody td .unavailable,
+body[data-page] .table-wrapper tbody td .unavail-marker {
+  position:absolute!important;
+  top:7px;
+  right:7px;
+  bottom:auto!important;
+  left:auto!important;
+  display:block!important;
+  width:8px;
+  height:8px;
+  padding:0;
+  margin:0;
+  border-radius:50%;
+  background:#ff5263;
+  box-shadow:0 0 0 2px rgba(255,82,99,.12);
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+  vertical-align:initial!important;
+  pointer-events:none;
+}
+@media (max-width:600px) {
+  body[data-page] .table-wrapper {border-radius:16px!important;box-shadow:0 5px 16px rgba(5,20,28,.12)}
+  body[data-page] .table-wrapper thead th:first-child {border-top-left-radius:14px}
+  body[data-page] .table-wrapper thead th:last-child {border-top-right-radius:14px}
+  body[data-page] .table-wrapper tbody tr:last-child td:first-child {border-bottom-left-radius:14px}
+  body[data-page] .table-wrapper tbody tr:last-child td:last-child {border-bottom-right-radius:14px}
+  body[data-page] .table-wrapper tbody td .unavailable,
+  body[data-page] .table-wrapper tbody td .unavail-marker {top:5px;right:5px;width:7px;height:7px}
+}
+@media (min-width:960px) {
+  body[data-page="index"]>.container {max-width:1380px}
+  /* Desktop dashboard controls are arranged as a deliberate toolbar. */
+  body[data-page="index"] .profile-push-row {
+    width:min(100%,560px);
+    max-width:560px;
+    gap:12px;
+    margin:8px 0 19px;
+  }
+  body[data-page="index"] .profile-push-row #account-panel {
+    max-width:none;
+    min-height:66px;
+    border-radius:16px;
+  }
+  body[data-page="index"] .profile-push-row #push-panel {
+    flex:0 0 64px;
+    width:64px;
+    min-width:64px;
+    border-radius:16px;
+  }
+  body[data-page="index"] .profile-push-row #push-panel[open] {
+    flex-basis:260px;
+    width:auto;
+  }
+  body[data-page="index"] .profile-push-row #push-panel summary {min-height:64px}
+  body[data-page="index"] #private-schedule {
+    position:relative;
+    min-width:0;
+  }
+  body[data-page="index"] #private-schedule .worker-tabs {
+    width:min(100%,490px);
+    max-width:490px;
+    margin:0 0 20px;
+    padding:5px;
+    border-radius:16px;
+    min-height:57px;
+    box-shadow:0 6px 16px rgba(3,21,30,.1);
+  }
+  body[data-page="index"] #private-schedule .worker-tabs button {
+    font-size:.92rem;
+    min-height:45px;
+    border-radius:12px;
+  }
+  body[data-page="index"] #schedule-view #redDotToggleBtn {
+    position:absolute;
+    top:0;
+    right:0;
+    left:auto;
+    width:min(30%,285px);
+    max-width:285px;
+    min-height:57px;
+    margin:0;
+    border-radius:15px;
+    padding:10px 14px;
+    font-size:.88rem;
+    box-shadow:0 6px 16px rgba(3,21,30,.08);
+  }
+  body[data-page="index"] #schedule-view .table-wrapper {margin-top:3px}
+  body[data-page="index"] #private-schedule .hint-text {
+    max-width:100%;
+    margin-top:16px;
+  }
+  body[data-page="index"] .container>header {
+    border-radius:20px;
+    box-shadow:0 6px 22px rgba(3,21,30,.09);
+  }
+}
+@media (min-width:960px) and (max-width:1100px) {
+  body[data-page="index"] #private-schedule .worker-tabs {width:440px}
+  body[data-page="index"] #schedule-view #redDotToggleBtn {width:250px}
+}
+@media (prefers-reduced-motion:reduce) {
+  body[data-page] .table-wrapper {scroll-behavior:auto}
+}
