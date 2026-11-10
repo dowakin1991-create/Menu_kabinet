@@ -8,8 +8,8 @@ const js=fs.readFileSync(path.join(root,'js/schedule-viewport.js'),'utf8');
 test('both KABINET pages load the responsive layout and independent schedule navigation',()=>{
  for(const page of ['admin.html','index.html']){
    const html=fs.readFileSync(path.join(root,page),'utf8');
-   assert.match(html,/responsive\.css\?v=20261110\.1/);
-   assert.match(html,/js\/schedule-viewport\.js\?v=20261110\.1/);
+   assert.match(html,/responsive\.css\?v=20261110\.2/);
+   assert.match(html,/js\/schedule-viewport\.js\?v=20261110\.2/);
    assert.match(html,/class="schedule-scroll-controls"/);
    assert.match(html,/data-scroll="left"/);
    assert.match(html,/data-scroll="right"/);
