@@ -1,0 +1,70 @@
+/* Stable desktop rollback: separate user and admin screens, no overlay positioning. */
+@media (min-width:960px) {
+  body[data-page="index"] .profile-push-row {
+    width:min(100%,670px)!important;
+    max-width:670px!important;
+    margin:8px 0 14px!important;
+  }
+  body[data-page="index"] #private-schedule,
+  body[data-page="index"] #schedule-view {
+    display:block;
+    position:static!important;
+  }
+  body[data-page="index"] #private-schedule[hidden],
+  body[data-page="index"] #schedule-view[hidden],
+  body[data-page="index"] #personal-view[hidden] {
+    display:none!important;
+  }
+  body[data-page="index"] #private-schedule .worker-tabs {
+    position:static!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    width:min(100%,590px)!important;
+    max-width:590px!important;
+    margin:12px 0 14px!important;
+  }
+  body[data-page="index"] #schedule-view #redDotToggleBtn {
+    position:static!important;
+    top:auto!important;
+    left:auto!important;
+    right:auto!important;
+    width:min(100%,340px)!important;
+    max-width:340px!important;
+    margin:0 0 14px!important;
+  }
+  body[data-page="index"] #schedule-view #redDotToggleBtn[hidden]{display:none!important}
+  body[data-page="index"] .table-wrapper,
+  body[data-page="admin"] .table-wrapper {
+    position:relative;
+    width:100%;
+    max-width:100%;
+    overflow-x:auto!important;
+    overflow-y:auto!important;
+    isolation:auto;
+  }
+  body[data-page="index"] .table-wrapper table,
+  body[data-page="admin"] .table-wrapper table {
+    table-layout:fixed;
+    width:max-content!important;
+    min-width:100%;
+    overflow:visible!important;
+    border-spacing:0;
+    border-collapse:separate;
+  }
+  body[data-page="index"] .table-wrapper th:first-child,
+  body[data-page="index"] .table-wrapper td:first-child,
+  body[data-page="admin"] .table-wrapper th:first-child,
+  body[data-page="admin"] .table-wrapper td:first-child {
+    position:sticky!important;
+    left:0!important;
+    min-width:190px!important;
+    width:190px!important;
+    max-width:190px!important;
+    background-clip:padding-box;
+  }
+  body[data-page="index"] .table-wrapper th:first-child,
+  body[data-page="admin"] .table-wrapper th:first-child {z-index:12!important;text-align:center!important}
+  body[data-page="index"] .table-wrapper td:first-child,
+  body[data-page="admin"] .table-wrapper td:first-child {z-index:8!important}
+}
